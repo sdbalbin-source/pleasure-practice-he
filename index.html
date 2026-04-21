@@ -566,7 +566,7 @@
                 } else if (isAndroid()) {
                     btn.style.display = 'flex';
                     btn.disabled = false;
-                    btn.innerText = 'Install app (manual steps)';
+                    btn.innerText = 'Install app to home screen';
                 } else {
                     btn.style.display = 'flex';
                     btn.disabled = false;
@@ -846,8 +846,13 @@
                             <div class="text-white font-bold serif-font">${rec.name}</div>
                             <div class="text-xs text-gray-500">${rec.date} · ${rec.theme}</div>
                         </div>
-                        <div class="p-2 bg-purple-600/20 text-purple-400 rounded-full">
-                            <i data-lucide="play" width="16"></i>
+                        <div class="flex items-center gap-2">
+                            <button onclick="playRecording(${rec.id})" class="p-2 bg-purple-600/20 text-purple-400 rounded-full hover:bg-purple-600/30 transition ${rec.audioDataUrl ? '' : 'opacity-40'}" ${rec.audioDataUrl ? '' : 'disabled'}>
+                                <i data-lucide="play" width="16"></i>
+                            </button>
+                            <button onclick="deleteRecording(${rec.id})" class="p-2 bg-red-500/10 text-red-300 rounded-full hover:bg-red-500/20 transition">
+                                <i data-lucide="trash-2" width="16"></i>
+                            </button>
                         </div>
                     </div>`).join('')
                 : `<div class="text-center text-gray-500 mt-10">No saved recordings yet.</div>`;
@@ -863,6 +868,36 @@
                 </div>
             `;
             lucide.createIcons();
+        }
+
+        let currentPlaybackAudio = null;
+        function playRecording(recordingId) {
+            const rec = AppState.recordings.find(r => r.id === recordingId);
+            if (!rec || !rec.audioDataUrl) {
+                alert('This recording does not have playable audio data.');
+                return;
+            }
+            if (currentPlaybackAudio) {
+                currentPlaybackAudio.pause();
+                currentPlaybackAudio.currentTime = 0;
+            }
+            currentPlaybackAudio = new Audio(rec.audioDataUrl);
+            currentPlaybackAudio.play().catch(() => {
+                alert('Could not play this recording on this device.');
+            });
+        }
+
+        function deleteRecording(recordingId) {
+            const rec = AppState.recordings.find(r => r.id === recordingId);
+            if (!rec) return;
+            if (!confirm(`Delete recording "${rec.name}"?`)) return;
+            if (currentPlaybackAudio) {
+                currentPlaybackAudio.pause();
+                currentPlaybackAudio.currentTime = 0;
+            }
+            AppState.recordings = AppState.recordings.filter(r => r.id !== recordingId);
+            localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
+            renderRecordings();
         }
 
         // --- Category Descriptions (available immediately + enhanced from data sources) ---
@@ -1233,14 +1268,27 @@
                         URL.revokeObjectURL(url);
 
                         // Save metadata to archive
-                        AppState.recordings.unshift({
-                            id: Date.now(),
-                            name: safeName,
-                            date: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
-                            pattern: card.pattern,
-                            theme: AppState.currentTheme
-                        });
-                        localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            AppState.recordings.unshift({
+                                id: Date.now(),
+                                name: safeName,
+                                date: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+                                pattern: card.pattern,
+                                theme: AppState.currentTheme,
+                                audioDataUrl: reader.result
+                            });
+                            try {
+                                localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
+                            } catch (e) {
+                                // If storage is full, keep metadata without embedded audio.
+                                const latest = AppState.recordings[0];
+                                if (latest) latest.audioDataUrl = null;
+                                localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
+                                alert('Saved recording metadata, but device storage is full for in-app playback. File was still downloaded.');
+                            }
+                        };
+                        reader.readAsDataURL(blob);
 
                         // Stop all tracks
                         mediaRecorder.stream.getTracks().forEach(t => t.stop());
@@ -1256,7 +1304,7 @@
         }
 
         function clearData() {
-            if (confirm('This will delete all data including favorites and recordings.\nContinue?')) {
+            if (confirm('This will delete all saved data including recordings.\nContinue?')) {
                 localStorage.clear();
                 location.reload();
             }
