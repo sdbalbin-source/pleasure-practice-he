@@ -177,33 +177,133 @@
             font-weight: 700;
         }
 
-        /* Archetypes: shuffle overlay */
-        .archetype-shuffle-stack {
+        /* Archetypes: shuffle overlay (fan + riffle + merge — card-table feel) */
+        .archetype-shuffle-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% 45%, rgba(35, 22, 48, 0.94) 0%, rgba(5, 4, 8, 0.97) 55%, #020103 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        .archetype-shuffle-overlay::before {
+            content: '';
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(circle at 30% 20%, rgba(120, 60, 140, 0.12), transparent 45%),
+                radial-gradient(circle at 70% 80%, rgba(60, 40, 90, 0.15), transparent 40%);
+            pointer-events: none;
+        }
+        .archetype-shuffle-hub {
             position: relative;
-            width: min(220px, 58vw);
+            width: min(92vw, 360px);
+            height: min(52vh, 280px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 900px;
+        }
+        .archetype-shuffle-motor {
+            position: relative;
+            animation: archetypeRiffleMotor 2.85s cubic-bezier(0.42, 0, 0.2, 1) forwards;
+            transform-style: preserve-3d;
+        }
+        .archetype-shuffle-pack {
+            position: relative;
+            width: min(42vw, 132px);
             aspect-ratio: 2 / 3;
         }
-        .archetype-shuffle-layer {
+        .archetype-shuffle-card {
             position: absolute;
             inset: 0;
-            border-radius: 14px;
+            border-radius: 12px;
             background-size: cover;
             background-position: center;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(212, 175, 125, 0.25);
+            box-shadow:
+                0 14px 36px rgba(0, 0, 0, 0.72),
+                0 0 0 1px rgba(212, 175, 125, 0.22);
+            transform-origin: 50% 100%;
+            animation: archetypeFanSlot 2.85s cubic-bezier(0.42, 0, 0.2, 1) forwards;
         }
-        .archetype-shuffle-layer:nth-child(1) { transform: translate(-6px, 4px) rotate(-3deg); opacity: 0.55; z-index: 1; }
-        .archetype-shuffle-layer:nth-child(2) { transform: translate(5px, -3px) rotate(2deg); opacity: 0.72; z-index: 2; animation: archetypeShuffleJitter 0.45s ease-in-out infinite; }
-        .archetype-shuffle-layer:nth-child(3) { transform: translate(0, 0) rotate(0deg); z-index: 3; animation: archetypeShuffleDeal 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        @keyframes archetypeShuffleJitter {
-            0%, 100% { transform: translate(5px, -3px) rotate(2deg); }
-            50% { transform: translate(2px, 2px) rotate(-1deg); }
+        .archetype-shuffle-card:nth-child(1) { z-index: 1; --slot: -3; }
+        .archetype-shuffle-card:nth-child(2) { z-index: 2; --slot: -2; }
+        .archetype-shuffle-card:nth-child(3) { z-index: 3; --slot: -1; }
+        .archetype-shuffle-card:nth-child(4) { z-index: 4; --slot: 0; }
+        .archetype-shuffle-card:nth-child(5) { z-index: 5; --slot: 1; }
+        .archetype-shuffle-card:nth-child(6) { z-index: 6; --slot: 2; }
+        .archetype-shuffle-card:nth-child(7) { z-index: 7; --slot: 3; }
+        .archetype-shuffle-shine {
+            position: absolute;
+            width: min(70vw, 240px);
+            height: min(70vw, 240px);
+            border-radius: 50%;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(212, 175, 125, 0.35) 0%, transparent 65%);
+            opacity: 0;
+            animation: archetypeShuffleShine 2.85s ease-out forwards;
+            filter: blur(16px);
         }
-        @keyframes archetypeShuffleDeal {
-            0% { transform: translate(40px, -20px) rotate(8deg) scale(0.92); }
-            35% { transform: translate(-28px, 12px) rotate(-6deg) scale(1); }
-            70% { transform: translate(16px, -8px) rotate(4deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
+        .archetype-shuffle-caption {
+            margin-top: 1.75rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            letter-spacing: 0.08em;
+            color: rgba(245, 230, 210, 0.88);
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+        }
+        @keyframes archetypeRiffleMotor {
+            0% { transform: translate3d(0, 0, 0) rotateZ(0deg) scale(1); }
+            6% { transform: translate3d(0, 8px, 40px) rotateZ(0deg) scale(1.08); }
+            14% { transform: translate3d(0, 0, 20px) rotateZ(0deg) scale(1.05); }
+            28% { transform: translate3d(-110px, 6px, 0) rotateZ(-14deg) scale(0.98); }
+            40% { transform: translate3d(110px, -8px, 0) rotateZ(14deg) scale(0.98); }
+            50% { transform: translate3d(-95px, 4px, 0) rotateZ(-11deg) scale(0.99); }
+            60% { transform: translate3d(95px, -5px, 0) rotateZ(11deg) scale(0.99); }
+            70% { transform: translate3d(-55px, 3px, 0) rotateZ(-6deg) scale(1); }
+            78% { transform: translate3d(0, -14px, 60px) rotateZ(0deg) scale(1.1); }
+            88% { transform: translate3d(0, 0, 80px) rotateZ(0deg) scale(1.06); }
+            100% { transform: translate3d(0, 0, 0) rotateZ(0deg) scale(1); }
+        }
+        @keyframes archetypeFanSlot {
+            0% {
+                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), calc(var(--slot) * 2px))
+                    rotateZ(calc(var(--slot) * 1.2deg));
+            }
+            9% {
+                transform: translate3d(calc(var(--slot) * 11px - 4px), -18px, 30px)
+                    rotateZ(calc(var(--slot) * 9deg + 2deg));
+            }
+            20% {
+                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), calc(var(--slot) * 2px))
+                    rotateZ(calc(var(--slot) * 1.2deg));
+            }
+            28% {
+                transform: translate3d(calc(var(--slot) * 4px), 2px, 0) rotateZ(calc(var(--slot) * -5deg));
+            }
+            40% {
+                transform: translate3d(calc(var(--slot) * -3px), -3px, 0) rotateZ(calc(var(--slot) * 6deg));
+            }
+            52% {
+                transform: translate3d(calc(var(--slot) * 2px), 1px, 0) rotateZ(calc(var(--slot) * -3deg));
+            }
+            70% {
+                transform: translate3d(calc(var(--slot) * 3px), -8px, 20px) rotateZ(calc(var(--slot) * 2deg));
+            }
+            100% {
+                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), 0)
+                    rotateZ(calc(var(--slot) * 1.2deg));
+            }
+        }
+        @keyframes archetypeShuffleShine {
+            0%, 74% { opacity: 0; transform: scale(0.6); }
+            82% { opacity: 0.85; transform: scale(1.15); }
+            100% { opacity: 0; transform: scale(1.4); }
         }
 
         /* Archetypes: flip card (face / booklet) */
@@ -230,6 +330,12 @@
             background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%);
             border: 1px solid rgba(201, 169, 110, 0.28);
             box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45);
+            direction: ltr;
+            text-align: center;
+        }
+        .archetype-booklet-scroll {
+            direction: ltr;
+            text-align: center;
         }
         .archetype-prose-p {
             font-family: 'Cormorant Garamond', serif;
@@ -237,6 +343,7 @@
             line-height: 1.55;
             color: rgba(245, 240, 235, 0.92);
             margin-bottom: 0.85rem;
+            text-align: center;
         }
         .archetype-section-label {
             font-family: 'DM Mono', monospace;
@@ -245,6 +352,7 @@
             text-transform: uppercase;
             color: rgba(212, 175, 125, 0.88);
             margin-bottom: 0.35rem;
+            text-align: center;
         }
         .archetype-question-callout {
             margin-top: 1rem;
@@ -395,8 +503,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-archetypes';
-        const SW_BUILD = '2026-04-22-01';
+        const APP_BUILD = 'build-canonical-2026-04-22-archetypes-shuffle2';
+        const SW_BUILD = '2026-04-22-02';
 
         const AppState = {
             rawRows: [],          
@@ -661,6 +769,24 @@
                 .join('');
         }
 
+        function archetypePracticeWithoutDuplicateQuestion(practice, question) {
+            if (practice == null || practice === '') return '';
+            const q = question == null ? '' : String(question).replace(/\s+/g, ' ').trim();
+            if (!q) return String(practice);
+            const blocks = String(practice)
+                .split(/\n\n+/)
+                .map(b => b.trim())
+                .filter(Boolean);
+            if (blocks.length === 0) return String(practice);
+            const last = blocks[blocks.length - 1].replace(/\s+/g, ' ').trim();
+            const norm = s => s.replace(/^["'\s]+|["'\s.?]+$/g, '').toLowerCase();
+            const flat = s => String(s).replace(/\s+/g, ' ').trim().replace(/\?+$/g, '').toLowerCase();
+            if (last === q || flat(last) === flat(q) || norm(last) === norm(q)) {
+                blocks.pop();
+            }
+            return blocks.join('\n\n');
+        }
+
         function archetypeTeaserLine(card) {
             const e = (card.essence || '').replace(/\s+/g, ' ').trim();
             if (!e) return '';
@@ -700,20 +826,33 @@
         function playArchetypeShuffleThen(callback) {
             const app = document.getElementById('app');
             const layer = document.createElement('div');
-            layer.className = 'fixed inset-0 z-[300] flex flex-col items-center justify-center bg-black/93 backdrop-blur-md';
+            layer.className = 'archetype-shuffle-overlay';
+            layer.setAttribute('dir', 'ltr');
+            const cardStyle = `background-image:url('${ARCHETYPE_CARD_BACK}')`;
+            const layers = Array.from({ length: 7 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
             layer.innerHTML = `
-                <div class="archetype-shuffle-stack mb-8">
-                    <div class="archetype-shuffle-layer" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
-                    <div class="archetype-shuffle-layer" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
-                    <div class="archetype-shuffle-layer" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
+                <div class="archetype-shuffle-hub">
+                    <div class="archetype-shuffle-motor">
+                        <div class="archetype-shuffle-pack">${layers}</div>
+                    </div>
+                    <div class="archetype-shuffle-shine" aria-hidden="true"></div>
                 </div>
-                <p class="text-amber-200/80 serif-font text-lg tracking-wide">Shuffling the deck…</p>
+                <p class="archetype-shuffle-caption">Shuffling the deck…</p>
             `;
             app.appendChild(layer);
             window.setTimeout(() => {
                 layer.remove();
                 callback();
-            }, 1900);
+            }, 2960);
+        }
+
+        function reshuffleArchetypeDraw() {
+            if (!ARCHETYPES_DATA.length) {
+                alert('The archetype deck is still loading. Please wait a moment and try again.');
+                return;
+            }
+            const idx = Math.floor(Math.random() * ARCHETYPES_DATA.length);
+            playArchetypeShuffleThen(() => renderArchetypeCard(ARCHETYPES_DATA[idx].id, 'random'));
         }
 
         function isIos() {
@@ -1060,7 +1199,7 @@
         function renderArchetypesHome() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="flex flex-col h-full p-6 bg-black/20">
+                <div class="flex flex-col h-full p-6 bg-black/20" dir="ltr">
                     <div class="flex items-center justify-between mb-8 pt-4">
                         <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">${ARCHETYPE_MODULE_TITLE}</h2>
@@ -1113,7 +1252,7 @@
                 `).join('')
                 : `<div class="text-center text-gray-500 mt-10">No cards to display.</div>`;
             app.innerHTML = `
-                <div class="flex flex-col h-full bg-[#050408]">
+                <div class="flex flex-col h-full bg-[#050408]" dir="ltr">
                     <div class="p-6 pt-8 flex items-center gap-4">
                         <button onclick="renderArchetypesHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">${onlyFavorites ? 'Favorite Archetypes' : 'All Archetypes'}</h2>
@@ -1150,9 +1289,15 @@
                     : 'renderArchetypesHome()';
             const useFaceImage = card.image && String(card.image).trim();
             const frontBgUrl = useFaceImage ? String(card.image).trim().replace(/'/g, "\\'") : ARCHETYPE_CARD_BACK;
+            const practiceForBook = archetypePracticeWithoutDuplicateQuestion(card.practice, card.question);
+            const reshuffleBtn = fromView === 'random'
+                ? `<button type="button" onclick="reshuffleArchetypeDraw()" class="w-full max-w-sm mx-auto mt-3 py-3 rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-950/40 to-black/40 text-amber-100 text-sm font-mono tracking-wide flex items-center justify-center gap-2 touch-manipulation hover:border-amber-400/50 transition-colors">
+                        <i data-lucide="shuffle"></i> Shuffle again
+                    </button>`
+                : '';
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="flex flex-col h-full bg-[#050408] min-h-0">
+                <div class="flex flex-col h-full bg-[#050408] min-h-0" dir="ltr">
                     <div class="p-4 pt-6 flex items-center justify-between gap-3 flex-shrink-0">
                         <button onclick="${backNav}" class="p-2 bg-white/5 rounded-full touch-manipulation"><i data-lucide="arrow-left"></i></button>
                         <button onclick="toggleArchetypeFavorite('${card.id}'); renderArchetypeCard('${card.id}','${fromView}')" class="px-3 py-2 rounded-xl border border-purple-500/30 text-purple-200 text-xs font-mono touch-manipulation">
@@ -1173,9 +1318,11 @@
                                         <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('${frontBgUrl}')"></div>
                                         <div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>
                                         <div class="absolute bottom-0 left-0 right-0 p-5 text-center">
-                                            <p class="text-amber-200/85 text-[0.65rem] tracking-[0.2em] uppercase font-mono mb-1">${escapeHtmlArchetype(card.realm)}</p>
+                                            <p class="text-amber-200/90 text-[0.62rem] tracking-[0.28em] uppercase font-mono mb-1">Realm</p>
+                                            <p class="text-amber-50/95 serif-font text-base leading-snug mb-4">${escapeHtmlArchetype(card.realm)}</p>
                                             <h3 class="text-3xl text-white serif-font font-bold leading-tight">${escapeHtmlArchetype(card.name)}</h3>
-                                            <p class="text-white/75 serif-font text-sm mt-2 leading-snug">${escapeHtmlArchetype(card.energy)}</p>
+                                            <p class="text-amber-200/90 text-[0.62rem] tracking-[0.22em] uppercase font-mono mt-4 mb-1">Frequency</p>
+                                            <p class="text-white/80 serif-font text-sm leading-snug">${escapeHtmlArchetype(card.energy)}</p>
                                             ${useFaceImage ? '' : '<p class="text-[0.7rem] text-amber-100/50 font-mono mt-4 tracking-wide">Portrait art coming soon · tap to read</p>'}
                                             ${useFaceImage ? '<p class="text-[0.7rem] text-amber-100/55 font-mono mt-4 tracking-wide">Tap to read the full card</p>' : ''}
                                         </div>
@@ -1185,8 +1332,18 @@
                                             <div class="flex-shrink-0 px-5 pt-5 pb-3 text-center border-b border-amber-900/20">
                                                 <p class="archetype-section-label">Booklet</p>
                                                 <h3 class="text-lg text-amber-50 serif-font font-semibold">${escapeHtmlArchetype(card.name)}</h3>
+                                                <div class="mt-4 space-y-3 text-center">
+                                                    <div>
+                                                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">Realm</p>
+                                                        <p class="text-sm text-amber-50/95 serif-font leading-snug">${escapeHtmlArchetype(card.realm)}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">Frequency</p>
+                                                        <p class="text-sm text-amber-50/90 serif-font leading-snug">${escapeHtmlArchetype(card.energy)}</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar px-5 py-4 pb-6">
+                                            <div class="archetype-booklet-scroll flex-1 min-h-0 overflow-y-auto no-scrollbar px-5 py-4 pb-6">
                                                 <div class="mb-5">
                                                     <div class="archetype-section-label">Essence</div>
                                                     ${archetypeParagraphBlocks(card.essence)}
@@ -1201,7 +1358,7 @@
                                                 </div>
                                                 <div class="mb-4">
                                                     <div class="archetype-section-label">Practice</div>
-                                                    ${archetypeParagraphBlocks(card.practice)}
+                                                    ${archetypeParagraphBlocks(practiceForBook)}
                                                 </div>
                                                 <div class="archetype-question-callout">${escapeHtmlArchetype(card.question)}</div>
                                             </div>
@@ -1209,6 +1366,7 @@
                                     </div>
                                 </div>
                                 <p class="text-center text-[0.7rem] text-gray-500 font-mono mt-3">Tap card to turn</p>
+                                ${reshuffleBtn}
                             </div>
                         </div>
                     </div>
