@@ -242,6 +242,14 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .recording-pulse { animation: pulseRed 1.5s infinite; color: #ef4444; border-color: #ef4444; }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .recording-live {
+            --rec-level: 0.15;
+            box-shadow:
+                0 0 0 calc(5px + (var(--rec-level) * 18px)) rgba(239, 68, 68, calc(0.08 + var(--rec-level) * 0.22)),
+                0 0 0 calc(12px + (var(--rec-level) * 34px)) rgba(239, 68, 68, calc(0.03 + var(--rec-level) * 0.16));
+            transform: scale(calc(1 + (var(--rec-level) * 0.05)));
+            transition: box-shadow 90ms linear, transform 90ms linear;
+        }
 
         /* Dual examples divider */
         .example-divider {
@@ -1219,6 +1227,68 @@
 
         let mediaRecorder = null;
         let audioChunks = [];
+        let recordingStream = null;
+        let recordingMimeType = '';
+        let recordingExtension = 'webm';
+        let monitorAudioContext = null;
+        let monitorAnalyser = null;
+        let monitorDataArray = null;
+        let monitorAnimationFrame = null;
+
+        function getRecordingFormat() {
+            const candidates = [
+                { mimeType: 'audio/webm;codecs=opus', ext: 'webm' },
+                { mimeType: 'audio/mp4', ext: 'm4a' },
+                { mimeType: 'audio/webm', ext: 'webm' },
+                { mimeType: 'audio/ogg;codecs=opus', ext: 'ogg' }
+            ];
+            for (const format of candidates) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(format.mimeType)) {
+                    return format;
+                }
+            }
+            return { mimeType: '', ext: 'webm' };
+        }
+
+        function startRecordingMonitor(stream, btn) {
+            try {
+                monitorAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = monitorAudioContext.createMediaStreamSource(stream);
+                monitorAnalyser = monitorAudioContext.createAnalyser();
+                monitorAnalyser.fftSize = 256;
+                monitorDataArray = new Uint8Array(monitorAnalyser.frequencyBinCount);
+                source.connect(monitorAnalyser);
+
+                const tick = () => {
+                    if (!monitorAnalyser || !btn) return;
+                    monitorAnalyser.getByteTimeDomainData(monitorDataArray);
+                    let sum = 0;
+                    for (let i = 0; i < monitorDataArray.length; i++) {
+                        const v = (monitorDataArray[i] - 128) / 128;
+                        sum += v * v;
+                    }
+                    const rms = Math.sqrt(sum / monitorDataArray.length);
+                    const level = Math.min(1, rms * 4.5);
+                    btn.style.setProperty('--rec-level', String(level.toFixed(3)));
+                    monitorAnimationFrame = requestAnimationFrame(tick);
+                };
+                tick();
+            } catch (e) {
+                // Visualization is optional; ignore monitor failures.
+            }
+        }
+
+        function stopRecordingMonitor(btn) {
+            if (monitorAnimationFrame) cancelAnimationFrame(monitorAnimationFrame);
+            monitorAnimationFrame = null;
+            monitorDataArray = null;
+            monitorAnalyser = null;
+            if (monitorAudioContext) {
+                monitorAudioContext.close().catch(() => {});
+                monitorAudioContext = null;
+            }
+            if (btn) btn.style.removeProperty('--rec-level');
+        }
 
         function toggleRecording() {
             AppState.isRecording = !AppState.isRecording;
@@ -1228,15 +1298,20 @@
                 // Start recording
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then(stream => {
+                        recordingStream = stream;
                         audioChunks = [];
-                        mediaRecorder = new MediaRecorder(stream);
+                        const format = getRecordingFormat();
+                        recordingMimeType = format.mimeType;
+                        recordingExtension = format.ext;
+                        mediaRecorder = recordingMimeType ? new MediaRecorder(stream, { mimeType: recordingMimeType }) : new MediaRecorder(stream);
                         mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
                         mediaRecorder.start();
 
                         btn.classList.remove('bg-purple-600', 'text-white', 'shadow-[0_0_20px_rgba(147,51,234,0.3)]');
-                        btn.classList.add('recording-pulse', 'bg-red-500/10', 'border', 'border-red-500');
+                        btn.classList.add('recording-pulse', 'recording-live', 'bg-red-500/10', 'border', 'border-red-500');
                         btn.innerHTML = '<i data-lucide="square"></i>';
                         lucide.createIcons();
+                        startRecordingMonitor(stream, btn);
                     })
                     .catch(() => {
                         AppState.isRecording = false;
@@ -1247,7 +1322,12 @@
                 // Stop and download
                 if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.onstop = () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const blobType = recordingMimeType || mediaRecorder.mimeType || 'audio/webm';
+                        const blob = new Blob(audioChunks, { type: blobType });
+                        if (blob.size === 0) {
+                            alert('Recording is empty. Please check microphone permissions and try again.');
+                            return;
+                        }
                         const now = new Date();
                         const pad = n => String(n).padStart(2, '0');
                         const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
@@ -1259,7 +1339,7 @@
                         const chosenName = prompt('Name this recording:', suggestedName);
                         const safeName = (chosenName && chosenName.trim() ? chosenName.trim() : suggestedName)
                             .replace(/[\\/:*?"<>|]/g, '');
-                        const filename = `${safeName}.webm`;
+                        const filename = `${safeName}.${recordingExtension}`;
 
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -1277,6 +1357,7 @@
                                 date: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
                                 pattern: card.pattern,
                                 theme: AppState.currentTheme,
+                                mimeType: blobType,
                                 audioDataUrl: reader.result
                             });
                             try {
@@ -1292,15 +1373,17 @@
                         reader.readAsDataURL(blob);
 
                         // Stop all tracks
-                        mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                        if (recordingStream) recordingStream.getTracks().forEach(t => t.stop());
+                        recordingStream = null;
                     };
                     mediaRecorder.stop();
                 }
 
                 btn.classList.add('bg-purple-600', 'text-white', 'shadow-[0_0_20px_rgba(147,51,234,0.3)]');
-                btn.classList.remove('recording-pulse', 'bg-red-500/10', 'border', 'border-red-500');
+                btn.classList.remove('recording-pulse', 'recording-live', 'bg-red-500/10', 'border', 'border-red-500');
                 btn.innerHTML = '<i data-lucide="mic"></i>';
                 lucide.createIcons();
+                stopRecordingMonitor(btn);
             }
         }
 
