@@ -867,22 +867,12 @@
                         <div style="flex:1;min-width:0">
                             <div class="text-white font-bold serif-font">${rec.name}</div>
                             <div class="text-xs text-gray-500">${rec.date} · ${rec.theme}</div>
-                            ${rec.audioDataUrl
-                                ? `<div class="mt-2">
-                                    <div class="flex items-center gap-2">
-                                        <button id="playBtn-${rec.id}" onclick="toggleRecordingPlayback(${rec.id})" class="p-2 bg-purple-600/20 text-purple-300 rounded-full hover:bg-purple-600/30 transition" aria-label="Play or pause recording">
-                                            ▶
-                                        </button>
-                                        <input id="progress-${rec.id}" type="range" min="0" max="100" value="0" oninput="seekRecordingPlayback(${rec.id}, this.value)" class="flex-1 accent-purple-500">
-                                    </div>
-                                    <div class="flex justify-between text-[0.68rem] text-gray-400 mt-1 font-mono">
-                                        <span id="timeCurrent-${rec.id}">00:00</span>
-                                        <span id="timeTotal-${rec.id}">00:00</span>
-                                    </div>
-                                  </div>`
-                                : `<div class="mt-2 text-[0.7rem] text-amber-300">Playable audio is not available for this item.</div>`}
+                            ${rec.audioDataUrl ? '' : `<div class="mt-2 text-[0.7rem] text-amber-300">Playable audio is not available for this item.</div>`}
                         </div>
                         <div class="flex items-center gap-2">
+                            <button onclick="openRecordingPlayer(${rec.id})" class="p-2 bg-purple-600/20 text-purple-300 rounded-full hover:bg-purple-600/30 transition ${rec.audioDataUrl ? '' : 'opacity-40'}" ${rec.audioDataUrl ? '' : 'disabled'}>
+                                <i data-lucide="play" width="16"></i>
+                            </button>
                             <button onclick="downloadRecording(${rec.id})" class="p-2 bg-blue-500/10 text-blue-300 rounded-full hover:bg-blue-500/20 transition ${rec.audioDataUrl ? '' : 'opacity-40'}" ${rec.audioDataUrl ? '' : 'disabled'}>
                                 <i data-lucide="download" width="16"></i>
                             </button>
@@ -909,6 +899,7 @@
         let playbackAudio = null;
         let playbackRecordingId = null;
         let playbackRaf = null;
+        let playbackModalOpen = false;
 
         function formatPlaybackTime(seconds) {
             const s = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
@@ -919,9 +910,9 @@
 
         function updatePlaybackUi(recordingId) {
             if (!playbackAudio || playbackRecordingId !== recordingId) return;
-            const progress = document.getElementById(`progress-${recordingId}`);
-            const cur = document.getElementById(`timeCurrent-${recordingId}`);
-            const total = document.getElementById(`timeTotal-${recordingId}`);
+            const progress = document.getElementById('playerProgress');
+            const cur = document.getElementById('playerTimeCurrent');
+            const total = document.getElementById('playerTimeTotal');
             if (progress && playbackAudio.duration) {
                 progress.value = String((playbackAudio.currentTime / playbackAudio.duration) * 100);
             }
@@ -933,22 +924,14 @@
         function stopPlaybackUi() {
             if (playbackRaf) cancelAnimationFrame(playbackRaf);
             playbackRaf = null;
-            if (playbackRecordingId !== null) {
-                const btn = document.getElementById(`playBtn-${playbackRecordingId}`);
-                if (btn) btn.textContent = '▶';
-            }
+            const btn = document.getElementById('playerPlayPauseBtn');
+            if (btn) btn.textContent = '▶';
         }
 
-        function toggleRecordingPlayback(recordingId) {
+        function openRecordingPlayer(recordingId) {
             const rec = AppState.recordings.find(r => r.id === recordingId);
             if (!rec || !rec.audioDataUrl) {
                 alert('This recording does not have playable audio data.');
-                return;
-            }
-
-            if (playbackAudio && playbackRecordingId === recordingId && !playbackAudio.paused) {
-                playbackAudio.pause();
-                stopPlaybackUi();
                 return;
             }
 
@@ -963,28 +946,76 @@
                 });
                 playbackAudio.addEventListener('ended', () => {
                     stopPlaybackUi();
-                    const progress = document.getElementById(`progress-${recordingId}`);
-                    const cur = document.getElementById(`timeCurrent-${recordingId}`);
+                    const progress = document.getElementById('playerProgress');
+                    const cur = document.getElementById('playerTimeCurrent');
                     if (progress) progress.value = '0';
                     if (cur) cur.textContent = '00:00';
                 });
             }
 
-            const btn = document.getElementById(`playBtn-${recordingId}`);
-            if (btn) btn.textContent = '⏸';
-            playbackAudio.play().then(() => {
-                stopPlaybackUi();
-                updatePlaybackUi(recordingId);
-            }).catch(() => {
-                if (btn) btn.textContent = '▶';
-                alert('Could not play this recording on this device.');
-            });
+            const app = document.getElementById('app');
+            if (!playbackModalOpen) {
+                const modal = document.createElement('div');
+                modal.id = 'recordingPlayerModal';
+                modal.className = 'fixed inset-0 z-[300] bg-black/70 flex items-end justify-center';
+                modal.onclick = (e) => {
+                    if (e.target === modal) closeRecordingPlayer();
+                };
+                modal.innerHTML = `
+                    <div class="w-full max-w-md rounded-t-3xl border border-white/15 bg-[#140b23] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div>
+                                <div class="text-white font-bold serif-font">${rec.name}</div>
+                                <div class="text-xs text-gray-400">${rec.date} · ${rec.theme}</div>
+                            </div>
+                            <button onclick="closeRecordingPlayer()" class="p-2 bg-white/10 rounded-full text-gray-300 hover:bg-white/20">✕</button>
+                        </div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <button id="playerPlayPauseBtn" onclick="togglePlayerPlayPause()" class="p-2 bg-purple-600/20 text-purple-300 rounded-full hover:bg-purple-600/30 transition">▶</button>
+                            <input id="playerProgress" type="range" min="0" max="100" value="0" oninput="seekRecordingPlayback(${recordingId}, this.value)" class="flex-1 accent-purple-500">
+                        </div>
+                        <div class="flex justify-between text-[0.72rem] text-gray-400 font-mono">
+                            <span id="playerTimeCurrent">00:00</span>
+                            <span id="playerTimeTotal">00:00</span>
+                        </div>
+                    </div>
+                `;
+                app.appendChild(modal);
+                playbackModalOpen = true;
+            }
+            togglePlayerPlayPause(true);
         }
 
         function seekRecordingPlayback(recordingId, value) {
             if (!playbackAudio || playbackRecordingId !== recordingId || !playbackAudio.duration) return;
             const pct = Math.max(0, Math.min(100, Number(value)));
             playbackAudio.currentTime = (pct / 100) * playbackAudio.duration;
+        }
+
+        function togglePlayerPlayPause(forcePlay = false) {
+            if (!playbackAudio) return;
+            const btn = document.getElementById('playerPlayPauseBtn');
+            if (!forcePlay && !playbackAudio.paused) {
+                playbackAudio.pause();
+                stopPlaybackUi();
+                return;
+            }
+            if (btn) btn.textContent = '⏸';
+            playbackAudio.play().then(() => {
+                stopPlaybackUi();
+                updatePlaybackUi(playbackRecordingId);
+            }).catch(() => {
+                if (btn) btn.textContent = '▶';
+                alert('Could not play this recording on this device.');
+            });
+        }
+
+        function closeRecordingPlayer() {
+            const modal = document.getElementById('recordingPlayerModal');
+            if (modal) modal.remove();
+            playbackModalOpen = false;
+            if (playbackAudio) playbackAudio.pause();
+            stopPlaybackUi();
         }
 
         function downloadRecording(recordingId) {
@@ -1008,7 +1039,7 @@
                 playbackAudio.pause();
                 playbackAudio = null;
                 playbackRecordingId = null;
-                stopPlaybackUi();
+                closeRecordingPlayer();
             }
             AppState.recordings = AppState.recordings.filter(r => r.id !== recordingId);
             localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
