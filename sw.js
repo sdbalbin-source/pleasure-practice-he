@@ -1,4 +1,4 @@
-const CACHE = 'hypnocards-v4';
+const CACHE = 'hypnocards-v5';
 const ASSETS = ['/', '/index.html', '/cards_data.json', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -27,4 +27,10 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
