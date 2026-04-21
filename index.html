@@ -311,7 +311,6 @@
             currentTheme: 'Relaxation',
             isRecording: false,
               
-            favorites: JSON.parse(localStorage.getItem('en_favorites_v1')) || [],
             recordings: JSON.parse(localStorage.getItem('en_recordings_v1')) || [],
               
             selectedCategories: []
@@ -816,6 +815,14 @@
                             <h2 class="text-xl font-bold text-white serif-font">Filter Categories</h2>
                             <div class="w-8"></div>
                         </div>
+                        <div class="flex gap-2">
+                            <button onclick="selectAllCategories()" class="flex-1 py-2 rounded-xl border border-purple-500/30 text-purple-200 text-xs hover:bg-purple-500/10 transition font-mono">
+                                Select all
+                            </button>
+                            <button onclick="clearAllCategories()" class="flex-1 py-2 rounded-xl border border-white/20 text-gray-300 text-xs hover:bg-white/5 transition font-mono">
+                                Clear all
+                            </button>
+                        </div>
                     </div>
                     <div class="flex-1 overflow-y-auto px-6 pb-32 space-y-3 no-scrollbar">
                         ${catsHtml}
@@ -884,9 +891,7 @@
                         <div class="flex items-center justify-between p-4 z-20 pt-6">
                             <button onclick="document.onkeydown=null; renderModeSelect()" class="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/5" data-tip="Exit session"><i data-lucide="x"></i></button>
                             <div id="counter" class="text-xs font-mono text-gray-600"></div>
-                            <button id="favBtn" onclick="toggleFavorite()" data-tip="Favorite this card" class="p-2 transition rounded-full hover:bg-white/5 text-gray-600">
-                                <i data-lucide="star"></i>
-                            </button>
+                            <div class="w-10"></div>
                         </div>
 
                         <!-- Card Area -->
@@ -1066,7 +1071,6 @@
             const card = getCurrentCard();
             const rawContent = getCardContent(card, AppState.currentTheme);
             const content = renderMarkdown(rawContent);
-            const isFav = AppState.favorites.includes(card.id);
 
             document.getElementById('cardPattern').innerText = card.pattern;
             document.getElementById('cardCategory').innerText = card.category;
@@ -1089,10 +1093,6 @@
             backDescription.innerText = (info && info.description) ? info.description : 'Category notes are not available yet. You can still use the front side examples for guided practice.';
 
             document.getElementById('counter').innerText = `${AppState.currentIndex + 1} / ${AppState.activeDeck.length}`;
-            const favBtn = document.getElementById('favBtn');
-            favBtn.className = `p-2 transition rounded-full hover:bg-white/5 ${isFav ? 'text-yellow-400' : 'text-gray-600'}`;
-            favBtn.querySelector('svg').setAttribute('fill', isFav ? 'currentColor' : 'none');
-
             buildThemeStrip(card);
         }
 
@@ -1167,13 +1167,18 @@
             }
         }
 
-        function toggleFavorite() {
-            const card = getCurrentCard();
-            const idx = AppState.favorites.indexOf(card.id);
-            if (idx > -1) AppState.favorites.splice(idx, 1);
-            else AppState.favorites.push(card.id);
-            localStorage.setItem('en_favorites_v1', JSON.stringify(AppState.favorites));
-            updatePlayerContent();
+        function selectAllCategories() {
+            AppState.selectedCategories = AppState.categories.map(c => c.name);
+            document.querySelectorAll('input[type="checkbox"][value]').forEach(cb => {
+                cb.checked = true;
+            });
+        }
+
+        function clearAllCategories() {
+            AppState.selectedCategories = [];
+            document.querySelectorAll('input[type="checkbox"][value]').forEach(cb => {
+                cb.checked = false;
+            });
         }
 
         let mediaRecorder = null;
@@ -1211,7 +1216,14 @@
                         const pad = n => String(n).padStart(2, '0');
                         const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
                         const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}`;
-                        const filename = `Hypnotic-Language-Practice_${dateStr}_${timeStr}.webm`;
+                        const card = getCurrentCard();
+                        const suggestedName = `${card.pattern} - ${AppState.currentTheme} - ${dateStr} ${timeStr}`
+                            .replace(/[\\/:*?"<>|]/g, '')
+                            .trim();
+                        const chosenName = prompt('Name this recording:', suggestedName);
+                        const safeName = (chosenName && chosenName.trim() ? chosenName.trim() : suggestedName)
+                            .replace(/[\\/:*?"<>|]/g, '');
+                        const filename = `${safeName}.webm`;
 
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -1221,10 +1233,9 @@
                         URL.revokeObjectURL(url);
 
                         // Save metadata to archive
-                        const card = getCurrentCard();
                         AppState.recordings.unshift({
                             id: Date.now(),
-                            name: filename,
+                            name: safeName,
                             date: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
                             pattern: card.pattern,
                             theme: AppState.currentTheme
