@@ -870,6 +870,9 @@
                             ${rec.audioDataUrl ? `<audio controls preload="metadata" src="${rec.audioDataUrl}" class="mt-2 w-full"></audio>` : `<div class="mt-2 text-[0.7rem] text-amber-300">Playable audio is not available for this item.</div>`}
                         </div>
                         <div class="flex items-center gap-2">
+                            <button onclick="downloadRecording(${rec.id})" class="p-2 bg-blue-500/10 text-blue-300 rounded-full hover:bg-blue-500/20 transition ${rec.audioDataUrl ? '' : 'opacity-40'}" ${rec.audioDataUrl ? '' : 'disabled'}>
+                                <i data-lucide="download" width="16"></i>
+                            </button>
                             <button onclick="deleteRecording(${rec.id})" class="p-2 bg-red-500/10 text-red-300 rounded-full hover:bg-red-500/20 transition">
                                 <i data-lucide="trash-2" width="16"></i>
                             </button>
@@ -888,6 +891,19 @@
                 </div>
             `;
             lucide.createIcons();
+        }
+
+        function downloadRecording(recordingId) {
+            const rec = AppState.recordings.find(r => r.id === recordingId);
+            if (!rec || !rec.audioDataUrl) {
+                alert('No downloadable audio is available for this recording.');
+                return;
+            }
+            const ext = rec.extension || 'webm';
+            const a = document.createElement('a');
+            a.href = rec.audioDataUrl;
+            a.download = `${rec.name}.${ext}`;
+            a.click();
         }
 
         function deleteRecording(recordingId) {
@@ -1224,6 +1240,7 @@
         let monitorAnalyser = null;
         let monitorDataArray = null;
         let monitorAnimationFrame = null;
+        let recordingPeakLevel = 0;
 
         function getRecordingFormat() {
             const probeAudio = document.createElement('audio');
@@ -1262,6 +1279,7 @@
                     }
                     const rms = Math.sqrt(sum / monitorDataArray.length);
                     const level = Math.min(1, rms * 4.5);
+                    recordingPeakLevel = Math.max(recordingPeakLevel, level);
                     btn.style.setProperty('--rec-level', String(level.toFixed(3)));
                     monitorAnimationFrame = requestAnimationFrame(tick);
                 };
@@ -1298,6 +1316,7 @@
                 })
                     .then(stream => {
                         recordingStream = stream;
+                        recordingPeakLevel = 0;
                         audioChunks = [];
                         const format = getRecordingFormat();
                         recordingMimeType = format.mimeType;
@@ -1338,14 +1357,6 @@
                         const chosenName = prompt('Name this recording:', suggestedName);
                         const safeName = (chosenName && chosenName.trim() ? chosenName.trim() : suggestedName)
                             .replace(/[\\/:*?"<>|]/g, '');
-                        const filename = `${safeName}.${recordingExtension}`;
-
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = filename;
-                        a.click();
-                        URL.revokeObjectURL(url);
 
                         // Save metadata to archive
                         const reader = new FileReader();
@@ -1353,6 +1364,7 @@
                             AppState.recordings.unshift({
                                 id: Date.now(),
                                 name: safeName,
+                                extension: recordingExtension,
                                 date: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
                                 pattern: card.pattern,
                                 theme: AppState.currentTheme,
@@ -1366,7 +1378,10 @@
                                 const latest = AppState.recordings[0];
                                 if (latest) latest.audioDataUrl = null;
                                 localStorage.setItem('en_recordings_v1', JSON.stringify(AppState.recordings));
-                                alert('Saved recording metadata, but device storage is full for in-app playback. File was still downloaded.');
+                                alert('Saved recording metadata, but device storage is full for in-app playback.');
+                            }
+                            if (recordingPeakLevel < 0.03) {
+                                alert('Very low microphone signal detected. If using Bluetooth earbuds/headset, switch the call/microphone source in your phone settings and try again.');
                             }
                         };
                         reader.readAsDataURL(blob);
