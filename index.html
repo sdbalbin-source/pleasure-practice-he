@@ -657,8 +657,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-hypno-about-mobile-fix';
-        const SW_BUILD = '2026-04-22-15';
+        const APP_BUILD = 'build-canonical-2026-04-22-hypno-about-mobile-readability';
+        const SW_BUILD = '2026-04-22-16';
 
         const AppState = {
             rawRows: [],          
@@ -1540,18 +1540,18 @@
                     return `<p class="text-fuchsia-100 serif-font text-[0.96rem] font-bold">${toEmphasizedInline(trimmed)}</p>`;
                 }
                 if (/^\d+\.\s/.test(trimmed)) {
-                    return `<p class="text-violet-100 serif-font text-[0.96rem] font-bold">${toEmphasizedInline(trimmed)}</p>`;
+                    return `<p class="text-violet-100 serif-font text-[1.02rem] font-bold">${toEmphasizedInline(trimmed)}</p>`;
                 }
                 if (trimmed.startsWith('→')) {
-                    return `<p class="serif-font text-sm leading-relaxed pl-3 border-l-2" style="border-color:${accentColor}; color:#e5e7eb">${toEmphasizedInline(trimmed)}</p>`;
+                    return `<p class="serif-font text-[1rem] leading-relaxed pl-3 border-l-2" style="border-color:${accentColor}; color:#e5e7eb">${toEmphasizedInline(trimmed)}</p>`;
                 }
                 if (trimmed.startsWith('⚠')) {
-                    return `<p class="serif-font text-sm leading-relaxed p-3 rounded-xl bg-amber-500/10 border border-amber-400/35 text-amber-100">${toEmphasizedInline(trimmed)}</p>`;
+                    return `<p class="serif-font text-[1rem] leading-relaxed p-3 rounded-xl bg-amber-500/10 border border-amber-400/35 text-amber-100">${toEmphasizedInline(trimmed)}</p>`;
                 }
                 if (/^".*"$/.test(trimmed)) {
-                    return `<p class="serif-font text-sm leading-relaxed italic text-gray-200/95">${toEmphasizedInline(trimmed)}</p>`;
+                    return `<p class="serif-font text-[1rem] leading-relaxed italic text-gray-200/95">${toEmphasizedInline(trimmed)}</p>`;
                 }
-                return `<p class="text-gray-300 serif-font text-sm leading-relaxed">${toEmphasizedInline(trimmed)}</p>`;
+                return `<p class="text-gray-300 serif-font text-[1rem] leading-relaxed">${toEmphasizedInline(trimmed)}</p>`;
             }
             const introSections = [];
             let currentSection = null;
@@ -1619,10 +1619,10 @@
                         <button onclick="renderModeSelect()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">About &amp; How to Use</h2>
                     </div>
-                    <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
+                    <div class="flex-1 overflow-y-auto px-6 pb-20 space-y-6 no-scrollbar">
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">About &amp; How to Use This Guidebook</h3>
-                            <p class="text-gray-300 serif-font text-base leading-relaxed">This section brings the full conceptual framework of the HypnoErotica language deck into the app. Use it as study material before and between live practice sessions.</p>
+                            <p class="text-gray-300 serif-font text-[1.03rem] leading-relaxed">This section brings the full conceptual framework of the HypnoErotica language deck into the app. Use it as study material before and between live practice sessions.</p>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Foundations</h3>
