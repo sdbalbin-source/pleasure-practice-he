@@ -665,8 +665,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-card-crop-scroll-fix';
-        const SW_BUILD = '2026-04-22-07';
+        const APP_BUILD = 'build-canonical-2026-04-22-archetype-home-custom';
+        const SW_BUILD = '2026-04-22-08';
 
         const AppState = {
             rawRows: [],          
@@ -682,6 +682,8 @@
             recordings: JSON.parse(localStorage.getItem('en_recordings_v1')) || [],
             archetypeFavorites: JSON.parse(localStorage.getItem('archetype_favorites_v1')) || [],
             archetypeView: { cardId: null, fromView: 'random', flipped: false },
+            selectedArchetypeDeckKeys: JSON.parse(localStorage.getItem('archetype_deck_keys_v1') || '[]'),
+            pendingArchetypePoolIds: [],
               
             selectedCategories: []
         };
@@ -966,6 +968,66 @@
             }
         }
 
+        function getArchetypeRealms() {
+            const seen = new Set();
+            const realms = [];
+            ARCHETYPES_DATA.forEach(card => {
+                const r = String(card.realm || '').trim();
+                if (!r || seen.has(r)) return;
+                seen.add(r);
+                realms.push(r);
+            });
+            return realms;
+        }
+
+        function toggleArchetypeDeckKey(key) {
+            if (AppState.selectedArchetypeDeckKeys.includes(key)) {
+                AppState.selectedArchetypeDeckKeys = AppState.selectedArchetypeDeckKeys.filter(k => k !== key);
+            } else {
+                AppState.selectedArchetypeDeckKeys.push(key);
+            }
+            try { localStorage.setItem('archetype_deck_keys_v1', JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (e) {}
+            renderArchetypeDeckBuilder();
+        }
+
+        function selectAllArchetypeDeckKeys() {
+            AppState.selectedArchetypeDeckKeys = ['__favorites__', ...getArchetypeRealms()];
+            try { localStorage.setItem('archetype_deck_keys_v1', JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (e) {}
+            renderArchetypeDeckBuilder();
+        }
+
+        function clearAllArchetypeDeckKeys() {
+            AppState.selectedArchetypeDeckKeys = [];
+            try { localStorage.setItem('archetype_deck_keys_v1', JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (e) {}
+            renderArchetypeDeckBuilder();
+        }
+
+        function getCustomArchetypePool() {
+            const keys = new Set(AppState.selectedArchetypeDeckKeys || []);
+            const includeFavorites = keys.has('__favorites__');
+            const selectedRealms = new Set((AppState.selectedArchetypeDeckKeys || []).filter(k => k !== '__favorites__'));
+            const idSet = new Set();
+            if (includeFavorites) {
+                AppState.archetypeFavorites.forEach(id => idSet.add(id));
+            }
+            ARCHETYPES_DATA.forEach(card => {
+                if (selectedRealms.has(String(card.realm || '').trim())) {
+                    idSet.add(card.id);
+                }
+            });
+            return ARCHETYPES_DATA.filter(c => idSet.has(c.id));
+        }
+
+        function startArchetypeSpreadDraw(pool, fromView) {
+            if (!pool || !pool.length) {
+                alert('No cards found for this custom selection. Please choose at least one realm or favorites.');
+                return;
+            }
+            AppState.pendingArchetypePoolIds = pool.map(c => c.id);
+            AppState.archetypeView = { cardId: null, fromView, flipped: false };
+            playArchetypeShuffleThen(openArchetypeTarotSpread);
+        }
+
         async function loadArchetypesData() {
             try {
                 const r = await fetch('archetypes_data.json', { cache: 'no-store' });
@@ -1012,7 +1074,10 @@
         }
 
         function pickArchetypeSpreadCards(count) {
-            const pool = [...ARCHETYPES_DATA].sort(() => Math.random() - 0.5);
+            const poolSource = (AppState.pendingArchetypePoolIds || []).length
+                ? ARCHETYPES_DATA.filter(c => AppState.pendingArchetypePoolIds.includes(c.id))
+                : ARCHETYPES_DATA;
+            const pool = [...poolSource].sort(() => Math.random() - 0.5);
             return pool.slice(0, Math.min(count, pool.length));
         }
 
@@ -1134,7 +1199,7 @@
                     window.setTimeout(() => el.classList.add('is-flipping'), 180);
                     window.setTimeout(() => {
                         layer.remove();
-                        renderArchetypeCard(cardId, 'random');
+                        renderArchetypeCard(cardId, AppState.archetypeView.fromView || 'random');
                     }, 980);
                 };
 
@@ -1165,8 +1230,12 @@
                 alert('The archetype deck is still loading. Please wait a moment and try again.');
                 return;
             }
-            AppState.archetypeView = { cardId: null, fromView: 'random', flipped: false };
-            playArchetypeShuffleThen(openArchetypeTarotSpread);
+            if (AppState.archetypeView.fromView === 'custom') {
+                const pool = getCustomArchetypePool();
+                startArchetypeSpreadDraw(pool, 'custom');
+            } else {
+                startArchetypeSpreadDraw(ARCHETYPES_DATA, 'random');
+            }
         }
 
         function isIos() {
@@ -1479,7 +1548,7 @@
                             <div class="space-y-3 text-gray-300 serif-font text-sm leading-relaxed">
                                 <p><strong class="text-white">Shuffle &amp; Draw</strong> runs a short deck animation, then reveals a random archetype.</p>
                                 <p><strong class="text-white">Tap the card</strong> to turn it and read the full text. Typography is tuned for comfortable reading on a phone.</p>
-                                <p><strong class="text-white">All Cards / Favorites</strong> let you browse deliberately or keep a shortlist for ongoing practice.</p>
+                                <p><strong class="text-white">All Cards</strong> is sorted by realm and includes a one-tap favorite star on each card. <strong class="text-white">Custom Deck</strong> lets you draw from selected realms and/or the favorites set.</p>
                             </div>
                         </div>
                     </div>
@@ -1517,20 +1586,24 @@
                     <div class="flex items-center justify-between mb-8 pt-4">
                         <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">${ARCHETYPE_MODULE_TITLE}</h2>
-                        <button onclick="showArchetypesAbout()" class="p-2 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="info"></i></button>
+                        <div class="w-10"></div>
                     </div>
                     <div class="grid gap-4">
                         <button onclick="drawRandomArchetype()" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
                             <h3 class="text-xl font-bold text-white serif-font mb-1">Shuffle & Draw</h3>
                             <p class="text-gray-400 serif-font text-base">Animated shuffle, then reveal one archetype.</p>
                         </button>
-                        <button onclick="renderArchetypesList(false)" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
-                            <h3 class="text-xl font-bold text-white serif-font mb-1">All Cards</h3>
-                            <p class="text-gray-400 serif-font text-base">Browse all archetypes and choose consciously.</p>
+                        <button onclick="renderArchetypeDeckBuilder()" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
+                            <h3 class="text-xl font-bold text-white serif-font mb-1">Custom Deck</h3>
+                            <p class="text-gray-400 serif-font text-base">Choose realms and/or favorites set, then draw.</p>
                         </button>
-                        <button onclick="renderArchetypesList(true)" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
-                            <h3 class="text-xl font-bold text-white serif-font mb-1">Favorites</h3>
-                            <p class="text-gray-400 serif-font text-base">${AppState.archetypeFavorites.length} saved cards.</p>
+                        <button onclick="renderArchetypesList()" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
+                            <h3 class="text-xl font-bold text-white serif-font mb-1">All Cards</h3>
+                            <p class="text-gray-400 serif-font text-base">Sorted by realm with favorite toggle per card.</p>
+                        </button>
+                        <button onclick="showArchetypesAbout()" class="glass-panel p-6 rounded-3xl text-left hover:border-purple-500/50 transition">
+                            <h3 class="text-xl font-bold text-white serif-font mb-1">About</h3>
+                            <p class="text-gray-400 serif-font text-base">Background and usage guide for this module.</p>
                         </button>
                     </div>
                 </div>
@@ -1543,33 +1616,95 @@
                 alert('The archetype deck is still loading. Please wait a moment and try again.');
                 return;
             }
-            AppState.archetypeView = { cardId: null, fromView: 'random', flipped: false };
-            playArchetypeShuffleThen(openArchetypeTarotSpread);
+            startArchetypeSpreadDraw(ARCHETYPES_DATA, 'random');
         }
 
-        function renderArchetypesList(onlyFavorites) {
+        function renderArchetypeDeckBuilder() {
             const app = document.getElementById('app');
-            const source = onlyFavorites
-                ? ARCHETYPES_DATA.filter(c => AppState.archetypeFavorites.includes(c.id))
-                : ARCHETYPES_DATA;
-            const rows = source.length
-                ? source.map(card => `
-                    <button onclick="renderArchetypeCard('${card.id}', '${onlyFavorites ? 'favorites' : 'all'}')" class="w-full text-left bg-white/5 border border-white/10 hover:border-purple-500/40 rounded-2xl p-4 transition">
-                        <div class="flex items-center justify-between gap-3">
+            const realms = getArchetypeRealms();
+            const row = (key, label, subtitle) => {
+                const active = AppState.selectedArchetypeDeckKeys.includes(key);
+                return `
+                    <button onclick="toggleArchetypeDeckKey('${key.replace(/'/g, "\\'")}')" class="w-full text-left bg-white/5 border ${active ? 'border-amber-400/50' : 'border-white/10'} hover:border-purple-500/40 rounded-2xl p-4 transition">
+                        <div class="flex items-start justify-between gap-3">
                             <div>
-                                <div class="text-white font-bold serif-font text-lg">${card.name}</div>
-                                <div class="text-gray-400 text-sm archetype-list-teaser">${archetypeTeaserLine(card)}</div>
+                                <div class="text-white font-bold serif-font text-lg">${label}</div>
+                                <div class="text-gray-400 text-xs font-mono mt-1">${subtitle}</div>
                             </div>
-                            <div class="text-purple-300">${AppState.archetypeFavorites.includes(card.id) ? 'â˜…' : 'â˜†'}</div>
+                            <div class="text-xl leading-none ${active ? 'text-amber-300' : 'text-gray-500'}">${active ? '&#10003;' : '&#9633;'}</div>
                         </div>
                     </button>
-                `).join('')
+                `;
+            };
+            app.innerHTML = `
+                <div class="flex flex-col h-full bg-[#050408]" dir="ltr">
+                    <div class="p-6 pt-8 flex items-center gap-4">
+                        <button onclick="renderArchetypesHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
+                        <h2 class="text-2xl font-bold text-white serif-font">Custom Deck</h2>
+                    </div>
+                    <div class="px-6 pb-4 flex items-center gap-2">
+                        <button onclick="selectAllArchetypeDeckKeys()" class="flex-1 py-2 rounded-xl border border-white/15 text-gray-200 text-xs font-mono hover:bg-white/10 transition">Select all</button>
+                        <button onclick="clearAllArchetypeDeckKeys()" class="flex-1 py-2 rounded-xl border border-white/15 text-gray-200 text-xs font-mono hover:bg-white/10 transition">Clear all</button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto px-6 pb-6 space-y-3 no-scrollbar">
+                        ${row('__favorites__', 'Favorites set', `${AppState.archetypeFavorites.length} cards currently starred`)}
+                        ${realms.map(r => row(r, r, 'Realm set')).join('')}
+                    </div>
+                    <div class="px-6 pb-8">
+                        <button onclick="startArchetypeSpreadDraw(getCustomArchetypePool(), 'custom')" class="w-full py-3 rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-950/40 to-black/40 text-amber-100 text-sm font-mono tracking-wide hover:border-amber-400/50 transition-colors">
+                            Shuffle & Draw Custom Deck
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderArchetypesList() {
+            const app = document.getElementById('app');
+            const grouped = {};
+            ARCHETYPES_DATA.forEach(card => {
+                const r = String(card.realm || 'Other').trim() || 'Other';
+                if (!grouped[r]) grouped[r] = [];
+                grouped[r].push(card);
+            });
+            const realms = Object.keys(grouped);
+            const rows = realms.length
+                ? realms.map(realm => {
+                    const cards = grouped[realm].sort((a, b) => a.name.localeCompare(b.name));
+                    const cardsHtml = cards.map(card => `
+                        <div class="w-full bg-white/5 border border-white/10 hover:border-purple-500/40 rounded-2xl p-4 transition">
+                            <div class="flex items-center justify-between gap-3">
+                                <button
+                                    onpointerdown="startArchetypeListTap('${card.id}', event)"
+                                    onpointerup="finishArchetypeListTap('${card.id}', event)"
+                                    onpointercancel="cancelArchetypeListTap()"
+                                    ontouchstart="startArchetypeListTap('${card.id}', event)"
+                                    ontouchend="finishArchetypeListTap('${card.id}', event)"
+                                    ontouchcancel="cancelArchetypeListTap()"
+                                    class="text-left flex-1 touch-manipulation"
+                                >
+                                    <div class="text-white font-bold serif-font text-lg">${card.name}</div>
+                                </button>
+                                <button onclick="event.stopPropagation(); toggleArchetypeFavorite('${card.id}'); renderArchetypesList();" class="text-2xl leading-none ${AppState.archetypeFavorites.includes(card.id) ? 'text-amber-300' : 'text-gray-500'}">
+                                    ${AppState.archetypeFavorites.includes(card.id) ? '&#9733;' : '&#9734;'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                    return `
+                        <div class="pt-1">
+                            <div class="text-xs font-mono uppercase tracking-[0.2em] text-purple-300/80 mb-2 px-1">${realm}</div>
+                            <div class="space-y-2">${cardsHtml}</div>
+                        </div>
+                    `;
+                }).join('')
                 : `<div class="text-center text-gray-500 mt-10">No cards to display.</div>`;
             app.innerHTML = `
                 <div class="flex flex-col h-full bg-[#050408]" dir="ltr">
                     <div class="p-6 pt-8 flex items-center gap-4">
                         <button onclick="renderArchetypesHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
-                        <h2 class="text-2xl font-bold text-white serif-font">${onlyFavorites ? 'Favorite Archetypes' : 'All Archetypes'}</h2>
+                        <h2 class="text-2xl font-bold text-white serif-font">All Archetypes</h2>
                     </div>
                     <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
                 </div>
@@ -1586,6 +1721,33 @@
             localStorage.setItem('archetype_favorites_v1', JSON.stringify(AppState.archetypeFavorites));
         }
 
+        let archetypeListTapState = null;
+        function startArchetypeListTap(cardId, ev) {
+            const p = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+            archetypeListTapState = {
+                cardId,
+                x: Number(p.clientX || 0),
+                y: Number(p.clientY || 0),
+                t: Date.now()
+            };
+        }
+
+        function cancelArchetypeListTap() {
+            archetypeListTapState = null;
+        }
+
+        function finishArchetypeListTap(cardId, ev) {
+            if (!archetypeListTapState || archetypeListTapState.cardId !== cardId) return;
+            const p = ev.changedTouches && ev.changedTouches[0] ? ev.changedTouches[0] : ev;
+            const dx = Math.abs(Number(p.clientX || 0) - archetypeListTapState.x);
+            const dy = Math.abs(Number(p.clientY || 0) - archetypeListTapState.y);
+            const dt = Date.now() - archetypeListTapState.t;
+            archetypeListTapState = null;
+            // Prevent accidental opens while user is scrolling the list.
+            if (dx > 10 || dy > 10 || dt > 450) return;
+            renderArchetypeCard(cardId, 'all');
+        }
+
         function renderArchetypeCard(cardId, fromView) {
             const card = ARCHETYPES_DATA.find(c => c.id === cardId);
             if (!card) return;
@@ -1596,10 +1758,10 @@
             }
             const flipped = AppState.archetypeView.flipped;
             const isFav = AppState.archetypeFavorites.includes(card.id);
-            const backNav = fromView === 'favorites'
-                ? 'renderArchetypesList(true)'
-                : fromView === 'all'
-                    ? 'renderArchetypesList(false)'
+            const backNav = fromView === 'all'
+                ? 'renderArchetypesList()'
+                : fromView === 'custom'
+                    ? 'renderArchetypeDeckBuilder()'
                     : 'renderArchetypesHome()';
             const useFaceImage = card.image && String(card.image).trim();
             const frontBgUrl = useFaceImage ? String(card.image).trim().replace(/'/g, "\\'") : ARCHETYPE_CARD_BACK;
