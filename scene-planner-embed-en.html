@@ -2733,29 +2733,31 @@ label,
       return canvas;
     }
     async function createSummaryPdfBlob(){
-      const canvas = await captureSummaryCanvas();
       const jsPDF = await ensureJsPdf();
+      await ensureHtml2Canvas();
       if (!jsPDF) throw new Error('jsPDF unavailable');
-      const pdf = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+      const target = document.getElementById('chapter-8');
+      if (!target) throw new Error('Summary section is not available.');
+      const pdf = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4', compress: true });
+      const margin = 18;
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const scale = pageWidth / canvas.width;
-      const srcPageHeight = Math.floor(pageHeight / scale);
-      let y = 0;
-      let pageIndex = 0;
-      while (y < canvas.height) {
-        const sliceHeight = Math.min(srcPageHeight, canvas.height - y);
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = sliceHeight;
-        const ctx = pageCanvas.getContext('2d');
-        ctx.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-        const imgData = pageCanvas.toDataURL('image/png');
-        if (pageIndex > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, sliceHeight * scale, undefined, 'FAST');
-        y += sliceHeight;
-        pageIndex += 1;
-      }
+      const renderWidth = pageWidth - (margin * 2);
+      const prevMaxHeight = target.style.maxHeight;
+      target.style.maxHeight = 'none';
+      await pdf.html(target, {
+        x: margin,
+        y: margin,
+        width: renderWidth,
+        windowWidth: Math.max(target.scrollWidth, document.documentElement.clientWidth, 920),
+        autoPaging: 'text',
+        html2canvas: {
+          scale: 1,
+          useCORS: true,
+          backgroundColor: '#0b0d14',
+          logging: false
+        }
+      });
+      target.style.maxHeight = prevMaxHeight;
       return pdf.output('blob');
     }
     function setupActions(){
@@ -2782,7 +2784,9 @@ label,
           alert('PDF downloaded. You can now share it.');
         } catch (err){
           if (err && err.name === 'AbortError') return;
-          alert('PDF sharing is not available on this device.');
+          console.error('shareAsPdf failed:', err);
+          alert('Automatic PDF sharing failed. Opening Print/Save as PDF as fallback.');
+          window.print();
         }
       }
       sharePdfBtn?.addEventListener('click', shareAsPdf);
