@@ -29,21 +29,19 @@
   border-color: rgba(244,67,54,.7) !important;
   color: #ffecec !important;
 }
-/* Sticky summary filters under session box */
+/* Summary filters */
 .sticky-summary-filters {
-  position: sticky;
-  top: 1.5rem;
-  z-index: 20;
-  background: var(--surface);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px #0002;
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.05) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
   margin-bottom: 1.1rem;
-  padding: 0.5rem 0.7rem;
+  padding: 0.65rem 0.75rem;
 }
 @media (max-width: 600px) {
   .sticky-summary-filters {
-    top: 0.5rem;
-    padding: 0.3rem 0.2rem;
+    padding: 0.55rem 0.45rem;
   }
   .site-header {
     position: static !important;
@@ -188,15 +186,15 @@ body::before{
   font-size:1.8rem; font-weight:700;
   border-bottom:1px solid var(--border); padding-bottom:0.65rem; margin:0 0 1.25rem;
   display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;
-  cursor:pointer;
 }
-.chapter.is-collapsed > :not(.chapter-title){ display:none; }
 .section-title{
   color:var(--primary); font-size:1.3rem; font-weight:600;
   border-bottom:1px solid var(--border); padding-bottom:0.4rem; margin:0 0 0.85rem;
   display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;
 }
 .section-title .perspective{ color:var(--text-muted); font-weight:500 }
+.activity-group .title-line{ cursor:pointer; }
+.activity-group.is-collapsed > :not(.title-line){ display:none; }
 
 /* Bilingual spans */
 .lang-en{ color:var(--text-muted); display:block; font-size:.95em }
@@ -299,7 +297,8 @@ body::before{
 .session-box .lbl{ color:var(--text-muted) }
 
 /* Filters (Summary) */
-.filters{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:0.6rem 0 1rem }
+.filters{ display:flex; flex-direction:column; align-items:stretch; gap:0.55rem; margin:0.6rem 0 1rem }
+.filters > .chip-group{ display:flex; flex-wrap:wrap; gap:0.45rem; }
 #summaryFilters .chip-group .chip.active{ font-weight:700 }
 
 /* Summary grid */
@@ -366,15 +365,10 @@ body::before{
   .subtitle{ font-size:0.92rem; margin-bottom:0.5rem; }
   .stepper{
     justify-content:flex-start;
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    scrollbar-width:none;
-    -ms-overflow-style:none;
+    flex-wrap:wrap;
     padding-bottom:0.15rem;
   }
-  .stepper::-webkit-scrollbar{ display:none; }
   .step-btn{
-    white-space:nowrap;
     min-height:42px;
     padding:0.5rem 0.85rem;
     font-size:0.88rem;
@@ -405,9 +399,6 @@ body::before{
 <div class="site-container">
     <!-- Header (sticky) + Stepper -->
     <header class="site-header sticky">
-      <div class="header-controls">
-        <button id="shareLinkBtn" class="header-btn" type="button" aria-label="Shareable Link">🔗 Shareable Link</button>
-      </div>
       <h1 class="app-title">Scene Planner</h1>
       <p class="subtitle">Consent Protocol — BDSM Session Planner</p>
 
@@ -679,7 +670,7 @@ body::before{
 
         <div id="group-impact" class="activity-group" data-group="impact">
           <div class="title-line with-info">
-              <h3 class="section-title with-persp">🫳🏼 Gentle Touch (stroking/massage)</h3>
+            <h3 class="section-title with-persp">🦶 Impact (spanking, slapping, etc.)</h3>
             <button type="button" class="info-btn" data-info-target="impactInfo" aria-expanded="false">ℹ️</button>
           </div>
           <div id="impactInfo" class="info-text" hidden>
@@ -690,7 +681,7 @@ body::before{
               <div class="title-line with-info">
                 <h3 class="section-title">Paddle</h3>
                 <button type="button" class="info-btn" data-info-target="paddleInfo" aria-expanded="false">ℹ️</button>
-              <h3 class="section-title with-persp">💪 Rough Touch (grabbing, scratching, etc.)</h3>
+              </div>
               <div id="paddleInfo" class="info-text" hidden>
                 A paddle is a flat, wide implement (usually wood or leather) that creates a shallow, thuddy pain. Especially effective on fleshy areas like the buttocks.
               </div>
@@ -701,7 +692,7 @@ body::before{
                 <button type="button" class="info-btn" data-info-target="caningInfo" aria-expanded="false">ℹ️</button>
               </div>
               <div id="caningInfo" class="info-text" hidden>
-              <h3 class="section-title with-persp">💋 Kisses</h3>
+                A cane is a thin, flexible stick (usually bamboo or rattan) that creates sharp, focused sensation and requires precision and safety awareness.
               </div>
             </div>
           </div>
@@ -712,9 +703,7 @@ body::before{
         </div>
 
         <div class="form-group">
-              <h3 class="section-title">🦶 Impact (spanking, slapping, etc.)</h3>
-            <h3 class="section-title">Specific sensitivity areas</h3>
-          </div>
+          <h3 class="section-title">Specific sensitivity areas</h3>
           <textarea id="sensitivityAreas" class="textarea-input" placeholder="Which areas of the body are particularly sensitive?"></textarea>
         </div>
 
@@ -1263,6 +1252,7 @@ body::before{
           <div class="actions" id="shareActionsBottom" style="margin-top:1rem;">
             <button class="btn" id="copyLinkBottom" type="button">🔗 Copy link</button>
             <button class="btn" id="printSummaryBtn" type="button">🖨️ Print/Export Summary</button>
+            <button class="btn" id="finishSessionBtn" type="button">✅ Finish Session</button>
           </div>
         </div>
 
@@ -1306,7 +1296,9 @@ body::before{
     };
     const STORAGE_KEY = 'planner_sessions_v1';
     const SESSION_SCHEMA_VERSION = 1;
-    const sessionIdFromUrl = new URLSearchParams(window.location.search).get('sessionId') || '';
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionIdFromUrl = urlParams.get('sessionId') || '';
+    const startChapterFromUrl = urlParams.get('startChapter') || '';
     let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     let autosaveTimer = null;
 
@@ -1667,23 +1659,20 @@ body::before{
         });
       });
     }
-    function setupCollapsibleChapters(){
-      $$('.chapter').forEach(sec => {
-        const title = sec.querySelector('.chapter-title');
-        if (!title) return;
-        if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '0');
-        if (!title.id) title.id = `${sec.id}-title`;
-        sec.setAttribute('aria-labelledby', title.id);
-        sec.classList.remove('is-collapsed');
-        title.setAttribute('aria-expanded', 'true');
+    function setupCollapsibleSubsections(){
+      $$('#chapter-3 .activity-group').forEach(group => {
+        const titleLine = group.querySelector('.title-line');
+        if (!titleLine) return;
+        titleLine.setAttribute('tabindex', '0');
+        titleLine.setAttribute('aria-expanded', 'false');
+        group.classList.add('is-collapsed');
         const toggle = () => {
-          if (sec.id === 'chapter-8') return;
-          const next = !sec.classList.contains('is-collapsed');
-          sec.classList.toggle('is-collapsed', next);
-          title.setAttribute('aria-expanded', String(!next));
+          const willOpen = group.classList.contains('is-collapsed');
+          group.classList.toggle('is-collapsed', !willOpen);
+          titleLine.setAttribute('aria-expanded', String(willOpen));
         };
-        title.addEventListener('click', toggle);
-        title.addEventListener('keydown', e => {
+        titleLine.addEventListener('click', toggle);
+        titleLine.addEventListener('keydown', e => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             toggle();
@@ -2578,9 +2567,9 @@ body::before{
 
     /* ========= Share / Print ========= */
     function setupActions(){
-      const shareHeader = document.getElementById('shareLinkBtn');
       const copyLinkBottom = document.getElementById('copyLinkBottom');
       const printSummaryBtn = document.getElementById('printSummaryBtn');
+      const finishSessionBtn = document.getElementById('finishSessionBtn');
 
       function doCopy(){
         const url = location.href;
@@ -2590,16 +2579,23 @@ body::before{
         window.print();
       }
 
-      shareHeader?.addEventListener('click', doCopy);
       copyLinkBottom?.addEventListener('click', doCopy);
       printSummaryBtn?.addEventListener('click', printSummary);
+      finishSessionBtn?.addEventListener('click', () => {
+        saveActiveSession();
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'planner_session_finished', sessionId: activeSessionId }, '*');
+        } else {
+          alert('Session saved.');
+        }
+      });
     }
 
     /* ========= DOM Ready ========= */
     function init(){
       setupStepper();
       setupPrevNext();
-      setupCollapsibleChapters();
+      setupCollapsibleSubsections();
       setupInfoButtons();
       bindBasicInputs();
       setupPainSliders();
@@ -2613,6 +2609,9 @@ body::before{
       // Mark first step active
       const sb = document.querySelector('.step-btn[data-target="chapter-1"]');
       sb && sb.classList.add('active');
+      if (startChapterFromUrl && document.getElementById(startChapterFromUrl)) {
+        showChapter(startChapterFromUrl);
+      }
 
       // Live update summary title when editing name while on chapter 8
       $('#nickname')?.addEventListener('input', ()=>{
