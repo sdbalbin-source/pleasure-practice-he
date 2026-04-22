@@ -54,10 +54,10 @@
             height: 150vmax;
             transform-origin: center;
             transform: translate(-50%, -50%);
-            animation: spinSpiral 12s linear infinite;
+            animation: spinSpiral 10s linear infinite;
             animation-play-state: running;
             will-change: transform;
-            opacity: 0.68;
+            opacity: 0.78;
         }
 
         @keyframes spinSpiral {   
@@ -89,9 +89,9 @@
         }
         .module-home-card {
             text-align: center;
-            background: linear-gradient(180deg, rgba(22, 17, 36, 0.93) 0%, rgba(13, 10, 26, 0.94) 100%);
-            border: 1px solid rgba(169, 138, 255, 0.26);
-            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            background: linear-gradient(180deg, rgba(22, 17, 36, 0.78) 0%, rgba(13, 10, 26, 0.82) 100%);
+            border: 1px solid rgba(169, 138, 255, 0.32);
+            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
         .module-home-card h3 {
             letter-spacing: 0.01em;
@@ -687,8 +687,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-about-labels-and-fit';
-        const SW_BUILD = '2026-04-22-28';
+        const APP_BUILD = 'build-canonical-2026-04-22-about-unified-spiral-visible';
+        const SW_BUILD = '2026-04-22-29';
 
         const AppState = {
             rawRows: [],          
@@ -1818,7 +1818,10 @@
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">About Archetypes of Pleasure</h3>
                             <p class="text-gray-300 serif-font text-[1.03rem] leading-relaxed">Explore the archetype guide in expandable sections, then bring what resonates into your deck selection and card practice. The structure is aligned with the Hypno module for a consistent reading experience.</p>
                         </div>
-                        <div class="space-y-3">${sectionsHtml}</div>
+                        <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Foundations</h3>
+                            <div class="space-y-3">${sectionsHtml}</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1850,7 +1853,7 @@
         function renderArchetypesHome() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="flex flex-col h-full p-6 bg-black/20" dir="ltr">
+                <div class="flex flex-col h-full p-6 bg-black/10" dir="ltr">
                     <div class="flex items-center justify-between mb-8 pt-4">
                         <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">${ARCHETYPE_MODULE_TITLE}</h2>
@@ -2139,7 +2142,7 @@
         function renderModeSelect() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="flex flex-col h-full p-5 bg-black/20">
+                <div class="flex flex-col h-full p-5 bg-black/10">
                     <div class="flex items-center justify-between mb-6 pt-3 gap-3">
                         <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font text-center">Hypnoerotic Language Cards</h2>
