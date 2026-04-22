@@ -2320,12 +2320,12 @@
             return `Role: ${role} • Duration: ${duration}`;
         }
 
-        function renderPlannerEmbed(mode, sessionId, startChapter) {
+        function renderPlannerEmbed(mode, sessionId, startChapter, autoShare) {
             const app = document.getElementById('app');
             const subtitle = mode === 'new'
                 ? 'New Consent & Desires Session'
                 : 'Kinky Scene Planner';
-            const plannerSrc = `scene-planner-embed-en.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}`;
+            const plannerSrc = `scene-planner-embed-en.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}`;
             app.innerHTML = `
                 <div class="flex flex-col h-full bg-[#050408]">
                     <div class="p-4 pt-6 flex items-center gap-3">
@@ -2362,7 +2362,7 @@
                             <button onclick="openPlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition">Edit</button>
                             <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">Rename</button>
                             <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition">Delete</button>
-                            <button onclick="sharePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">Share</button>
+                            <button onclick="sharePlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">Share PDF</button>
                         </div>
                     </div>
                 `).join('')
@@ -2422,66 +2422,14 @@
             renderPlannerSessions();
         }
 
-        function buildPlannerSessionShareText(session) {
-            const title = String(session?.title || 'Untitled session');
-            const updated = formatPlannerSessionDate(session?.updatedAt || session?.createdAt || '');
-            const snap = session?.summarySnapshot && typeof session.summarySnapshot === 'object' ? session.summarySnapshot : {};
-            const plannerState = session?.plannerState && typeof session.plannerState === 'object' ? session.plannerState : {};
-            const safety = plannerState.safety && typeof plannerState.safety === 'object' ? plannerState.safety : {};
-            const roleRaw = String(snap.role || '').trim().toLowerCase();
-            const role = roleRaw ? ({ dom: 'Dom', sub: 'Sub', switch: 'Switch' }[roleRaw] || roleRaw) : '—';
-            const durationNum = Number(snap.duration || 0);
-            const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} min` : '—';
-            let yes = 0, maybe = 0, no = 0;
-            const activities = plannerState.activities && typeof plannerState.activities === 'object' ? plannerState.activities : {};
-            Object.values(activities).forEach(group => {
-                if (!group || typeof group !== 'object') return;
-                Object.values(group).forEach(entry => {
-                    const st = String(entry?.status || '');
-                    if (st === 'yes') yes += 1;
-                    else if (st === 'maybe') maybe += 1;
-                    else if (st === 'no') no += 1;
-                });
-            });
-            return [
-                'Kinky Scene Planner Summary',
-                `Session: ${title}`,
-                `Updated: ${updated || '—'}`,
-                `Role: ${role}`,
-                `Duration: ${duration}`,
-                `Safeword: ${String(safety.safeword || '—')}`,
-                `Hard limits: ${String(safety.hardLimits || '—')}`,
-                `Selections: Yes ${yes} | Maybe ${maybe} | No ${no}`,
-                '',
-                'Shared from Pleasure Practice Studio'
-            ].join('\n');
-        }
-
-        async function sharePlannerSession(sessionId) {
+        function sharePlannerSessionPdf(sessionId) {
             const session = loadPlannerSession(sessionId);
             if (!session) {
                 alert('This session was not found. It may have been deleted.');
                 renderPlannerSessions();
                 return;
             }
-            const text = buildPlannerSessionShareText(session);
-            const payload = {
-                title: String(session.title || 'Kinky Scene Planner Summary'),
-                text
-            };
-            try {
-                if (navigator.share) {
-                    await navigator.share(payload);
-                } else if (navigator.clipboard?.writeText) {
-                    await navigator.clipboard.writeText(text);
-                    alert('Summary copied. You can paste it into WhatsApp or any app.');
-                } else {
-                    alert(text);
-                }
-            } catch (e) {
-                if (e && e.name === 'AbortError') return;
-                alert('Share was not completed.');
-            }
+            renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf');
         }
 
         function renderModeSelect() {
