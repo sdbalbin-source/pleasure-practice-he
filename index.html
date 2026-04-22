@@ -672,8 +672,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-mobile-spread-full-card-back';
-        const SW_BUILD = '2026-04-22-20';
+        const APP_BUILD = 'build-canonical-2026-04-22-mobile-spread-no-edge-cut';
+        const SW_BUILD = '2026-04-22-21';
 
         const AppState = {
             rawRows: [],          
@@ -1104,14 +1104,20 @@
             const stageWidth = Math.min(440, viewportWidth - 32);
             const stageHeight = Math.min(720, viewportHeight * 0.88);
             const isMobileSpread = viewportWidth <= 640;
-            const angleStart = -74;
-            const angleEnd = 74;
+            const angleStart = isMobileSpread ? -66 : -74;
+            const angleEnd = isMobileSpread ? 66 : 74;
             const step = spreadCards.length > 1 ? (angleEnd - angleStart) / (spreadCards.length - 1) : 0;
-            const maxAngleRad = Math.max(Math.abs(angleStart), Math.abs(angleEnd)) * Math.PI / 180;
+            const maxAngleDeg = Math.max(Math.abs(angleStart), Math.abs(angleEnd));
+            const maxAngleRad = maxAngleDeg * Math.PI / 180;
             const cardWidth = Math.min(viewportWidth * (isMobileSpread ? 0.22 : 0.20), isMobileSpread ? 82 : 92);
-            const horizontalSafeHalf = (stageWidth / 2) - (cardWidth / 2) - 8;
+            const cardHeight = cardWidth * 1.5;
+            const maxCardRotRad = Math.abs(maxAngleDeg * 0.56) * Math.PI / 180;
+            const rotatedHalfWidth =
+                (Math.abs(Math.cos(maxCardRotRad)) * cardWidth * 0.5) +
+                (Math.abs(Math.sin(maxCardRotRad)) * cardHeight * 0.5);
+            const horizontalSafeHalf = (stageWidth / 2) - rotatedHalfWidth - (isMobileSpread ? 10 : 8);
             const radiusByWidth = horizontalSafeHalf / Math.max(0.001, Math.sin(maxAngleRad));
-            const radius = Math.max(160, Math.min(278, radiusByWidth, stageWidth * (isMobileSpread ? 0.48 : 0.56)));
+            const radius = Math.max(150, Math.min(272, radiusByWidth, stageWidth * (isMobileSpread ? 0.44 : 0.56)));
             const centerX = 0;
             const centerY = Math.max(72, Math.min(152, stageHeight * (isMobileSpread ? 0.19 : 0.24)));
             const dealStartX = -Math.max(126, stageWidth * 0.42);
