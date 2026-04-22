@@ -1,8 +1,10 @@
 {
-  "name": "HypnoCards",
-  "short_name": "HypnoCards",
-  "description": "Hypnotic language pattern practice cards",
+  "id": "/",
+  "name": "Pleasure Practice Studio",
+  "short_name": "Pleasure Studio",
+  "description": "Three integrated tools for erotic language, archetypal exploration, and consent-based scene planning.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

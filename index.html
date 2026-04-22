@@ -2,14 +2,14 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HypnoCards">
+    <meta name="apple-mobile-web-app-title" content="Pleasure Studio">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <title>HypnoCards - Master Edition V6</title>
+    <title>Pleasure Practice Studio</title>
     
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -707,8 +707,32 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-planner-hotfix-round-3-d';
-        const SW_BUILD = '2026-04-22-48';
+        const APP_BUILD = 'build-canonical-2026-04-22-release-readiness-a';
+        const SW_BUILD = '2026-04-22-49';
+        const APP_CACHE_PREFIX = 'hypnocards-v';
+        const APP_STORAGE_KEYS = [
+            'en_recordings_v1',
+            'archetype_favorites_v1',
+            'archetype_deck_keys_v1',
+            'planner_sessions_v1',
+            'en_category_info_v1',
+            'en_cards_data_v1',
+            'en_themes_data_v1',
+            'en_cats_data_v1'
+        ];
+        let currentSwReg = null;
+
+        function safeParseJson(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return fallback;
+                const parsed = JSON.parse(raw);
+                return parsed ?? fallback;
+            } catch (e) {
+                try { localStorage.removeItem(key); } catch (_) {}
+                return fallback;
+            }
+        }
 
         const AppState = {
             rawRows: [],          
@@ -721,12 +745,24 @@
             currentTheme: 'Relaxation',
             isRecording: false,
               
-            recordings: JSON.parse(localStorage.getItem('en_recordings_v1')) || [],
-            archetypeFavorites: JSON.parse(localStorage.getItem('archetype_favorites_v1')) || [],
+            recordings: (() => {
+                const value = safeParseJson('en_recordings_v1', []);
+                return Array.isArray(value) ? value : [];
+            })(),
+            archetypeFavorites: (() => {
+                const value = safeParseJson('archetype_favorites_v1', []);
+                return Array.isArray(value) ? value : [];
+            })(),
             archetypeView: { cardId: null, fromView: 'random', flipped: false },
-            selectedArchetypeDeckKeys: JSON.parse(localStorage.getItem('archetype_deck_keys_v1') || '[]'),
+            selectedArchetypeDeckKeys: (() => {
+                const value = safeParseJson('archetype_deck_keys_v1', []);
+                return Array.isArray(value) ? value : [];
+            })(),
             pendingArchetypePoolIds: [],
-            plannerSessions: JSON.parse(localStorage.getItem('planner_sessions_v1') || '[]'),
+            plannerSessions: (() => {
+                const value = safeParseJson('planner_sessions_v1', []);
+                return Array.isArray(value) ? value : [];
+            })(),
               
             selectedCategories: []
         };
@@ -1342,13 +1378,22 @@
 
         async function forceUpdateApp() {
             try {
-                if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map(r => r.unregister()));
-                }
                 if ('caches' in window) {
                     const keys = await caches.keys();
-                    await Promise.all(keys.map(k => caches.delete(k)));
+                    const ownCaches = keys.filter(k => k.startsWith(APP_CACHE_PREFIX));
+                    await Promise.all(ownCaches.map(k => caches.delete(k)));
+                }
+                if ('serviceWorker' in navigator) {
+                    const reg = currentSwReg || (await navigator.serviceWorker.getRegistration());
+                    if (reg) {
+                        await reg.update();
+                        const latestReg = await navigator.serviceWorker.getRegistration();
+                        if (latestReg && latestReg.waiting) {
+                            sessionStorage.setItem('pps_reload_after_update', '1');
+                            latestReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            return;
+                        }
+                    }
                 }
             } catch (e) {}
             const bust = `?_refresh=${Date.now()}`;
@@ -1542,6 +1587,11 @@
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Connect</h3>
                             <p class="text-gray-300 serif-font text-sm leading-relaxed">Follow <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> for ongoing practices, reflections, and new offerings.</p>
+                        </div>
+
+                        <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Privacy note</h3>
+                            <p class="text-gray-300 serif-font text-sm leading-relaxed">Your sessions and recordings are stored on your own device/browser profile (local storage). They are not uploaded to a central account by default. If you use a shared device, delete local data after use.</p>
                         </div>
 
                         <div class="pt-2">
@@ -3207,7 +3257,9 @@
 
         function clearData() {
             if (confirm('This will delete all saved data including recordings.\nContinue?')) {
-                localStorage.clear();
+                APP_STORAGE_KEYS.forEach(key => {
+                    try { localStorage.removeItem(key); } catch (e) {}
+                });
                 location.reload();
             }
         }
@@ -3224,6 +3276,7 @@
         });
 
         window.addEventListener('message', e => {
+            if (e.origin !== window.location.origin) return;
             const data = e && e.data ? e.data : null;
             if (!data || typeof data !== 'object') return;
             if (data.type === 'planner_session_finished') {
@@ -3235,24 +3288,21 @@
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (refreshing) return;
+                if (sessionStorage.getItem('pps_reload_after_update') !== '1') return;
                 refreshing = true;
+                sessionStorage.removeItem('pps_reload_after_update');
                 window.location.reload();
             });
 
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register(`sw.js?v=${SW_BUILD}`).then(reg => {
-                    const activateUpdate = () => {
-                        if (reg.waiting) {
-                            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                    };
-                    if (reg.waiting) activateUpdate();
+                    currentSwReg = reg;
                     reg.addEventListener('updatefound', () => {
                         const newWorker = reg.installing;
                         if (!newWorker) return;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                activateUpdate();
+                                alert('An update is ready. Tap "Force update now" in General About when you are done with your current session.');
                             }
                         });
                     });
