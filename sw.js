@@ -1,9 +1,10 @@
-﻿const CACHE = 'hypnocards-v16';
+﻿const CACHE = 'hypnocards-v17';
 const ASSETS = [
   '/',
   '/index.html',
   '/cards_data.json',
   '/archetypes_data.json',
+  '/hypno_guidebook_data.json',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -25,7 +26,8 @@ self.addEventListener('fetch', e => {
   const networkFirst =
     url.pathname.endsWith('/index.html') ||
     url.pathname.endsWith('/cards_data.json') ||
-    url.pathname.endsWith('/archetypes_data.json');
+    url.pathname.endsWith('/archetypes_data.json') ||
+    url.pathname.endsWith('/hypno_guidebook_data.json');
   if (networkFirst) {
     e.respondWith(
       fetch(e.request)

@@ -657,8 +657,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-cleanup-pass';
-        const SW_BUILD = '2026-04-22-09';
+        const APP_BUILD = 'build-canonical-2026-04-22-hypno-guidebook-about';
+        const SW_BUILD = '2026-04-22-10';
 
         const AppState = {
             rawRows: [],          
@@ -683,6 +683,7 @@
         const ARCHETYPE_MODULE_TITLE = 'Archetypes of Pleasure';
         const ARCHETYPE_CARD_BACK = 'archetypes/archetype-card-back.webp';
         let ARCHETYPES_DATA = [];
+        let HYPNO_GUIDEBOOK_DATA = { intro: [], categories: [] };
 
         function normalizeCategoryKey(category) {
             return String(category || '').trim().replace(/\s+/g, ' ').toLowerCase();
@@ -1020,6 +1021,17 @@
                 if (Array.isArray(data) && data.length) {
                     ARCHETYPES_DATA = data;
                     pruneArchetypeFavorites();
+                }
+            } catch (e) {}
+        }
+
+        async function loadHypnoGuidebookData() {
+            try {
+                const r = await fetch('hypno_guidebook_data.json', { cache: 'no-store' });
+                if (!r.ok) return;
+                const data = await r.json();
+                if (data && Array.isArray(data.intro) && Array.isArray(data.categories)) {
+                    HYPNO_GUIDEBOOK_DATA = data;
                 }
             } catch (e) {}
         }
@@ -1476,6 +1488,33 @@
 
         function showHypnoAbout() {
             const app = document.getElementById('app');
+            const intro = Array.isArray(HYPNO_GUIDEBOOK_DATA.intro) ? HYPNO_GUIDEBOOK_DATA.intro : [];
+            const categories = Array.isArray(HYPNO_GUIDEBOOK_DATA.categories) ? HYPNO_GUIDEBOOK_DATA.categories : [];
+            const introHtml = intro.length
+                ? intro.map(p => `<p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtmlArchetype(p)}</p>`).join('')
+                : `<p class="text-gray-400 serif-font text-sm leading-relaxed">Guidebook content is still loading...</p>`;
+            const categoryIndexHtml = categories.length
+                ? categories.map(c => `<a href="#hypno-cat-${c.number}" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-200 text-xs font-mono hover:border-purple-400/40 transition">${escapeHtmlArchetype(c.name)}</a>`).join('')
+                : '';
+            const categoriesHtml = categories.length
+                ? categories.map(c => {
+                    const content = (c.content || []).map(p => `<p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtmlArchetype(p)}</p>`).join('');
+                    return `
+                        <details id="hypno-cat-${c.number}" class="bg-white/5 border border-purple-500/20 rounded-2xl p-4">
+                            <summary class="cursor-pointer list-none">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-[0.68rem] tracking-[0.2em] uppercase text-purple-300/80 font-mono">Category ${c.number}</p>
+                                        <h3 class="text-xl text-white serif-font font-bold">${escapeHtmlArchetype(c.name)}</h3>
+                                    </div>
+                                    <span class="text-purple-300 text-xs font-mono">Tap to open</span>
+                                </div>
+                            </summary>
+                            <div class="mt-4 space-y-3">${content}</div>
+                        </details>
+                    `;
+                }).join('')
+                : `<div class="text-gray-500 text-sm">Categories are loading...</div>`;
             app.innerHTML = `
                 <div class="flex flex-col h-full bg-[#050408]">
                     <div class="p-6 pt-8 flex items-center gap-4">
@@ -1484,31 +1523,18 @@
                     </div>
                     <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">What is this?</h3>
-                            <p class="text-gray-300 serif-font text-base leading-relaxed">This module helps you internalize hypnotic erotic language patterns through repetition, theme variation, and embodied vocal practice. Each card contains a specific pattern and examples across emotional themes so you can train both wording and tone.</p>
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">HypnoErotica Guidebook</h3>
+                            <p class="text-gray-300 serif-font text-base leading-relaxed">This section brings the full conceptual framework of the HypnoErotica language deck into the app. Use it as study material before and between live practice sessions.</p>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">How to use</h3>
-                            <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed">
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">1.</span><span>Choose a deck - <em>Basic</em> for core language patterns, or <em>Custom</em> to focus on specific categories.</span></div>
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">2.</span><span>Each card shows a <strong class="text-white">pattern name</strong> at the top. Read it, feel it, then practice saying it aloud.</span></div>
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">3.</span><span>Swipe left/right or use the arrows to move between cards.</span></div>
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">4.</span><span>Change the <strong class="text-white">theme</strong> (Relaxation, Desire, Joy...) at the bottom to feel how the same pattern shifts in tone and intention.</span></div>
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">5.</span><span>Tap <strong class="text-white">i</strong> on a card to see category context and explanation.</span></div>
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">6.</span><span>Use the <strong class="text-white">microphone</strong> to record practice and review your delivery.</span></div>
-                            </div>
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Foundations (full text)</h3>
+                            <div class="space-y-3">${introHtml}</div>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Card types</h3>
-                            <div class="space-y-2 text-gray-300 serif-font text-sm leading-relaxed">
-                                <p><span class="text-white font-bold">Dynamic cards</span> - language patterns with examples per theme for quick modulation practice.</p>
-                                <p><span class="text-white font-bold">Static cards</span> - longer scripts and focused structures for deeper drills (such as Triggers, Deepeners, and Convincers).</p>
-                            </div>
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Categories Index</h3>
+                            <div class="flex flex-wrap gap-2">${categoryIndexHtml}</div>
                         </div>
-                        <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Practice tip</h3>
-                            <p class="text-gray-300 serif-font text-sm leading-relaxed">Repeat the same card across multiple themes in one session. This builds flexibility while keeping structure stable, which improves real-time fluency.</p>
-                        </div>
+                        ${categoriesHtml}
                     </div>
                 </div>
             `;
@@ -2731,7 +2757,7 @@
             });
         }
 
-        Promise.all([ensureCategoryInfoLoaded(), loadArchetypesData()]).finally(() => {
+        Promise.all([ensureCategoryInfoLoaded(), loadArchetypesData(), loadHypnoGuidebookData()]).finally(() => {
             renderWelcome();
         });
 
