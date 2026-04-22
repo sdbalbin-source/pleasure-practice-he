@@ -672,8 +672,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-spread-grow-smoother-center';
-        const SW_BUILD = '2026-04-22-24';
+        const APP_BUILD = 'build-canonical-2026-04-22-spread-grow-match-card-slot';
+        const SW_BUILD = '2026-04-22-25';
 
         const AppState = {
             rawRows: [],          
@@ -1225,18 +1225,14 @@
                     const stageHeightPx = stage.clientHeight || 620;
                     const cardWidthPx = el.offsetWidth || 82;
                     const cardHeightPx = el.offsetHeight || 123;
-                    const maxTargetWidthPx = Math.min(stageWidthPx * 0.72, 306);
-                    const maxTargetHeightPx = Math.min(stageHeightPx * 0.68, 470);
-                    const scaleByWidth = maxTargetWidthPx / Math.max(1, cardWidthPx);
-                    const scaleByHeight = maxTargetHeightPx / Math.max(1, cardHeightPx);
-                    const targetScale = Math.max(1.28, Math.min(scaleByWidth, scaleByHeight));
+                    const maxTargetWidthPx = Math.min(stageWidthPx - 28, 332);
+                    const targetScale = Math.max(1.2, maxTargetWidthPx / Math.max(1, cardWidthPx));
                     const targetCardWidth = cardWidthPx * targetScale;
-                    const targetCardHeight = cardHeightPx * targetScale;
                     const anchorX = stageWidthPx * 0.5;
                     const anchorY = stageHeightPx * 0.56;
                     const targetLeft = (stageWidthPx - targetCardWidth) / 2;
-                    const targetCenterY = stageHeightPx * 0.52;
-                    const targetTop = Math.max(18, targetCenterY - (targetCardHeight / 2));
+                    // Match the visual slot of the full archetype card view.
+                    const targetTop = Math.max(20, stageHeightPx * 0.14);
                     const targetX = targetLeft - anchorX;
                     const targetY = targetTop - anchorY;
                     el.style.transform = `translate3d(${targetX.toFixed(2)}px, ${targetY.toFixed(2)}px, 0) rotate(0deg) scale(${targetScale.toFixed(3)})`;
