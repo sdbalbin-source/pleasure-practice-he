@@ -1470,14 +1470,17 @@
                         <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">Three integrated practice tools</p>
                     </div>
 
-                    <button onclick="renderModeSelect()" class="w-full max-w-sm py-4 bg-white/10 border border-white/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
-                        <i data-lucide="sparkles"></i> Hypnoerotic Language Cards
+                    <button onclick="renderModeSelect()" class="w-full max-w-sm py-4 px-4 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-start gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-fuchsia-300/10 border border-fuchsia-300/25 text-fuchsia-200 shrink-0"><i data-lucide="book-open" class="w-5 h-5"></i></span>
+                        <span>Hypnoerotic Language Cards</span>
                     </button>
-                    <button onclick="renderArchetypesHome()" class="w-full max-w-sm py-4 bg-white/10 border border-white/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
-                        <i data-lucide="gallery-vertical-end"></i> Archetypes of Pleasure
+                    <button onclick="renderArchetypesHome()" class="w-full max-w-sm py-4 px-4 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-start gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-violet-300/10 border border-violet-300/25 text-violet-200 shrink-0"><i data-lucide="image" class="w-5 h-5"></i></span>
+                        <span>Archetypes of Pleasure</span>
                     </button>
-                    <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-4 bg-white/10 border border-white/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
-                        <i data-lucide="clipboard-check"></i> Kinky Scene Planner
+                    <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-4 px-4 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-lg font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-start gap-3 shadow-lg shadow-purple-900/20 serif-font text-left">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-300/10 border border-blue-300/25 text-blue-200 shrink-0"><i data-lucide="handshake" class="w-5 h-5"></i></span>
+                        <span>Kinky Scene Planner</span>
                     </button>
 
                     <button onclick="showAbout()" class="w-full max-w-xs py-3 rounded-2xl border border-purple-500/20 text-purple-300 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font">
@@ -1492,9 +1495,6 @@
 
         function showAbout() {
             const app = document.getElementById('app');
-            const canonicalNoticeHtml = isCanonicalOrigin()
-                ? `<div class="mt-2 text-[0.75rem] text-emerald-300 font-mono">Live URL verified: hypnocards-eng.pages.dev</div>`
-                : `<button onclick="openCanonicalSite()" class="mt-2 w-full py-2 rounded-xl border border-amber-400/40 text-amber-200 text-xs hover:bg-amber-500/10 transition font-mono">You are on a deployment URL. Tap to open official live site</button>`;
             app.innerHTML = `
                 <div class="flex flex-col h-full bg-[#050408] md:max-w-[1240px] md:mx-auto md:w-full">
                     <div class="p-6 pt-8 flex items-center gap-4">
@@ -1534,11 +1534,6 @@
                             <button onclick="forceUpdateApp()" class="mt-2 w-full py-2 rounded-xl border border-blue-500/30 text-blue-200 text-xs hover:bg-blue-500/10 transition flex items-center justify-center gap-2 font-mono">
                                 <i data-lucide="refresh-cw"></i> Force update now
                             </button>
-                            <div class="mt-3 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-left">
-                                <div class="text-[0.72rem] text-gray-400 font-mono">Build: ${APP_BUILD}</div>
-                                <div class="text-[0.72rem] text-gray-400 font-mono">Official URL: https://hypnocards-eng.pages.dev</div>
-                                ${canonicalNoticeHtml}
-                            </div>
                         </div>
 
                     </div>
