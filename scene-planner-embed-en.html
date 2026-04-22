@@ -423,8 +423,8 @@ label,
 }
 
 @media (max-width:600px){
-  body{ padding:0.55rem; }
-  .site-container{ padding:0 0.2rem; }
+  body{ padding:0.4rem; }
+  .site-container{ padding:0 0.1rem; }
   .site-header{ border-radius:14px; padding:0.45rem 0.5rem 0.55rem; }
   .app-title{ font-size:1.65rem; line-height:1.15; margin-top:0.35rem; }
   .subtitle{ font-size:0.92rem; margin-bottom:0.5rem; }
@@ -447,6 +447,7 @@ label,
     overflow-wrap:normal;
     hyphens:none;
   }
+  .step-btn[data-target="chapter-4"]{ font-size:0.74rem; }
   .chapter{ padding:0.9rem; margin:0.75rem 0 1.2rem; border-radius:15px; }
   .chapter-title{ font-size:1.35rem; margin-bottom:0.9rem; }
   .section-title{ font-size:1.08rem; }
@@ -480,7 +481,7 @@ label,
         <button class="step-btn" data-target="chapter-1">1. Session Setup</button>
         <button class="step-btn" data-target="chapter-2">2. Safety</button>
         <button class="step-btn" data-target="chapter-3">3. Types of Touch</button>
-        <button class="step-btn" data-target="chapter-4">4. Restraints/Sensations</button>
+        <button class="step-btn" data-target="chapter-4">4. Restraints / Sensations</button>
         <button class="step-btn" data-target="chapter-5">5. Dynamics & Language</button>
         <button class="step-btn" data-target="chapter-6">6. Sex & Intimacy</button>
         <button class="step-btn" data-target="chapter-7">7. Aftercare</button>
@@ -1326,7 +1327,8 @@ label,
           <!-- Share/print -->
           <div class="actions" id="shareActionsBottom" style="margin-top:1rem;">
             <button class="btn ghost" id="saveSessionBtn" type="button">💾 Save Session</button>
-            <button class="btn" id="copyLinkBottom" type="button">🔗 Copy link</button>
+            <button class="btn" id="shareImageBtn" type="button">🖼️ Share as image</button>
+            <button class="btn ghost" id="shareTextBtn" type="button">📝 Share as text</button>
             <button class="btn" id="printSummaryBtn" type="button">🖨️ Print/Export Summary</button>
             <button class="btn" id="finishSessionBtn" type="button">✅ Finish Session</button>
           </div>
@@ -2683,15 +2685,113 @@ label,
     }
 
     /* ========= Share / Print ========= */
+    let html2canvasLoader = null;
+    function ensureHtml2Canvas(){
+      if (window.html2canvas) return Promise.resolve(window.html2canvas);
+      if (html2canvasLoader) return html2canvasLoader;
+      html2canvasLoader = new Promise((resolve, reject)=>{
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        s.async = true;
+        s.onload = ()=> resolve(window.html2canvas);
+        s.onerror = ()=> reject(new Error('Failed to load html2canvas'));
+        document.head.appendChild(s);
+      });
+      return html2canvasLoader;
+    }
+    function buildSummaryShareText(){
+      let yes = 0, maybe = 0, no = 0;
+      Object.values(state.activities || {}).forEach(group=>{
+        if (!group || typeof group !== 'object') return;
+        Object.values(group).forEach(entry=>{
+          const st = String(entry?.status || '');
+          if (st === 'yes') yes += 1;
+          else if (st === 'maybe') maybe += 1;
+          else if (st === 'no') no += 1;
+        });
+      });
+      const roleMap = { dom: 'Dom', sub: 'Sub', switch: 'Switch' };
+      const role = roleMap[String(state.session.role || '').toLowerCase()] || '—';
+      const duration = Number(state.session.duration || 0) > 0 ? `${state.session.duration} min` : '—';
+      return [
+        'Kinky Scene Planner Summary',
+        `Session: ${state.session.sessionName || 'Untitled session'}`,
+        `Name/Nickname: ${state.session.nickname || '—'}`,
+        `Role: ${role}`,
+        `Duration: ${duration}`,
+        `Safeword: ${state.safety.safeword || '—'}`,
+        `Hard limits: ${state.safety.hardLimits || '—'}`,
+        `Selections: Yes ${yes} | Maybe ${maybe} | No ${no}`
+      ].join('\n');
+    }
     function setupActions(){
       const saveSessionBtn = document.getElementById('saveSessionBtn');
-      const copyLinkBottom = document.getElementById('copyLinkBottom');
+      const shareImageBtn = document.getElementById('shareImageBtn');
+      const shareTextBtn = document.getElementById('shareTextBtn');
       const printSummaryBtn = document.getElementById('printSummaryBtn');
       const finishSessionBtn = document.getElementById('finishSessionBtn');
 
-      function doCopy(){
-        const url = location.href;
-        navigator.clipboard?.writeText(url).then(()=>alert('Link copied 📋')).catch(()=>alert(url));
+      async function shareAsText(){
+        const text = buildSummaryShareText();
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: 'Kinky Scene Planner Summary', text });
+            return;
+          }
+          await navigator.clipboard?.writeText(text);
+          alert('Summary copied. You can paste it into WhatsApp or any app.');
+        } catch (err){
+          if (err && err.name === 'AbortError') return;
+          alert(text);
+        }
+      }
+      async function shareAsImage(){
+        try {
+          if (!document.getElementById('chapter-8')?.classList.contains('visible')) {
+            showChapter('chapter-8');
+            await new Promise(r=> setTimeout(r, 60));
+          }
+          const target = document.getElementById('chapter-8');
+          if (!target) {
+            alert('Summary section is not available.');
+            return;
+          }
+          const html2canvas = await ensureHtml2Canvas();
+          const prevStyle = target.style.maxHeight;
+          target.style.maxHeight = 'none';
+          const canvas = await html2canvas(target, {
+            backgroundColor: '#0b0d14',
+            scale: Math.min(2, window.devicePixelRatio || 1.5),
+            useCORS: true,
+            logging: false,
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: Math.max(target.scrollHeight, target.clientHeight)
+          });
+          target.style.maxHeight = prevStyle;
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1));
+          if (!blob) {
+            alert('Could not generate image.');
+            return;
+          }
+          const safeName = String(state.session.sessionName || 'session-summary').replace(/[^\w\-]+/g, '-').slice(0, 48) || 'session-summary';
+          const file = new File([blob], `${safeName}.png`, { type: 'image/png' });
+          if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+            await navigator.share({ title: 'Kinky Scene Planner Summary', files:[file] });
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${safeName}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          alert('Image downloaded. You can now share it.');
+        } catch (err){
+          if (err && err.name === 'AbortError') return;
+          alert('Image sharing is not available on this device.');
+        }
       }
       function printSummary() {
         window.print();
@@ -2701,7 +2801,8 @@ label,
         saveActiveSession();
         alert('Session saved.');
       });
-      copyLinkBottom?.addEventListener('click', doCopy);
+      shareImageBtn?.addEventListener('click', shareAsImage);
+      shareTextBtn?.addEventListener('click', shareAsText);
       printSummaryBtn?.addEventListener('click', printSummary);
       finishSessionBtn?.addEventListener('click', () => {
         saveActiveSession();
