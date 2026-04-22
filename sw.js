@@ -1,4 +1,4 @@
-const CACHE = 'hypnocards-v9';
+﻿const CACHE = 'hypnocards-v10';
 const ASSETS = [
   '/',
   '/index.html',
@@ -46,3 +46,4 @@ self.addEventListener('message', e => {
     self.skipWaiting();
   }
 });
+

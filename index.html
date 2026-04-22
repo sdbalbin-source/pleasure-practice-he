@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -177,7 +177,7 @@
             font-weight: 700;
         }
 
-        /* Archetypes: shuffle overlay (fan + riffle + merge — card-table feel) */
+        /* Archetypes: shuffle overlay (cross-cut + riffle merge) */
         .archetype-shuffle-overlay {
             position: fixed;
             inset: 0;
@@ -209,17 +209,41 @@
             justify-content: center;
             perspective: 900px;
         }
-        .archetype-shuffle-motor {
+        .archetype-shuffle-table-glow {
+            position: absolute;
+            width: min(82vw, 320px);
+            height: min(50vw, 190px);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 125, 0.24), transparent 70%);
+            filter: blur(10px);
+            opacity: 0.6;
+        }
+        .archetype-shuffle-riffle {
             position: relative;
-            animation: archetypeRiffleMotor 2.85s cubic-bezier(0.42, 0, 0.2, 1) forwards;
             transform-style: preserve-3d;
+            width: min(84vw, 330px);
+            height: min(44vw, 190px);
+            animation: archetypeRiffleGroup 2.8s cubic-bezier(0.45, 0, 0.2, 1) forwards;
         }
         .archetype-shuffle-pack {
-            position: relative;
-            width: min(42vw, 132px);
+            position: absolute;
+            top: 50%;
+            width: min(40vw, 130px);
             aspect-ratio: 2 / 3;
+            transform-style: preserve-3d;
+        }
+        .archetype-shuffle-pack.left {
+            left: 5%;
+            transform: translateY(-50%) rotate(-11deg);
+            animation: archetypePackLeft 2.8s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+        }
+        .archetype-shuffle-pack.right {
+            right: 5%;
+            transform: translateY(-50%) rotate(11deg);
+            animation: archetypePackRight 2.8s cubic-bezier(0.45, 0, 0.2, 1) forwards;
         }
         .archetype-shuffle-card {
+            position: relative;
             position: absolute;
             inset: 0;
             border-radius: 12px;
@@ -228,16 +252,18 @@
             box-shadow:
                 0 14px 36px rgba(0, 0, 0, 0.72),
                 0 0 0 1px rgba(212, 175, 125, 0.22);
-            transform-origin: 50% 100%;
-            animation: archetypeFanSlot 2.85s cubic-bezier(0.42, 0, 0.2, 1) forwards;
+            transform-origin: 50% 90%;
         }
-        .archetype-shuffle-card:nth-child(1) { z-index: 1; --slot: -3; }
-        .archetype-shuffle-card:nth-child(2) { z-index: 2; --slot: -2; }
-        .archetype-shuffle-card:nth-child(3) { z-index: 3; --slot: -1; }
-        .archetype-shuffle-card:nth-child(4) { z-index: 4; --slot: 0; }
-        .archetype-shuffle-card:nth-child(5) { z-index: 5; --slot: 1; }
-        .archetype-shuffle-card:nth-child(6) { z-index: 6; --slot: 2; }
-        .archetype-shuffle-card:nth-child(7) { z-index: 7; --slot: 3; }
+        .archetype-shuffle-pack.left .archetype-shuffle-card:nth-child(1) { --slot: -2; z-index: 2; animation: archetypeLeftCard1 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.left .archetype-shuffle-card:nth-child(2) { --slot: -1; z-index: 4; animation: archetypeLeftCard2 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.left .archetype-shuffle-card:nth-child(3) { --slot: 0; z-index: 6; animation: archetypeLeftCard3 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.left .archetype-shuffle-card:nth-child(4) { --slot: 1; z-index: 8; animation: archetypeLeftCard4 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.left .archetype-shuffle-card:nth-child(5) { --slot: 2; z-index: 10; animation: archetypeLeftCard5 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(1) { --slot: -2; z-index: 3; animation: archetypeRightCard1 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(2) { --slot: -1; z-index: 5; animation: archetypeRightCard2 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(3) { --slot: 0; z-index: 7; animation: archetypeRightCard3 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(4) { --slot: 1; z-index: 9; animation: archetypeRightCard4 2.8s ease-in-out forwards; }
+        .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(5) { --slot: 2; z-index: 11; animation: archetypeRightCard5 2.8s ease-in-out forwards; }
         .archetype-shuffle-shine {
             position: absolute;
             width: min(70vw, 240px);
@@ -246,7 +272,7 @@
             pointer-events: none;
             background: radial-gradient(circle, rgba(212, 175, 125, 0.35) 0%, transparent 65%);
             opacity: 0;
-            animation: archetypeShuffleShine 2.85s ease-out forwards;
+            animation: archetypeShuffleShine 2.8s ease-out forwards;
             filter: blur(16px);
         }
         .archetype-shuffle-caption {
@@ -257,53 +283,182 @@
             color: rgba(245, 230, 210, 0.88);
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
         }
-        @keyframes archetypeRiffleMotor {
-            0% { transform: translate3d(0, 0, 0) rotateZ(0deg) scale(1); }
-            6% { transform: translate3d(0, 8px, 40px) rotateZ(0deg) scale(1.08); }
-            14% { transform: translate3d(0, 0, 20px) rotateZ(0deg) scale(1.05); }
-            28% { transform: translate3d(-110px, 6px, 0) rotateZ(-14deg) scale(0.98); }
-            40% { transform: translate3d(110px, -8px, 0) rotateZ(14deg) scale(0.98); }
-            50% { transform: translate3d(-95px, 4px, 0) rotateZ(-11deg) scale(0.99); }
-            60% { transform: translate3d(95px, -5px, 0) rotateZ(11deg) scale(0.99); }
-            70% { transform: translate3d(-55px, 3px, 0) rotateZ(-6deg) scale(1); }
-            78% { transform: translate3d(0, -14px, 60px) rotateZ(0deg) scale(1.1); }
-            88% { transform: translate3d(0, 0, 80px) rotateZ(0deg) scale(1.06); }
-            100% { transform: translate3d(0, 0, 0) rotateZ(0deg) scale(1); }
+        @keyframes archetypeRiffleGroup {
+            0% { transform: translateY(8px) scale(1); }
+            30% { transform: translateY(0) scale(1.03); }
+            72% { transform: translateY(-6px) scale(1.04); }
+            100% { transform: translateY(0) scale(1); }
         }
-        @keyframes archetypeFanSlot {
-            0% {
-                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), calc(var(--slot) * 2px))
-                    rotateZ(calc(var(--slot) * 1.2deg));
-            }
-            9% {
-                transform: translate3d(calc(var(--slot) * 11px - 4px), -18px, 30px)
-                    rotateZ(calc(var(--slot) * 9deg + 2deg));
-            }
-            20% {
-                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), calc(var(--slot) * 2px))
-                    rotateZ(calc(var(--slot) * 1.2deg));
-            }
-            28% {
-                transform: translate3d(calc(var(--slot) * 4px), 2px, 0) rotateZ(calc(var(--slot) * -5deg));
-            }
-            40% {
-                transform: translate3d(calc(var(--slot) * -3px), -3px, 0) rotateZ(calc(var(--slot) * 6deg));
-            }
-            52% {
-                transform: translate3d(calc(var(--slot) * 2px), 1px, 0) rotateZ(calc(var(--slot) * -3deg));
-            }
-            70% {
-                transform: translate3d(calc(var(--slot) * 3px), -8px, 20px) rotateZ(calc(var(--slot) * 2deg));
-            }
-            100% {
-                transform: translate3d(calc(var(--slot) * 3px), calc(var(--slot) * -2px), 0)
-                    rotateZ(calc(var(--slot) * 1.2deg));
-            }
+        @keyframes archetypePackLeft {
+            0% { transform: translateY(-50%) translateX(0) rotate(-11deg); }
+            35% { transform: translateY(-50%) translateX(36px) rotate(-4deg); }
+            68% { transform: translateY(-50%) translateX(80px) rotate(0deg); }
+            100% { transform: translateY(-50%) translateX(58px) rotate(0deg); }
+        }
+        @keyframes archetypePackRight {
+            0% { transform: translateY(-50%) translateX(0) rotate(11deg); }
+            35% { transform: translateY(-50%) translateX(-36px) rotate(4deg); }
+            68% { transform: translateY(-50%) translateX(-80px) rotate(0deg); }
+            100% { transform: translateY(-50%) translateX(-58px) rotate(0deg); }
+        }
+        @keyframes archetypeLeftCard1 {
+            0%, 22% { transform: translate3d(0, 10px, 1px) rotate(-3deg); }
+            46% { transform: translate3d(30px, 0, 60px) rotate(3deg); }
+            74% { transform: translate3d(66px, -14px, 120px) rotate(0deg); }
+            100% { transform: translate3d(56px, -8px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeLeftCard2 {
+            0%, 22% { transform: translate3d(0, 5px, 2px) rotate(-2deg); }
+            46% { transform: translate3d(34px, -2px, 64px) rotate(2deg); }
+            74% { transform: translate3d(70px, -9px, 125px) rotate(0deg); }
+            100% { transform: translate3d(58px, -5px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeLeftCard3 {
+            0%, 22% { transform: translate3d(0, 0, 3px) rotate(-1deg); }
+            46% { transform: translate3d(38px, -4px, 68px) rotate(1deg); }
+            74% { transform: translate3d(74px, -4px, 130px) rotate(0deg); }
+            100% { transform: translate3d(60px, -2px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeLeftCard4 {
+            0%, 22% { transform: translate3d(0, -5px, 4px) rotate(1deg); }
+            46% { transform: translate3d(42px, -6px, 72px) rotate(0deg); }
+            74% { transform: translate3d(78px, 2px, 134px) rotate(0deg); }
+            100% { transform: translate3d(62px, 2px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeLeftCard5 {
+            0%, 22% { transform: translate3d(0, -10px, 5px) rotate(2deg); }
+            46% { transform: translate3d(46px, -8px, 76px) rotate(-1deg); }
+            74% { transform: translate3d(82px, 7px, 138px) rotate(0deg); }
+            100% { transform: translate3d(64px, 5px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeRightCard1 {
+            0%, 22% { transform: translate3d(0, -10px, 1px) rotate(3deg); }
+            46% { transform: translate3d(-30px, -8px, 58px) rotate(-3deg); }
+            74% { transform: translate3d(-66px, 7px, 118px) rotate(0deg); }
+            100% { transform: translate3d(-56px, 5px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeRightCard2 {
+            0%, 22% { transform: translate3d(0, -5px, 2px) rotate(2deg); }
+            46% { transform: translate3d(-34px, -6px, 62px) rotate(-2deg); }
+            74% { transform: translate3d(-70px, 2px, 123px) rotate(0deg); }
+            100% { transform: translate3d(-58px, 2px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeRightCard3 {
+            0%, 22% { transform: translate3d(0, 0, 3px) rotate(1deg); }
+            46% { transform: translate3d(-38px, -4px, 66px) rotate(-1deg); }
+            74% { transform: translate3d(-74px, -4px, 128px) rotate(0deg); }
+            100% { transform: translate3d(-60px, -2px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeRightCard4 {
+            0%, 22% { transform: translate3d(0, 5px, 4px) rotate(-1deg); }
+            46% { transform: translate3d(-42px, -2px, 70px) rotate(0deg); }
+            74% { transform: translate3d(-78px, -9px, 132px) rotate(0deg); }
+            100% { transform: translate3d(-62px, -5px, 0) rotate(0deg); }
+        }
+        @keyframes archetypeRightCard5 {
+            0%, 22% { transform: translate3d(0, 10px, 5px) rotate(-2deg); }
+            46% { transform: translate3d(-46px, 0, 74px) rotate(1deg); }
+            74% { transform: translate3d(-82px, -14px, 136px) rotate(0deg); }
+            100% { transform: translate3d(-64px, -8px, 0) rotate(0deg); }
         }
         @keyframes archetypeShuffleShine {
             0%, 74% { opacity: 0; transform: scale(0.6); }
             82% { opacity: 0.85; transform: scale(1.15); }
             100% { opacity: 0; transform: scale(1.4); }
+        }
+
+        /* Archetypes: tarot arc spread */
+        .archetype-spread-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 320;
+            background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 0.95), rgba(5, 4, 8, 0.98) 58%, #020103 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        .archetype-spread-stage {
+            position: relative;
+            width: min(100%, 440px);
+            height: min(88vh, 720px);
+        }
+        .archetype-spread-card {
+            position: absolute;
+            left: 50%;
+            top: 56%;
+            width: min(20vw, 92px);
+            aspect-ratio: 2 / 3;
+            transform-style: preserve-3d;
+            touch-action: none;
+            cursor: grab;
+            transition: transform 0.18s ease-out, filter 0.18s ease-out;
+            z-index: var(--z, 1);
+            will-change: transform;
+        }
+        .archetype-spread-card.is-dragging { cursor: grabbing; filter: brightness(1.14); }
+        .archetype-spread-card.is-chosen {
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 400 !important;
+        }
+        .archetype-spread-card.is-flipping .archetype-spread-inner {
+            transform: rotateY(180deg);
+        }
+        .archetype-spread-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        .archetype-spread-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(212, 175, 125, 0.24);
+        }
+        .archetype-spread-face.back {
+            background-size: cover;
+            background-position: center;
+        }
+        .archetype-spread-face.front {
+            transform: rotateY(180deg);
+            background: linear-gradient(165deg, #2a152f 0%, #160b1d 55%, #0b0610 100%);
+            border: 1px solid rgba(212, 175, 125, 0.32);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.55rem;
+            font-family: 'Cormorant Garamond', serif;
+            color: #f5e8d4;
+            font-size: 0.9rem;
+            line-height: 1.15;
+        }
+        .archetype-spread-title {
+            position: absolute;
+            top: 8%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(248, 234, 214, 0.92);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            letter-spacing: 0.03em;
+            padding: 0 1rem;
+        }
+        .archetype-spread-subtitle {
+            display: block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(212, 175, 125, 0.82);
+            margin-top: 0.35rem;
         }
 
         /* Archetypes: flip card (face / booklet) */
@@ -503,8 +658,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-archetypes-shuffle2';
-        const SW_BUILD = '2026-04-22-02';
+        const APP_BUILD = 'build-canonical-2026-04-22-archetypes-tarot';
+        const SW_BUILD = '2026-04-22-03';
 
         const AppState = {
             rawRows: [],          
@@ -670,7 +825,7 @@
             });
             AppState.categories = Array.from(catsMap).map(([name, color]) => ({name, color}));
 
-            // Aggregation Logic — group by Pattern, variations by Theme
+            // Aggregation Logic - group by Pattern, variations by Theme
             const cardsMap = new Map();
             
             cleanData.forEach(row => {
@@ -792,7 +947,7 @@
             if (!e) return '';
             const m = e.match(/^.{20,160}?[.!?](?=\s|$)/);
             const first = m ? m[0] : e.slice(0, 140);
-            return first.length < e.length && !m ? first.trim() + '…' : first.trim();
+            return first.length < e.length && !m ? first.trim() + '...' : first.trim();
         }
 
         function pruneArchetypeFavorites() {
@@ -829,21 +984,153 @@
             layer.className = 'archetype-shuffle-overlay';
             layer.setAttribute('dir', 'ltr');
             const cardStyle = `background-image:url('${ARCHETYPE_CARD_BACK}')`;
-            const layers = Array.from({ length: 7 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
+            const leftPack = Array.from({ length: 5 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
+            const rightPack = Array.from({ length: 5 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
             layer.innerHTML = `
                 <div class="archetype-shuffle-hub">
-                    <div class="archetype-shuffle-motor">
-                        <div class="archetype-shuffle-pack">${layers}</div>
+                    <div class="archetype-shuffle-table-glow" aria-hidden="true"></div>
+                    <div class="archetype-shuffle-riffle">
+                        <div class="archetype-shuffle-pack left">${leftPack}</div>
+                        <div class="archetype-shuffle-pack right">${rightPack}</div>
                     </div>
                     <div class="archetype-shuffle-shine" aria-hidden="true"></div>
                 </div>
-                <p class="archetype-shuffle-caption">Shuffling the deck…</p>
+                <p class="archetype-shuffle-caption">Shuffling the deck...</p>
             `;
             app.appendChild(layer);
             window.setTimeout(() => {
                 layer.remove();
                 callback();
-            }, 2960);
+            }, 2860);
+        }
+
+        function pickArchetypeSpreadCards(count) {
+            const pool = [...ARCHETYPES_DATA].sort(() => Math.random() - 0.5);
+            return pool.slice(0, Math.min(count, pool.length));
+        }
+
+        function openArchetypeTarotSpread() {
+            const app = document.getElementById('app');
+            const layer = document.createElement('div');
+            layer.className = 'archetype-spread-overlay';
+            layer.setAttribute('dir', 'ltr');
+            const spreadCards = pickArchetypeSpreadCards(11);
+            if (!spreadCards.length) return;
+            const angleStart = -62;
+            const angleEnd = 62;
+            const step = spreadCards.length > 1 ? (angleEnd - angleStart) / (spreadCards.length - 1) : 0;
+            const radius = 250;
+            const centerX = 0;
+            const centerY = 122;
+            const cardsHtml = spreadCards.map((card, i) => {
+                const angle = angleStart + (step * i);
+                const rad = angle * Math.PI / 180;
+                const x = centerX + Math.sin(rad) * radius;
+                const y = centerY - Math.cos(rad) * radius;
+                const rot = angle * 0.56;
+                return `
+                    <div class="archetype-spread-card" data-index="${i}" data-card-id="${card.id}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${rot.toFixed(2)}deg);">
+                        <div class="archetype-spread-inner">
+                            <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
+                            <div class="archetype-spread-face front">${escapeHtmlArchetype(card.name)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            layer.innerHTML = `
+                <div class="archetype-spread-stage">
+                    <h3 class="archetype-spread-title">Push a card out to reveal it<span class="archetype-spread-subtitle">Drag any card outward from the arc</span></h3>
+                    ${cardsHtml}
+                </div>
+            `;
+            app.appendChild(layer);
+
+            let selected = false;
+            const stageRect = layer.getBoundingClientRect();
+            const originX = stageRect.left + stageRect.width / 2;
+            const originY = stageRect.top + stageRect.height * 0.7;
+            const cards = Array.from(layer.querySelectorAll('.archetype-spread-card'));
+
+            cards.forEach((el) => {
+                const baseX = Number(el.dataset.x || 0);
+                const baseY = Number(el.dataset.y || 0);
+                const baseRot = Number(el.dataset.rot || 0);
+                let pointerId = null;
+                let startX = 0;
+                let startY = 0;
+                let outShift = 0;
+                let dx = 0;
+                let dy = 0;
+
+                const applyTransform = (offsetX, offsetY, lift = 0, twist = 0) => {
+                    el.style.transform = `translate3d(${baseX + offsetX}px, ${baseY + offsetY - lift}px, 0) rotate(${baseRot + twist}deg)`;
+                };
+
+                const onDown = (ev) => {
+                    if (selected) return;
+                    pointerId = ev.pointerId;
+                    startX = ev.clientX;
+                    startY = ev.clientY;
+                    outShift = 0;
+                    dx = 0;
+                    dy = 0;
+                    el.classList.add('is-dragging');
+                    el.setPointerCapture(pointerId);
+                };
+
+                const onMove = (ev) => {
+                    if (pointerId == null || ev.pointerId !== pointerId || selected) return;
+                    dx = ev.clientX - startX;
+                    dy = ev.clientY - startY;
+                    const cardCenterX = originX + baseX;
+                    const cardCenterY = originY + baseY;
+                    const vx = cardCenterX - originX;
+                    const vy = cardCenterY - originY;
+                    const vlen = Math.hypot(vx, vy) || 1;
+                    const ux = vx / vlen;
+                    const uy = vy / vlen;
+                    outShift = Math.max(0, dx * ux + dy * uy);
+                    const damp = Math.min(outShift, 125);
+                    const offsetX = dx * 0.18 + (ux * damp);
+                    const offsetY = dy * 0.18 + (uy * damp);
+                    const twist = (dx * 0.02) + (baseRot > 0 ? 2 : -2);
+                    applyTransform(offsetX, offsetY, 6 + (damp * 0.07), twist);
+                };
+
+                const chooseCard = () => {
+                    selected = true;
+                    const cardId = el.dataset.cardId;
+                    cards.forEach(c => { if (c !== el) c.style.opacity = '0.2'; });
+                    el.classList.remove('is-dragging');
+                    el.classList.add('is-chosen');
+                    el.style.transform = 'translate3d(0px, -72px, 0) rotate(0deg) scale(1.28)';
+                    window.setTimeout(() => el.classList.add('is-flipping'), 180);
+                    window.setTimeout(() => {
+                        layer.remove();
+                        renderArchetypeCard(cardId, 'random');
+                    }, 980);
+                };
+
+                const onUp = (ev) => {
+                    if (pointerId == null || ev.pointerId !== pointerId || selected) return;
+                    el.classList.remove('is-dragging');
+                    const threshold = 66;
+                    if (outShift > threshold) {
+                        chooseCard();
+                    } else {
+                        el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.2,1)';
+                        applyTransform(0, 0, 0, 0);
+                        window.setTimeout(() => { el.style.transition = ''; }, 300);
+                    }
+                    try { el.releasePointerCapture(pointerId); } catch (e) {}
+                    pointerId = null;
+                };
+
+                el.addEventListener('pointerdown', onDown);
+                el.addEventListener('pointermove', onMove);
+                el.addEventListener('pointerup', onUp);
+                el.addEventListener('pointercancel', onUp);
+            });
         }
 
         function reshuffleArchetypeDraw() {
@@ -851,8 +1138,8 @@
                 alert('The archetype deck is still loading. Please wait a moment and try again.');
                 return;
             }
-            const idx = Math.floor(Math.random() * ARCHETYPES_DATA.length);
-            playArchetypeShuffleThen(() => renderArchetypeCard(ARCHETYPES_DATA[idx].id, 'random'));
+            AppState.archetypeView = { cardId: null, fromView: 'random', flipped: false };
+            playArchetypeShuffleThen(openArchetypeTarotSpread);
         }
 
         function isIos() {
@@ -1123,7 +1410,7 @@
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">How to use</h3>
                             <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed">
-                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">1.</span><span>Choose a deck — <em>Basic</em> for core language patterns, or <em>Custom</em> to focus on specific categories.</span></div>
+                                <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">1.</span><span>Choose a deck - <em>Basic</em> for core language patterns, or <em>Custom</em> to focus on specific categories.</span></div>
                                 <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">2.</span><span>Each card shows a <strong class="text-white">pattern name</strong> at the top. Read it, feel it, then practice saying it aloud.</span></div>
                                 <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">3.</span><span>Swipe left/right or use the arrows to move between cards.</span></div>
                                 <div class="flex gap-3"><span class="text-purple-400 font-bold shrink-0">4.</span><span>Change the <strong class="text-white">theme</strong> (Relaxation, Desire, Joy...) at the bottom to feel how the same pattern shifts in tone and intention.</span></div>
@@ -1134,8 +1421,8 @@
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
                             <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Card types</h3>
                             <div class="space-y-2 text-gray-300 serif-font text-sm leading-relaxed">
-                                <p><span class="text-white font-bold">Dynamic cards</span> — language patterns with examples per theme for quick modulation practice.</p>
-                                <p><span class="text-white font-bold">Static cards</span> — longer scripts and focused structures for deeper drills (such as Triggers, Deepeners, and Convincers).</p>
+                                <p><span class="text-white font-bold">Dynamic cards</span> - language patterns with examples per theme for quick modulation practice.</p>
+                                <p><span class="text-white font-bold">Static cards</span> - longer scripts and focused structures for deeper drills (such as Triggers, Deepeners, and Convincers).</p>
                             </div>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
@@ -1229,8 +1516,8 @@
                 alert('The archetype deck is still loading. Please wait a moment and try again.');
                 return;
             }
-            const idx = Math.floor(Math.random() * ARCHETYPES_DATA.length);
-            playArchetypeShuffleThen(() => renderArchetypeCard(ARCHETYPES_DATA[idx].id, 'random'));
+            AppState.archetypeView = { cardId: null, fromView: 'random', flipped: false };
+            playArchetypeShuffleThen(openArchetypeTarotSpread);
         }
 
         function renderArchetypesList(onlyFavorites) {
@@ -1246,7 +1533,7 @@
                                 <div class="text-white font-bold serif-font text-lg">${card.name}</div>
                                 <div class="text-gray-400 text-sm archetype-list-teaser">${archetypeTeaserLine(card)}</div>
                             </div>
-                            <div class="text-purple-300">${AppState.archetypeFavorites.includes(card.id) ? '★' : '☆'}</div>
+                            <div class="text-purple-300">${AppState.archetypeFavorites.includes(card.id) ? 'â˜…' : 'â˜†'}</div>
                         </div>
                     </button>
                 `).join('')
@@ -1301,7 +1588,7 @@
                     <div class="p-4 pt-6 flex items-center justify-between gap-3 flex-shrink-0">
                         <button onclick="${backNav}" class="p-2 bg-white/5 rounded-full touch-manipulation"><i data-lucide="arrow-left"></i></button>
                         <button onclick="toggleArchetypeFavorite('${card.id}'); renderArchetypeCard('${card.id}','${fromView}')" class="px-3 py-2 rounded-xl border border-purple-500/30 text-purple-200 text-xs font-mono touch-manipulation">
-                            ${isFav ? '★ Favorited' : '☆ Add to favorites'}
+                            ${isFav ? 'â˜… Favorited' : 'â˜† Add to favorites'}
                         </button>
                     </div>
                     <div class="flex-1 flex flex-col min-h-0 px-4 pb-6">
@@ -1323,7 +1610,7 @@
                                             <h3 class="text-3xl text-white serif-font font-bold leading-tight">${escapeHtmlArchetype(card.name)}</h3>
                                             <p class="text-amber-200/90 text-[0.62rem] tracking-[0.22em] uppercase font-mono mt-4 mb-1">Frequency</p>
                                             <p class="text-white/80 serif-font text-sm leading-snug">${escapeHtmlArchetype(card.energy)}</p>
-                                            ${useFaceImage ? '' : '<p class="text-[0.7rem] text-amber-100/50 font-mono mt-4 tracking-wide">Portrait art coming soon · tap to read</p>'}
+                                            ${useFaceImage ? '' : '<p class="text-[0.7rem] text-amber-100/50 font-mono mt-4 tracking-wide">Portrait art coming soon Â· tap to read</p>'}
                                             ${useFaceImage ? '<p class="text-[0.7rem] text-amber-100/55 font-mono mt-4 tracking-wide">Tap to read the full card</p>' : ''}
                                         </div>
                                     </div>
@@ -1487,7 +1774,7 @@
                     <div class="bg-white/5 border border-white/10 p-4 rounded-xl flex justify-between items-center mb-3">
                         <div style="flex:1;min-width:0">
                             <div class="text-white font-bold serif-font">${rec.name}</div>
-                            <div class="text-xs text-gray-500">${rec.date} · ${rec.theme}</div>
+                            <div class="text-xs text-gray-500">${rec.date} Â· ${rec.theme}</div>
                             ${rec.audioDataUrl ? '' : `<div class="mt-2 text-[0.7rem] text-amber-300">Playable audio is not available for this item.</div>`}
                         </div>
                         <div class="flex items-center gap-2">
@@ -1546,7 +1833,7 @@
             if (playbackRaf) cancelAnimationFrame(playbackRaf);
             playbackRaf = null;
             const btn = document.getElementById('playerPlayPauseBtn');
-            if (btn) btn.textContent = '▶';
+            if (btn) btn.textContent = 'â–¶';
         }
 
         function openRecordingPlayer(recordingId) {
@@ -1587,12 +1874,12 @@
                         <div class="flex items-start justify-between gap-4 mb-3">
                             <div>
                                 <div class="text-white font-bold serif-font">${rec.name}</div>
-                                <div class="text-xs text-gray-400">${rec.date} · ${rec.theme}</div>
+                                <div class="text-xs text-gray-400">${rec.date} Â· ${rec.theme}</div>
                             </div>
-                            <button onclick="closeRecordingPlayer()" class="p-2 bg-white/10 rounded-full text-gray-300 hover:bg-white/20">✕</button>
+                            <button onclick="closeRecordingPlayer()" class="p-2 bg-white/10 rounded-full text-gray-300 hover:bg-white/20">âœ•</button>
                         </div>
                         <div class="flex items-center gap-3 mb-2">
-                            <button id="playerPlayPauseBtn" onclick="togglePlayerPlayPause()" class="p-2 bg-purple-600/20 text-purple-300 rounded-full hover:bg-purple-600/30 transition">▶</button>
+                            <button id="playerPlayPauseBtn" onclick="togglePlayerPlayPause()" class="p-2 bg-purple-600/20 text-purple-300 rounded-full hover:bg-purple-600/30 transition">â–¶</button>
                             <input id="playerProgress" type="range" min="0" max="100" value="0" oninput="seekRecordingPlayback(${recordingId}, this.value)" class="flex-1 accent-purple-500">
                         </div>
                         <div class="flex justify-between text-[0.72rem] text-gray-400 font-mono">
@@ -1621,12 +1908,12 @@
                 stopPlaybackUi();
                 return;
             }
-            if (btn) btn.textContent = '⏸';
+            if (btn) btn.textContent = 'â¸';
             playbackAudio.play().then(() => {
                 stopPlaybackUi();
                 updatePlaybackUi(playbackRecordingId);
             }).catch(() => {
-                if (btn) btn.textContent = '▶';
+                if (btn) btn.textContent = 'â–¶';
                 alert('Could not play this recording on this device.');
             });
         }
@@ -1733,7 +2020,7 @@
                                 <!-- Back face: Category Info -->
                                 <div id="cardBack" class="card-face-back flex flex-col">
                                     <!-- Info button (back) -->
-                                    <button class="info-btn" onclick="toggleCardFlip()" title="Back to card">✕</button>
+                                    <button class="info-btn" onclick="toggleCardFlip()" title="Back to card">âœ•</button>
 
                                     <div class="card-header-fixed" style="background:linear-gradient(to bottom,rgba(80,20,120,0.9),transparent)">
                                         <p style="font-size:0.7rem;letter-spacing:0.15em;color:#a855f7;font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:0.5rem">Pattern Type</p>
@@ -1827,7 +2114,7 @@
 
             strip.innerHTML = '';
 
-            // Show prev, active, next — always 3 items, active in center
+            // Show prev, active, next - always 3 items, active in center
             [-1, 0, 1].forEach(offset => {
                 const idx = ((activeIdx + offset) % n + n) % n;
                 const t = themes[idx];
@@ -2210,3 +2497,5 @@
     </script>
 </body>
 </html>
+
+
