@@ -687,8 +687,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-planner-home-three-entry';
-        const SW_BUILD = '2026-04-22-32';
+        const APP_BUILD = 'build-canonical-2026-04-22-planner-about-full-adaptation';
+        const SW_BUILD = '2026-04-22-42';
 
         const AppState = {
             rawRows: [],          
@@ -706,6 +706,7 @@
             archetypeView: { cardId: null, fromView: 'random', flipped: false },
             selectedArchetypeDeckKeys: JSON.parse(localStorage.getItem('archetype_deck_keys_v1') || '[]'),
             pendingArchetypePoolIds: [],
+            plannerSessions: JSON.parse(localStorage.getItem('planner_sessions_v1') || '[]'),
               
             selectedCategories: []
         };
@@ -1830,19 +1831,132 @@
 
         function showPlannerAbout() {
             const app = document.getElementById('app');
+            const sections = [
+                {
+                    title: 'About This Tool',
+                    body: [
+                        'Scene Planner is a digital tool for negotiating consent before a BDSM session. It guides you through seven topic areas: session setup, safety, touch, restraints/sensation, dynamics/language, sex/intimacy, and aftercare.',
+                        'It produces a visual summary you can review together, export, share, and sign.',
+                        'It was built on one core belief: honest and respectful negotiation is not only a safety measure, it is part of the experience itself.',
+                        'Privacy first:',
+                        '• No account',
+                        '• No tracking',
+                        '• No server-side profile',
+                        '• Your session remains local unless you choose to share it'
+                    ]
+                },
+                {
+                    title: 'How to Use Scene Planner',
+                    body: [
+                        'Recommended flow:',
+                        'Fill in your form privately first, before talking with your partner. Then save/share your link. Your partner fills their own form separately. Review both summaries together and begin with differences.',
+                        'Step by step:',
+                        '• Work through chapters in order (you can skip and return).',
+                        '• Answer for this session, not forever.',
+                        '• Use refinements to add nuance and context.',
+                        '• In summary, filter by Yes and Maybe to see what is open to explore.',
+                        '• Export/share/sign only after agreements are clear.',
+                        'A few tips:',
+                        '• "Maybe" is important information. It means: we need to discuss this further.',
+                        '• The form does not replace conversation. It structures it.',
+                        '• Unanswered items are also useful data.',
+                        '• Answers can change. Re-negotiate for each meeting.'
+                    ]
+                },
+                {
+                    title: 'Consent Frameworks (SSC, RACK, FRIES)',
+                    body: [
+                        'Consent is the foundation of everything in BDSM. Three major frameworks are especially useful in practice.',
+                        'SSC - Safe, Sane, Consensual:',
+                        '• Safe: take reasonable precautions and prepare properly.',
+                        '• Sane: everyone is in a state that allows meaningful consent.',
+                        '• Consensual: agreement is free, informed, and explicit.',
+                        'RACK - Risk-Aware Consensual Kink:',
+                        '• Replaces "safe" with "risk-aware".',
+                        '• Focuses on understanding risk and choosing consciously.',
+                        '• Especially relevant for higher-risk activities.',
+                        'FRIES - Freely given, Reversible, Informed, Enthusiastic, Specific:',
+                        '• Freely given: no pressure, fear, coercion, or obligation.',
+                        '• Reversible: consent can be withdrawn at any moment.',
+                        '• Informed: both sides understand what is being agreed to.',
+                        '• Enthusiastic: real willingness, not reluctant compliance.',
+                        '• Specific: consent to one thing is not consent to everything.',
+                        'A completed form is never permanent permission.'
+                    ]
+                },
+                {
+                    title: 'Roles, Power Exchange, and Safety Tools',
+                    body: [
+                        'Roles:',
+                        '• Dominant: leads direction and holds active responsibility for navigation.',
+                        '• Submissive: yields control within the negotiated scope.',
+                        '• Switch: can take either role depending on context.',
+                        'Power exchange is always negotiated and bounded by consent.',
+                        'Safety tools:',
+                        '• Safeword: immediate stop, no argument, no punishment.',
+                        '• Traffic Light: Green = continue, Yellow = slow/check in, Red = stop now.',
+                        '• Physical Signal: clear non-verbal stop signal for speech-limited moments (for example with a gag).'
+                    ]
+                },
+                {
+                    title: 'Limits, Aftercare, and Drop',
+                    body: [
+                        'Limits:',
+                        '• Hard limits are absolute no and are never negotiable.',
+                        '• Soft limits are conditional and explored only with explicit desire and trust.',
+                        '• Limits can change over time and context, so negotiate fresh each session.',
+                        'Aftercare:',
+                        '• Aftercare is part of the session, not an optional add-on.',
+                        '• It may include touch, water, warmth, silence, conversation, or space.',
+                        'Drop:',
+                        '• Sub Drop and Dom Drop can appear in the hours/days after intense play.',
+                        '• They are common physiological/emotional responses, not proof that something failed.',
+                        '• Plan post-session check-ins in advance.'
+                    ]
+                },
+                {
+                    title: 'Glossary and Important Boundaries',
+                    body: [
+                        'Key glossary terms include: Aftercare, BDSM, Check-in, CNC, Dom Drop, Hard Limit, Impact Play, Kink, Negotiation, Power Exchange, RACK, Safeword, Scene, Soft Limit, SSC, Sub Drop, and Switch.',
+                        'What this tool is not:',
+                        '• Not a legal document',
+                        '• Not medical, legal, or psychological advice',
+                        '• Not a guarantee of outcome',
+                        '• Not a replacement for training in high-risk practices',
+                        'For high-risk activities (for example breath play, electricity, needles, advanced restraint), seek in-person guidance from experienced practitioners.',
+                        'Consent is ongoing. It can be changed or withdrawn at any time.'
+                    ]
+                }
+            ];
+            const sectionsHtml = sections.map((s, i) => `
+                <details class="bg-black/25 border border-violet-300/25 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.28)]" ${i === 0 ? 'open' : ''}>
+                    <summary class="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-violet-100 font-semibold serif-font text-[1.08rem]">${s.title}</span>
+                        <span class="text-violet-200/80 text-sm font-mono">+</span>
+                    </summary>
+                    <div class="px-4 pb-4">
+                        ${s.body.map(line => `
+                            <p class="text-gray-200 serif-font text-[1.04rem] leading-relaxed ${line.startsWith('•') ? 'pl-1 text-violet-50' : ''} ${line.endsWith(':') ? 'text-fuchsia-100 font-semibold mt-1' : ''}">
+                                ${line}
+                            </p>
+                        `).join('')}
+                    </div>
+                </details>
+            `).join('');
             app.innerHTML = `
                 <div class="flex flex-col h-full bg-[#050408]">
                     <div class="p-6 pt-8 flex items-center gap-4">
                         <button onclick="renderKinkyScenePlannerHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
                         <h2 class="text-2xl font-bold text-white serif-font">About Kinky Scene Planner</h2>
                     </div>
-                    <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
-                        <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <p class="text-gray-300 serif-font text-base leading-relaxed">The planner is your structured conversation space for consent, boundaries, desired intensity, and practical setup before a scene.</p>
+                    <div class="flex-1 overflow-y-auto px-6 pb-20 space-y-6 no-scrollbar">
+                        <div class="bg-white/10 border border-purple-300/25 rounded-2xl p-5">
+                            <h3 class="text-purple-200 font-bold text-lg serif-font mb-2">About & How to Use</h3>
+                            <p class="text-gray-200 serif-font text-[1.07rem] leading-relaxed">The planner is your structured conversation space for consent, boundaries, desired intensity, and practical setup before a scene.</p>
                         </div>
-                        <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">Usage</h3>
-                            <p class="text-gray-300 serif-font text-sm leading-relaxed">Use it with a partner to create a shared map, then export or share your agreed scene outline. We will wire your existing planner code into this module next.</p>
+                        <div class="bg-white/10 border border-purple-300/25 rounded-2xl p-5">
+                            <h3 class="text-purple-200 font-bold text-lg serif-font mb-3">Foundations</h3>
+                            <div class="space-y-3">${sectionsHtml}</div>
                         </div>
                     </div>
                 </div>
@@ -2129,12 +2243,12 @@
                     </div>
 
                     <div class="grid gap-4">
-                        <button onclick="showPlannerAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
+                        <button onclick="startPlannerSession()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
                             <h3 class="text-xl font-bold text-white serif-font mb-1">New Consent &amp; Desires Session</h3>
                             <p class="text-gray-400 serif-font text-base">Start a fresh planning session for boundaries, desires, and agreements.</p>
                         </button>
 
-                        <button onclick="showPlannerAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
+                        <button onclick="renderPlannerSessions()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
                             <h3 class="text-xl font-bold text-white serif-font mb-1">My Sessions</h3>
                             <p class="text-gray-400 serif-font text-base">View, continue, and manage previously saved planner sessions.</p>
                         </button>
@@ -2147,6 +2261,156 @@
                 </div>
             `;
             lucide.createIcons();
+        }
+
+        function startPlannerSession() {
+            const newId = `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            renderPlannerEmbed('new', newId);
+        }
+
+        function listPlannerSessions() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem('planner_sessions_v1') || '[]');
+                if (!Array.isArray(parsed)) return [];
+                return parsed
+                    .filter(s =>
+                        s &&
+                        typeof s === 'object' &&
+                        typeof s.id === 'string' &&
+                        typeof s.title === 'string' &&
+                        typeof s.createdAt === 'string' &&
+                        typeof s.updatedAt === 'string' &&
+                        s.plannerState &&
+                        typeof s.plannerState === 'object'
+                    )
+                    .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function savePlannerSessions(sessions) {
+            const clean = Array.isArray(sessions) ? sessions.slice(0, 100) : [];
+            localStorage.setItem('planner_sessions_v1', JSON.stringify(clean));
+            AppState.plannerSessions = clean;
+        }
+
+        function loadPlannerSession(sessionId) {
+            return listPlannerSessions().find(s => s.id === sessionId) || null;
+        }
+
+        function deletePlannerSessionById(sessionId) {
+            const sessions = listPlannerSessions().filter(s => s.id !== sessionId);
+            savePlannerSessions(sessions);
+            return sessions;
+        }
+
+        function formatPlannerSessionDate(iso) {
+            const d = new Date(String(iso || ''));
+            if (Number.isNaN(d.getTime())) return String(iso || '');
+            return d.toLocaleString();
+        }
+
+        function renderPlannerSessionMeta(s) {
+            const snap = s && s.summarySnapshot && typeof s.summarySnapshot === 'object' ? s.summarySnapshot : {};
+            const roleRaw = String(snap.role || '').trim().toLowerCase();
+            const role = roleRaw ? ({ dom: 'Dom', sub: 'Sub', switch: 'Switch' }[roleRaw] || roleRaw) : '—';
+            const durationNum = Number(snap.duration || 0);
+            const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} min` : '—';
+            return `Role: ${role} • Duration: ${duration}`;
+        }
+
+        function renderPlannerEmbed(mode, sessionId) {
+            const app = document.getElementById('app');
+            const subtitle = mode === 'new'
+                ? 'New Consent & Desires Session'
+                : 'Kinky Scene Planner';
+            const plannerSrc = `scene-planner-embed-en.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}`;
+            app.innerHTML = `
+                <div class="flex flex-col h-full bg-[#050408]">
+                    <div class="p-4 pt-6 flex items-center gap-3">
+                        <button onclick="renderKinkyScenePlannerHome()" class="p-2 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="arrow-left"></i></button>
+                        <h2 class="text-xl font-bold text-white serif-font">${subtitle}</h2>
+                    </div>
+                    <div class="px-4 pb-4">
+                        <p class="text-[0.72rem] text-gray-400 font-mono">Embedded planner preserves original summary behavior.</p>
+                    </div>
+                    <div class="flex-1 min-h-0 px-4 pb-4">
+                        <iframe
+                            src="${plannerSrc}"
+                            title="Kinky Scene Planner Embed"
+                            class="w-full h-full rounded-2xl border border-white/15 bg-black"
+                            loading="eager"
+                            referrerpolicy="no-referrer"
+                        ></iframe>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderPlannerSessions() {
+            const app = document.getElementById('app');
+            const sessions = listPlannerSessions();
+            const rows = sessions.length
+                ? sessions.map(s => `
+                    <div class="glass-panel p-4 rounded-2xl border border-white/15 space-y-3">
+                        <div>
+                            <div class="text-white serif-font text-lg font-bold">${escapeHtmlArchetype(s.title || 'Untitled session')}</div>
+                            <div class="text-xs text-gray-400 font-mono mt-1">${escapeHtmlArchetype(formatPlannerSessionDate(s.updatedAt || s.createdAt || ''))}</div>
+                            <div class="text-[11px] text-gray-500 font-mono mt-1">${escapeHtmlArchetype(renderPlannerSessionMeta(s))}</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="openPlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-xs font-mono hover:bg-emerald-500/10 transition">Open</button>
+                            <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-xs font-mono hover:bg-white/10 transition">Rename</button>
+                            <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-xs font-mono hover:bg-rose-500/10 transition">Delete</button>
+                        </div>
+                    </div>
+                `).join('')
+                : `<div class="glass-panel p-6 rounded-2xl border border-white/15 text-center">
+                        <h3 class="text-xl text-white serif-font font-bold mb-2">No sessions yet</h3>
+                        <p class="text-gray-400 serif-font text-base">Start a new session to create your first saved planner entry.</p>
+                   </div>`;
+            app.innerHTML = `
+                <div class="flex flex-col h-full bg-[#050408]">
+                    <div class="p-6 pt-8 flex items-center gap-4">
+                        <button onclick="renderKinkyScenePlannerHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
+                        <h2 class="text-2xl font-bold text-white serif-font">My Sessions</h2>
+                    </div>
+                    <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function openPlannerSession(sessionId) {
+            const session = loadPlannerSession(sessionId);
+            if (!session) {
+                alert('This session was not found. It may have been deleted.');
+                renderPlannerSessions();
+                return;
+            }
+            renderPlannerEmbed('existing', sessionId);
+        }
+
+        function renamePlannerSession(sessionId) {
+            const sessions = listPlannerSessions();
+            const ix = sessions.findIndex(s => s.id === sessionId);
+            if (ix < 0) return;
+            const current = String(sessions[ix].title || 'Untitled session');
+            const next = prompt('Rename session:', current);
+            if (next === null) return;
+            const clean = String(next).trim() || current;
+            sessions[ix].title = clean;
+            sessions[ix].updatedAt = new Date().toISOString();
+            savePlannerSessions(sessions);
+            renderPlannerSessions();
+        }
+
+        function deletePlannerSession(sessionId) {
+            if (!confirm('Delete this saved session? This cannot be undone.')) return;
+            deletePlannerSessionById(sessionId);
+            renderPlannerSessions();
         }
 
         function renderModeSelect() {

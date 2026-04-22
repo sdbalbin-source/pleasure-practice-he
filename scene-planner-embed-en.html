@@ -1,0 +1,2640 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scene Planner | Consent Protocol</title>
+  <style>
+/* צ'יפים נבחרים בפרק 5 — חיובי/שלילי */
+.chip.active.chip-green {
+  background: #3ec97a;
+  border-color: #2e9e5e;
+  color: #111;
+  font-weight: 600;
+}
+.chip.active.chip-red {
+  background: #e74c3c;
+  border-color: #b93222;
+  color: #fff;
+  font-weight: 600;
+}
+/* Chip color for good/bad (used in nicknames/titles chips and summary) */
+.chip-good, .summary-tag-good {
+  background: rgba(76,175,80,.22) !important;
+  border-color: rgba(76,175,80,.65) !important;
+  color: #e9ffe9 !important;
+}
+.chip-bad, .summary-tag-bad {
+  background: rgba(244,67,54,.22) !important;
+  border-color: rgba(244,67,54,.7) !important;
+  color: #ffecec !important;
+}
+/* Sticky summary filters under session box */
+.sticky-summary-filters {
+  position: sticky;
+  top: 1.5rem;
+  z-index: 20;
+  background: var(--surface);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0002;
+  margin-bottom: 1.1rem;
+  padding: 0.5rem 0.7rem;
+}
+@media (max-width: 600px) {
+  .sticky-summary-filters {
+    top: 0.5rem;
+    padding: 0.3rem 0.2rem;
+  }
+  .site-header {
+    position: static !important;
+  }
+}
+.summary-tag-label { font-weight: 500; }
+.summary-tag-intensity {
+  font-weight: 700;
+  color: var(--primary);
+  margin-right: 0.2em;
+  margin-left: 0.2em;
+  letter-spacing: 0.5px;
+}
+/* Session box: 3 columns summary */
+.session-box-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 0.8rem 0.8rem 0.8rem;
+  background: #00000018;
+  margin-bottom: 1.2rem;
+}
+.session-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.session-col-title {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.08rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.18rem;
+}
+@media (max-width: 900px) {
+  .session-box-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+}
+/* Google Font already loaded in index.html (Rubik) */
+:root{
+  --bg:#050408;
+  --surface:rgba(255,255,255,0.07);
+  --text:#f3f1ff;
+  --text-muted:#b7b4c9;
+  --primary:#cdb4ff;
+  --secondary:#a9d7ff;
+  --border:rgba(255,255,255,0.18);
+  --success:#4CAF50;
+  --warning:#FFC107;
+  --danger:#F44336;
+}
+
+*{ box-sizing:border-box }
+html,body{ height:100% }
+
+body{
+  background:radial-gradient(circle at 20% 20%, rgba(152, 101, 255, 0.14), transparent 40%),
+             radial-gradient(circle at 80% 30%, rgba(115, 217, 255, 0.12), transparent 44%),
+             linear-gradient(180deg, #050408 0%, #0c0918 100%);
+  color:var(--text);
+  font-family:'Rubik', -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  margin:0; padding:1rem; line-height:1.6;
+  position:relative;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-20vmax;
+  margin:auto;
+  width:95vmax;
+  height:95vmax;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at center, rgba(196, 164, 255, 0.16) 0%, rgba(196, 164, 255, 0.1) 20%, rgba(196, 164, 255, 0) 58%),
+    repeating-radial-gradient(circle at center, rgba(201, 170, 255, 0.12) 0 1px, rgba(0,0,0,0) 7px 17px);
+  filter:blur(1.2px);
+  opacity:.42;
+  animation:plannerSpiralRotate 13s linear infinite;
+  pointer-events:none;
+  z-index:0;
+}
+@keyframes plannerSpiralRotate{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+
+.site-container{ max-width:1000px; margin:0 auto; padding:0 0.5rem; position:relative; z-index:1; }
+
+/* Header sticky */
+.site-header{
+  background:linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+  backdrop-filter:blur(8px);
+  position:sticky; top:0; z-index:50;
+  padding-bottom:0.5rem;
+  border-bottom:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 14px 36px rgba(0,0,0,.28);
+}
+.header-controls{
+  display:flex; justify-content:flex-end; align-items:center; margin-bottom:0.5rem;
+}
+.header-btn{
+  background:linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.06) 100%); color:var(--text); border:1px solid var(--border);
+  padding:0.45rem 0.9rem; border-radius:10px; cursor:pointer; font-size:0.95rem;
+}
+.header-btn:hover{ border-color:var(--primary) }
+
+.app-title{
+  color:var(--primary); font-weight:700; margin:0.2rem 0 0.15rem; font-size:2.2rem; text-align:center
+}
+.subtitle{ color:var(--text-muted); margin:0 0 0.6rem; text-align:center }
+
+/* Stepper */
+.stepper{
+  display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.6rem 0 0.4rem;
+  justify-content:center;
+}
+.step-btn{
+  background:linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%); color:var(--text);
+  border:1px solid var(--border); border-radius:999px;
+  padding:0.45rem 0.85rem; cursor:pointer; font-size:0.92rem;
+}
+.step-btn:hover{ border-color:var(--primary) }
+.step-btn.active{ background:var(--primary); border-color:var(--primary); color:#111 }
+
+/* Chapters */
+.chapter{
+  background:linear-gradient(180deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%); border:1px solid var(--border); border-radius:18px;
+  padding:1.25rem 1.25rem; margin:1rem 0 2rem; display:none;
+  box-shadow:0 18px 46px rgba(0,0,0,.26);
+}
+.chapter.visible{ display:block }
+
+.chapter-title{
+  color:var(--secondary);
+  font-size:1.8rem; font-weight:700;
+  border-bottom:1px solid var(--border); padding-bottom:0.65rem; margin:0 0 1.25rem;
+  display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;
+  cursor:pointer;
+}
+.chapter.is-collapsed > :not(.chapter-title){ display:none; }
+.section-title{
+  color:var(--primary); font-size:1.3rem; font-weight:600;
+  border-bottom:1px solid var(--border); padding-bottom:0.4rem; margin:0 0 0.85rem;
+  display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;
+}
+.section-title .perspective{ color:var(--text-muted); font-weight:500 }
+
+/* Bilingual spans */
+.lang-en{ color:var(--text-muted); display:block; font-size:.95em }
+.lang-en-inline{ font-size:0.95em; color:var(--text-muted); margin-right:0.25rem; }
+.bilingual-label{ display:flex; flex-direction:column; gap:0.2rem }
+
+/* Forms */
+.form-group{ margin-bottom:1.25rem }
+.form-group.nested{ margin-top:0.75rem }
+.title-line{ display:flex; align-items:center; gap:0.5rem; justify-content:space-between }
+.title-line.with-info .info-btn{ margin-inline-start:auto }
+.mt6{ margin-top:0.6rem }
+
+/* Inputs */
+.text-input,.textarea-input{
+  width:100%; background:var(--bg); color:var(--text);
+  border:1px solid var(--border); border-radius:10px; padding:0.8rem; font-size:1rem;
+  font-family:'Rubik', -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+.textarea-input{ min-height:120px; resize:vertical }
+.inline-with-info{ display:flex; gap:0.5rem; align-items:center }
+
+/* Checkbox tidy */
+.checkbox-line{ display:flex; align-items:center; gap:.5rem; margin-top:.4rem; }
+.checkbox-line input[type="checkbox"]{ width:18px; height:18px; }
+.checkbox-line .check-label{ user-select:none; }
+
+/* Info buttons */
+.info-btn{
+  background:transparent; border:1px solid var(--border);
+  color:var(--text); border-radius:8px; padding:0.25rem 0.5rem; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; line-height:1;
+}
+.info-btn:hover{ border-color:var(--primary) }
+.info-text{ color:var(--text-muted); font-size:0.95rem; margin-top:0.4rem }
+
+/* Chips */
+.chip-group{ display:flex; gap:0.5rem; flex-wrap:wrap }
+.chip{
+  background:transparent; color:var(--text);
+  border:2px solid var(--border); border-radius:999px; padding:0.45rem 0.9rem;
+  cursor:pointer; transition:all .2s; font-size:0.95rem;
+}
+.chip:hover{ border-color:var(--primary) }
+.chip.active{ background:var(--primary); border-color:var(--primary); color:#111; font-weight:500 }
+.chip.active .lang-en-inline{ color:#1a1a1a }
+
+/* כפתור המשך: טקסט אנגלי כהה על רקע סגול */
+.btn .lang-en-inline {
+  color: #18102a !important;
+  font-weight: 600;
+}
+.btn.ghost .lang-en-inline {
+  color: #e0e0e0 !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #2228, 0 0 1px #2224;
+}
+.chip-other{ border-style:dashed }
+
+/* Activity rows */
+.activity-row{ border-bottom:1px solid var(--border); padding:0.75rem 0 }
+.activity-label{ display:flex; align-items:center; gap:0.4rem; font-size:1.05rem; font-weight:500; }
+.controls-wrap{ display:flex; align-items:center; gap:1rem; margin-top:0.6rem; flex-wrap:wrap }
+
+/* Choice buttons */
+.choice-group{ display:flex; gap:0.4rem; align-items:center }
+.choice-btn{
+  border:2px solid var(--border); background:var(--chip-bg); color:var(--text);
+  padding:0.35rem 0.9rem; border-radius:999px; cursor:pointer; transition:.2s; min-width:64px; text-align:center;
+}
+.choice-btn.yes{ background:rgba(76,175,80,.12) }
+.choice-btn.maybe{ background:rgba(255,193,7,.12) }
+.choice-btn.no{ background:rgba(244,67,54,.12) }
+.choice-btn:hover{ border-color:var(--primary) }
+.choice-btn.active.yes{ background:var(--success); border-color:var(--success) }
+.choice-btn.active.maybe{ background:var(--warning); border-color:var(--warning); color:#111 }
+.choice-btn.active.no{ background:var(--danger); border-color:var(--danger) }
+
+/* Slider UI */
+.slider-container{ display:flex; align-items:center; gap:0.6rem; transition:opacity .3s }
+.slider-container.disabled{ opacity:.45 }
+.intensity-slider{
+  -webkit-appearance:none; appearance:none; width:160px; height:8px; background:var(--border); border-radius:8px; outline:none;
+}
+.intensity-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--primary); cursor:pointer;
+}
+.intensity-value{ min-width:46px; text-align:end; color:var(--text-muted) }
+.slider-container:not(.disabled) .intensity-value{ color:var(--text) }
+.slider-block{ margin:0.5rem 0 0.75rem }
+.slider-block label{ display:flex; align-items:center; gap:0.45rem; margin-bottom:0.35rem; font-weight:500 }
+.slider-line{ display:flex; align-items:center; gap:0.6rem }
+
+/* Session box (summary) */
+.session-box{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:0.8rem;
+  border:1px solid var(--border); border-radius:12px; padding:0.8rem; background:#00000018; margin-bottom:1rem;
+}
+.session-box .row{ display:flex; gap:0.4rem; align-items:center; padding:0.15rem 0 }
+.session-box .lbl{ color:var(--text-muted) }
+
+/* Filters (Summary) */
+.filters{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:0.6rem 0 1rem }
+#summaryFilters .chip-group .chip.active{ font-weight:700 }
+
+/* Summary grid */
+.summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; }
+@media (max-width:820px){ .summary-grid{ grid-template-columns:1fr } }
+.summary-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:0.9rem;
+}
+.summary-card h4{
+  color:var(--secondary); font-weight:700; margin:0 0 0.6rem; font-size:1.15rem;
+  border-bottom:1px solid var(--border); padding-bottom:0.4rem;
+}
+.summary-subtitle{ color:var(--primary); font-weight:600; margin:0.4rem 0 0.35rem; font-size:1.05rem; }
+.summary-tags{ display:flex; flex-wrap:wrap; gap:0.4rem; }
+.summary-tag{
+  border-radius:999px; padding:0.25rem 0.6rem; font-size:0.95rem; border:1px solid var(--border); background:#00000022;
+}
+.summary-tag-yes{ background:rgba(76,175,80,.2); border-color:rgba(76,175,80,.65); color:#e9ffe9 }
+.summary-tag-maybe{ background:rgba(255,193,7,.2); border-color:rgba(255,193,7,.7); color:#fff7d9 }
+.summary-tag-no{ background:rgba(244,67,54,.2); border-color:rgba(244,67,54,.7); color:#ffecec }
+.summary-tag-good{ background:rgba(76,175,80,.2); border-color:rgba(76,175,80,.65); color:#e9ffe9 }
+.summary-tag-bad{  background:rgba(244,67,54,.2); border-color:rgba(244,67,54,.7); color:#ffecec }
+
+/* Consent + signature */
+.consent{ margin-top:1.25rem }
+.consent-text{ color:var(--text-muted); white-space:pre-line; font-size:1.07rem; line-height:1.7; margin-bottom:0.5rem; }
+.consent-fields{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.6rem; margin-top:0.6rem }
+.signature-block{ margin-top:0.6rem }
+.sig-canvas-wrap{ width:100%; height:180px; background:#00000022; border:1px solid var(--border); border-radius:8px; overflow:hidden }
+#signatureCanvas{ width:100%; height:100%; display:block }
+
+/* Print: invert signature so white strokes appear black on paper/PDF */
+@media print{
+  body{ background:#fff; color:#000 }
+  .site-header, .stepper, .filters, .actions .btn, .header-controls{ display:none !important }
+  .chapter{ border:none }
+  .sig-canvas-wrap{ background:#fff!important; border-color:#000!important }
+  #signatureCanvas{ filter: invert(100%); }
+}
+
+/* Buttons */
+.btn{
+  background:var(--primary); border:1px solid var(--primary); color:#111;
+  padding:0.55rem 1rem; border-radius:10px; cursor:pointer; font-weight:600;
+}
+.btn:hover{ filter:brightness(1.05) }
+.btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--border) }
+.btn.ghost:hover{ border-color:var(--primary) }
+.nav-buttons{ display:flex; justify-content:space-between; gap:0.6rem; margin-top:1rem }
+.actions{ display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.8rem }
+
+/* Accessibility focus */
+:focus-visible{ outline:2px dashed var(--secondary); outline-offset:2px }
+
+/* Responsive tweaks */
+@media (max-width:600px){
+  body{ padding:0.55rem; }
+  .site-container{ padding:0 0.2rem; }
+  .site-header{ border-radius:14px; padding:0.45rem 0.5rem 0.55rem; }
+  .app-title{ font-size:1.65rem; line-height:1.15; margin-top:0.35rem; }
+  .subtitle{ font-size:0.92rem; margin-bottom:0.5rem; }
+  .stepper{
+    justify-content:flex-start;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    padding-bottom:0.15rem;
+  }
+  .stepper::-webkit-scrollbar{ display:none; }
+  .step-btn{
+    white-space:nowrap;
+    min-height:42px;
+    padding:0.5rem 0.85rem;
+    font-size:0.88rem;
+  }
+  .chapter{ padding:0.9rem; margin:0.75rem 0 1.2rem; border-radius:15px; }
+  .chapter-title{ font-size:1.35rem; margin-bottom:0.9rem; }
+  .section-title{ font-size:1.08rem; }
+  .form-group{ margin-bottom:1rem; }
+  .text-input,.textarea-input{ padding:0.72rem; font-size:0.98rem; border-radius:11px; }
+  .chip{ min-height:38px; padding:0.45rem 0.8rem; font-size:0.9rem; }
+  .activity-label{ font-size:1rem; }
+  .controls-wrap{ gap:0.75rem; margin-top:0.5rem; }
+  .choice-btn{ min-width:68px; min-height:38px; padding:0.36rem 0.75rem; }
+  .intensity-slider{ width:118px; }
+  .intensity-slider::-webkit-slider-thumb{ width:22px; height:22px; }
+  .intensity-value{ min-width:40px; font-size:0.9rem; }
+  .summary-card{ padding:0.75rem; border-radius:11px; }
+  .summary-card h4{ font-size:1.02rem; }
+  .summary-subtitle{ font-size:0.96rem; }
+  .summary-tag{ font-size:0.86rem; padding:0.2rem 0.55rem; }
+  .consent-text{ font-size:0.97rem; line-height:1.55; }
+  .sig-canvas-wrap{ height:160px; }
+  .btn{ min-height:42px; }
+}
+  </style>
+</head>
+<body>
+<div class="site-container">
+    <!-- Header (sticky) + Stepper -->
+    <header class="site-header sticky">
+      <div class="header-controls">
+        <button id="shareLinkBtn" class="header-btn" type="button" aria-label="Shareable Link">🔗 Shareable Link</button>
+      </div>
+      <h1 class="app-title">Scene Planner</h1>
+      <p class="subtitle">Consent Protocol — BDSM Session Planner</p>
+
+      <nav class="stepper" aria-label="Navigate between chapters">
+        <button class="step-btn" data-target="chapter-1">1. Session Setup</button>
+        <button class="step-btn" data-target="chapter-2">2. Safety</button>
+        <button class="step-btn" data-target="chapter-3">3. Types of Touch</button>
+        <button class="step-btn" data-target="chapter-4">4. Restraints/Sensations</button>
+        <button class="step-btn" data-target="chapter-5">5. Dynamics & Language</button>
+        <button class="step-btn" data-target="chapter-6">6. Sex & Intimacy</button>
+        <button class="step-btn" data-target="chapter-7">7. Aftercare</button>
+        <button class="step-btn" data-target="chapter-8">8. Summary</button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- Chapter 1 -->
+      <section id="chapter-1" class="chapter visible" tabindex="-1">
+  <h2 class="chapter-title">📃 Session Setup</h2>
+
+        <div class="form-group">
+          <label for="sessionName">Session Name</label>
+          <input id="sessionName" class="text-input" type="text" placeholder="Enter a name for this session" />
+        </div>
+
+        <div class="form-group">
+          <label for="nickname">Your Name / Nickname</label>
+          <input id="nickname" class="text-input" type="text" placeholder="Enter your name or nickname" />
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">Role (choose one)</h3>
+          </div>
+          <div class="chip-group" data-field="role" data-single="true">
+            <button type="button" class="chip" data-value="dom">Dom</button>
+            <button type="button" class="chip" data-value="sub">Sub</button>
+            <button type="button" class="chip" data-value="switch">Switch</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="duration">Session length (minutes)</label>
+          <input id="duration" class="text-input" type="number" min="1" step="5" value="90" />
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">Preferred Pronouns</h3>
+          </div>
+          <div class="chip-group" data-field="pronouns" data-single="false">
+            <button type="button" class="chip" data-value="She/Her">She/Her</button>
+            <button type="button" class="chip" data-value="He/Him">He/Him</button>
+            <button type="button" class="chip" data-value="They/Them">They/Them</button>
+            <button type="button" class="chip" data-value="They/Them">They/Them</button>
+            <button type="button" class="chip chip-other" data-value="__other__">Other…</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 2 -->
+      <section id="chapter-2" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">🛡️ Safety</h2>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">Traffic Light System</h3>
+            <button type="button" class="info-btn" data-info-target="trafficLightInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="trafficLightInfo" class="info-text" hidden>
+            The Traffic Light system is a simple and effective communication tool during a session. Green means everything is fine. Yellow indicates a need to slow down, adjust slightly, or check in — "I'm okay, but close to my limit." Red is an immediate and absolute stop, just like a safeword.
+          </div>
+          <label class="checkbox-line">
+            <input type="checkbox" id="trafficLightChk" />
+            <span>🚦 Traffic Light: 🟢 Green = Go, 🟡 Yellow = Slow/Check, 🔴 Red = Stop</span>
+          </label>
+
+          <div class="form-group nested">
+            <div class="title-line with-info">
+              <h3 class="section-title">Safeword</h3>
+              <button type="button" class="info-btn" data-info-target="safewordInfo" aria-expanded="false">ℹ️</button>
+            </div>
+            <div id="safewordInfo" class="info-text" hidden>
+              A safeword is a pre-agreed word that stops the scene immediately. It should have no relation to the situation (e.g., "Avocado"). Saying it ends the activity immediately, without questions or punishment. It distinguishes between resistance that's part of the play ("No, please stop") and a real desire to stop.
+            </div>
+            <input id="safeword" class="text-input" type="text" placeholder="E.g., Avocado" />
+          </div>
+
+          <div class="form-group nested">
+            <div class="title-line with-info">
+              <h3 class="section-title">Physical gesture</h3>
+              <button type="button" class="info-btn" data-info-target="gestureInfo" aria-expanded="false">ℹ️</button>
+            </div>
+            <div id="gestureInfo" class="info-text" hidden>
+              A physical gesture serves as a safeword when speech isn't possible (e.g., with a gag). Choose a clear gesture that's unmistakable, like three deliberate taps on the body or an agreed hand signal.
+            </div>
+            <input id="safegesture" class="text-input" type="text" placeholder="E.g., 3 deliberate taps" />
+          </div>
+
+          <!-- My Preferred Nudity Level -->
+          <div class="form-group">
+            <div class="title-line">
+              <h3 class="section-title">My Preferred Nudity Level</h3>
+            </div>
+            <div class="chip-group" data-field="nuditySelf" data-single="true">
+              <button class="chip" type="button" data-value="Fully clothed">Fully clothed</button>
+              <button class="chip" type="button" data-value="Underwear">Underwear</button>
+              <button class="chip" type="button" data-value="Chest/topless">Chest/topless</button>
+              <button class="chip" type="button" data-value="Fully nude">Fully nude</button>
+              <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+            </div>
+          </div>
+
+          <!-- Partner's Preferred Nudity Level -->
+          <div class="form-group">
+            <div class="title-line">
+              <h3 class="section-title">Partner's Preferred Nudity Level</h3>
+            </div>
+            <div class="chip-group" data-field="nudityPartner" data-single="false">
+              <button class="chip" type="button" data-value="Fully clothed">Fully clothed</button>
+              <button class="chip" type="button" data-value="Underwear">Underwear</button>
+              <button class="chip" type="button" data-value="Chest/topless">Chest/topless</button>
+              <button class="chip" type="button" data-value="Fully nude">Fully nude</button>
+              <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+            </div>
+          </div>
+
+          <!-- Feelings About Marks -->
+          <div class="form-group">
+            <div class="title-line">
+              <h3 class="section-title">My Feelings About Marks</h3>
+            </div>
+            <div class="chip-group" data-field="marks" data-single="false">
+              <button class="chip" type="button" data-value="No marks">No marks</button>
+              <button class="chip" type="button" data-value="Light marks only">Light marks only</button>
+              <button class="chip" type="button" data-value="Concealed places only">Concealed places only</button>
+              <button class="chip" type="button" data-value="Leave marks!">Leave marks!</button>
+              <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+            </div>
+          </div>
+
+          <!-- Photo/Recording Boundaries -->
+          <div class="form-group">
+            <div class="title-line">
+              <h3 class="section-title">Photo/Recording Boundaries</h3>
+            </div>
+            <div class="chip-group" data-field="photoLimits" data-single="false">
+              <button class="chip" type="button" data-value="No photos">No photos</button>
+              <button class="chip" type="button" data-value="By permission only">By permission only</button>
+              <button class="chip" type="button" data-value="No face">No face</button>
+              <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">Pain Thresholds</h3>
+            <button type="button" class="info-btn" data-info-target="painInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="painInfo" class="info-text" hidden>
+            Desired threshold: the level of pain that is enjoyable, exciting, or satisfying for you — your play zone. Tolerable threshold: your absolute maximum — crossing this means immediate stop. Defining both helps the Dom navigate intensity safely and pleasurably for the Sub.
+          </div>
+
+          <div class="slider-block plain">
+            <label for="painDesired">😍 Desired</label>
+            <div class="slider-line" id="lineDesired">
+              <input id="painDesired" type="range" min="0" max="10" value="0" class="intensity-slider" aria-label="Desired pain threshold" />
+              <span class="intensity-value" data-for="painDesired" aria-live="polite">0/10</span>
+            </div>
+          </div>
+
+          <div class="slider-block plain">
+            <label for="painTolerable">😫 Tolerable</label>
+            <div class="slider-line" id="lineTolerable">
+              <input id="painTolerable" type="range" min="0" max="10" value="0" class="intensity-slider" aria-label="Tolerable pain threshold" />
+              <span class="intensity-value" data-for="painTolerable" aria-live="polite">0/10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">Hard limits</h3>
+            <button type="button" class="info-btn" data-info-target="hardLimitsInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="hardLimitsInfo" class="info-text" hidden>
+            A hard limit is an absolute "no" that is non-negotiable. These are activities, words, or situations you will not participate in under any circumstances. Respecting hard limits is the foundation of trust and safety in a session.
+          </div>
+          <textarea id="hardLimits" class="textarea-input" placeholder="E.g., blood, specific triggers, permanent marks…"></textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">Protection Methods</h3>
+          </div>
+          <div class="chip-group" data-field="protectionMethods" data-single="false">
+            <button class="chip" type="button" data-value="Condom">Condom</button>
+            <button class="chip" type="button" data-value="Birth Control Pill">Birth Control Pill</button>
+            <button class="chip" type="button" data-value="None">None</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">Physical & Mental Health</h3>
+            <button type="button" class="info-btn" data-info-target="healthInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="healthInfo" class="info-text" hidden>
+            Sharing relevant medical information is crucial for safety. Inform about conditions like heart issues, asthma, past injuries, diabetes, or any other medical condition that could be affected by the activity. Mentally, it's important to mention known triggers, past traumas, or sensitivities to help your partner navigate the session with care and safety.
+          </div>
+          <label for="healthPhysical">Relevant physical conditions</label>
+          <textarea id="healthPhysical" class="textarea-input" placeholder="E.g., asthma, allergies (latex/oils), injuries…"></textarea>
+
+          <label for="healthMental" style="margin-top:1rem;">Relevant mental conditions / triggers</label>
+          <textarea id="healthMental" class="textarea-input" placeholder="E.g., triggers, PTSD, anxiety attacks…"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 3 -->
+      <section id="chapter-3" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">🤲 Types of Touch</h2>
+
+        <div id="group-gentle" class="activity-group" data-group="gentle">
+          <div class="title-line">
+            <h3 class="section-title with-persp">🫳🏼 Gentle Touch (stroking/massage)</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="gentle"></div>
+          <div class="refinements">
+            <label for="refine-gentle">Refinements for gentle touch</label>
+            <textarea id="refine-gentle" class="textarea-input" data-refine="gentle"></textarea>
+          </div>
+        </div>
+
+        <div id="group-rough" class="activity-group" data-group="rough">
+          <div class="title-line">
+            <h3 class="section-title with-persp">💪 Rough Touch (grabbing, scratching, etc.)</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="rough"></div>
+          <div class="refinements">
+            <label for="refine-rough">Refinements for rough handling</label>
+            <textarea id="refine-rough" class="textarea-input" data-refine="rough"></textarea>
+          </div>
+        </div>
+
+        <div id="group-kisses" class="activity-group" data-group="kisses">
+          <div class="title-line">
+            <h3 class="section-title with-persp">💋 Kisses</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="kisses"></div>
+          <div class="refinements">
+            <label for="refine-kisses">Refinements for kisses/licks/bites</label>
+            <textarea id="refine-kisses" class="textarea-input" data-refine="kisses"></textarea>
+          </div>
+        </div>
+
+        <div id="group-impact" class="activity-group" data-group="impact">
+          <div class="title-line with-info">
+              <h3 class="section-title with-persp">🫳🏼 Gentle Touch (stroking/massage)</h3>
+            <button type="button" class="info-btn" data-info-target="impactInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="impactInfo" class="info-text" hidden>
+            Impact Play is any type of play involving controlled striking of the body, using hands or various implements. The goal is to create a physical sensation (from sharp to dull pain) and a psychological effect.
+          </div>
+          <div class="activity-list" data-rows="impact">
+            <div class="form-group nested">
+              <div class="title-line with-info">
+                <h3 class="section-title">Paddle</h3>
+                <button type="button" class="info-btn" data-info-target="paddleInfo" aria-expanded="false">ℹ️</button>
+              <h3 class="section-title with-persp">💪 Rough Touch (grabbing, scratching, etc.)</h3>
+              <div id="paddleInfo" class="info-text" hidden>
+                A paddle is a flat, wide implement (usually wood or leather) that creates a shallow, thuddy pain. Especially effective on fleshy areas like the buttocks.
+              </div>
+            </div>
+            <div class="form-group nested">
+              <div class="title-line with-info">
+                <h3 class="section-title">Caning</h3>
+                <button type="button" class="info-btn" data-info-target="caningInfo" aria-expanded="false">ℹ️</button>
+              </div>
+              <div id="caningInfo" class="info-text" hidden>
+              <h3 class="section-title with-persp">💋 Kisses</h3>
+              </div>
+            </div>
+          </div>
+          <div class="refinements">
+            <label for="refine-impact">Refinements for impact</label>
+            <textarea id="refine-impact" class="textarea-input" data-refine="impact"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+              <h3 class="section-title">🦶 Impact (spanking, slapping, etc.)</h3>
+            <h3 class="section-title">Specific sensitivity areas</h3>
+          </div>
+          <textarea id="sensitivityAreas" class="textarea-input" placeholder="Which areas of the body are particularly sensitive?"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 4 -->
+      <section id="chapter-4" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">⛓️ Restraints/Sensations</h2>
+
+        <div id="group-restraints" class="activity-group" data-group="restraints">
+          <div class="title-line">
+            <h3 class="section-title with-persp">⛓️ Restraints</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="restraints"></div>
+          <div class="activity-list" data-rows="restraints">
+            <!-- Spreader bar info -->
+            <template data-activity="spreader">
+              <button type="button" class="info-btn info-inline" data-info-target="spreaderInfo" aria-expanded="false">ℹ️</button>
+              <div id="spreaderInfo" class="info-text" hidden>
+                A spreader bar is a rigid bar (metal or wood) designed to keep the legs or arms spread at a fixed distance. It restricts movement and increases the sense of vulnerability and exposure.
+              </div>
+            </template>
+            <!-- Ball gag info -->
+            <template data-activity="ballgag">
+              <button type="button" class="info-btn info-inline" data-info-target="ballgagInfo" aria-expanded="false">ℹ️</button>
+              <div id="ballgagInfo" class="info-text" hidden>
+                A ball gag is a restraint device that prevents speech, consisting of a ball placed in the mouth and a strap fastened around the head. Safety is critical: always ensure nasal breathing is possible and there is an agreed way to signal distress (physical gesture).
+              </div>
+            </template>
+          </div>
+          <div class="refinements">
+            <label for="refine-restraints">Refinements for restraints</label>
+            <textarea id="refine-restraints" class="textarea-input" data-refine="restraints"></textarea>
+          </div>
+        </div>
+
+        <div id="group-sensory" class="activity-group" data-group="sensory">
+          <div class="title-line">
+            <h3 class="section-title with-persp">👃 Sensory Play</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="sensory"></div>
+          <div class="activity-list" data-rows="sensory">
+            <!-- Pinwheel info -->
+            <template data-activity="pinwheel">
+              <button type="button" class="info-btn info-inline" data-info-target="pinwheelInfo" aria-expanded="false">ℹ️</button>
+              <div id="pinwheelInfo" class="info-text" hidden>
+                The Wartenberg wheel is originally a medical device, consisting of a wheel with small sharp pins. Rolling it over the skin creates a prickly, electric sensation, but it is not intended to pierce the skin.
+              </div>
+            </template>
+            <!-- Electric info -->
+            <template data-activity="electric">
+              <button type="button" class="info-btn info-inline" data-info-target="electricInfo" aria-expanded="false">ℹ️</button>
+              <div id="electricInfo" class="info-text" hidden>
+                Refers to dedicated erotic E-Stim devices that create tingling and muscle contractions. This is a high-risk practice. Safety rules are essential: never use improvised equipment.
+              </div>
+            </template>
+            <!-- Needles info -->
+            <template data-activity="needles">
+              <button type="button" class="info-btn info-inline" data-info-target="needlesInfo" aria-expanded="false">ℹ️</button>
+              <div id="needlesInfo" class="info-text" hidden>
+                Play piercing is an advanced practice involving the insertion of sterile medical needles into the top layer of the skin. This requires knowledge, experience, and strict hygiene to prevent infection. Do not attempt without proper training.
+              </div>
+            </template>
+          </div>
+          <div class="refinements">
+            <label for="refine-sensory">Refinements for sensory</label>
+            <textarea id="refine-sensory" class="textarea-input" data-refine="sensory"></textarea>
+          </div>
+        </div>
+
+        <div id="group-somatic" class="activity-group" data-group="somatic">
+          <div class="title-line">
+            <h3 class="section-title with-persp">🧠 Somatic/Body Play</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="somatic"></div>
+          <div class="activity-list" data-rows="somatic">
+            <!-- Breath play info -->
+            <template data-activity="breath">
+              <button type="button" class="info-btn info-inline" data-info-target="breathInfo" aria-expanded="false">ℹ️</button>
+              <div id="breathInfo" class="info-text" hidden>
+                Controlled restriction of breathing to enhance sexual arousal. This is an extremely high-risk practice that can cause brain damage or death. Requires extensive experience, absolute trust, and strict safety protocol.
+              </div>
+            </template>
+            <!-- Choking info -->
+            <template data-activity="choking">
+              <button type="button" class="info-btn info-inline" data-info-target="chokingInfo" aria-expanded="false">ℹ️</button>
+              <div id="chokingInfo" class="info-text" hidden>
+                A type of breath play involving pressure on the neck. It is critical to distinguish between pressure on the windpipe (extremely dangerous) and on the carotid arteries (also dangerous). This is a high-risk practice and not recommended for beginners.
+              </div>
+            </template>
+            <!-- Cutting info -->
+            <template data-activity="cutting">
+              <button type="button" class="info-btn info-inline" data-info-target="cuttingInfo" aria-expanded="false">ℹ️</button>
+              <div id="cuttingInfo" class="info-text" hidden>
+                Cutting is the intentional cutting of the skin as part of play. This is a very risky practice requiring medical knowledge, absolute sterility, and understanding of physical and emotional risks. Not recommended for beginners.
+              </div>
+            </template>
+          </div>
+          <div class="refinements">
+            <label for="refine-somatic">Refinements for somatic edge</label>
+            <textarea id="refine-somatic" class="textarea-input" data-refine="somatic"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 5 -->
+      <section id="chapter-5" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">🎭 Dynamics & Language</h2>
+
+        <!-- Objectification -->
+        <div id="group-objectification" class="activity-group" data-group="objectification">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Objectification</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="objectification"></div>
+          <div class="refinements">
+            <label for="refine-objectification">Refinements for objectification</label>
+            <textarea id="refine-objectification" class="textarea-input" data-refine="objectification"></textarea>
+          </div>
+        </div>
+
+        <!-- Esteem & Identity -->
+        <div id="group-esteem" class="activity-group" data-group="esteem">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Esteem & Identity</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="esteem"></div>
+          <div class="activity-list" data-rows="esteem">
+            <!-- Primal info -->
+            <template data-activity="primal">
+              <button type="button" class="info-btn info-inline" data-info-target="primalInfo" aria-expanded="false">ℹ️</button>
+              <div id="primalInfo" class="info-text" hidden>
+                Primal is a dynamic style focused on basic instincts, animalistic drives, and sometimes natural power struggles. It may include wrestling, growling, biting, or any consensual expression of "animal nature".
+              </div>
+            </template>
+          </div>
+          <div class="refinements">
+            <label for="refine-esteem">Refinements for esteem & identity</label>
+            <textarea id="refine-esteem" class="textarea-input" data-refine="esteem"></textarea>
+          </div>
+        </div>
+
+        <!-- Psych dynamics -->
+        <div id="group-psych" class="activity-group" data-group="psych">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Psych dynamics</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="psych"></div>
+          <div class="activity-list" data-rows="psych">
+            <!-- CNC info -->
+            <template data-activity="cnc">
+              <button type="button" class="info-btn info-inline" data-info-target="cncInfo" aria-expanded="false">ℹ️</button>
+              <div id="cncInfo" class="info-text" hidden>
+                CNC is an advanced roleplay where the sub "resists" or says "no" as part of the agreed scene, and the dom ignores it. This requires absolute trust and precise negotiation. The real safeword always works and stops everything, even in CNC.
+              </div>
+            </template>
+            <!-- Cuckolding info -->
+            <template data-activity="cuckolding">
+              <button type="button" class="info-btn info-inline" data-info-target="cuckoldingInfo" aria-expanded="false">ℹ️</button>
+              <div id="cuckoldingInfo" class="info-text" hidden>
+                Cuckolding is a fantasy or practice where a person is aroused by watching their partner have sex with someone else, often with elements of humiliation or loss of control.
+              </div>
+            </template>
+            <!-- Discipline info -->
+            <template data-activity="discipline">
+              <button type="button" class="info-btn info-inline" data-info-target="disciplineInfo" aria-expanded="false">ℹ️</button>
+              <div id="disciplineInfo" class="info-text" hidden>
+                Discipline is a system of rules, tasks, and behaviors the sub commits to. Breaking the rules leads to agreed consequences ("punishment"). The goal is usually education, training, and strengthening the dynamic, not necessarily humiliation.
+              </div>
+            </template>
+            <!-- Punishment info -->
+            <template data-activity="punishment">
+              <button type="button" class="info-btn info-inline" data-info-target="punishmentInfo" aria-expanded="false">ℹ️</button>
+              <div id="punishmentInfo" class="info-text" hidden>
+                Punishment is the result of breaking an agreed rule in a discipline dynamic. It can be "funishment" (secretly enjoyed) or real, and the type and purpose are agreed in advance.
+              </div>
+            </template>
+          </div>
+          <div class="refinements">
+            <label for="refine-psych">Refinements for psych dynamics</label>
+            <textarea id="refine-psych" class="textarea-input" data-refine="psych"></textarea>
+          </div>
+        </div>
+
+        <!-- Group Scenes -->
+        <div id="group-groupScenes" class="activity-group" data-group="groupScenes">
+          <div class="title-line with-info">
+            <h3 class="section-title with-persp">Group Scenes</h3>
+            <span class="perspective" data-perspective></span>
+            <button type="button" class="info-btn" data-info-target="groupScenesInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="groupScenesInfo" class="info-text" hidden>
+            A scene involving more than two people, as participants or observers. Group scenes require a high level of communication and agreement with all involved.
+          </div>
+          <div class="activity-list" data-rows="groupScenes"></div>
+          <div class="refinements">
+            <label for="refine-groupScenes">Refinements for group scenes</label>
+            <textarea id="refine-groupScenes" class="textarea-input" data-refine="groupScenes"></textarea>
+          </div>
+        </div>
+
+        <!-- Language, Titles & Nicknames -->
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">🗣️ Language, Titles & Nicknames</h3>
+          </div>
+
+          <!-- Roleplay scenes -->
+          <label for="roleplayScenes">Roleplay & Scenes</label>
+          <div class="chip-group" data-field="roleplayScenes" data-single="false">
+            <button class="chip" type="button" data-value="Parent/Child">Parent/Child</button>
+            <button class="chip" type="button" data-value="Boss/Employee">Boss/Employee</button>
+            <button class="chip" type="button" data-value="Cop/Suspect">Cop/Suspect</button>
+            <button class="chip" type="button" data-value="Teacher/Student">Teacher/Student</button>
+            <button class="chip" type="button" data-value="Prisoner/Guard">Prisoner/Guard</button>
+            <button class="chip" type="button" data-value="Interrogator/Interrogated">Interrogator/Interrogated</button>
+            <button class="chip" type="button" data-value="Rescuer/Victim">Rescuer/Victim</button>
+            <button class="chip" type="button" data-value="Sex Doll/Owner">Sex Doll/Owner</button>
+            <button class="chip" type="button" data-value="Robot/Owner">Robot/Owner</button>
+            <button class="chip" type="button" data-value="Celebrity/Fan">Celebrity/Fan</button>
+            <button class="chip" type="button" data-value="Pet Play">Pet Play</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <div class="refinements">
+            <label for="refine-roleplay">Refinements for roleplay</label>
+            <textarea id="refine-roleplay" class="textarea-input" data-refine="roleplay"></textarea>
+          </div>
+
+          <!-- Dom's language style -->
+          <label for="domLanguage">Dom's language style</label>
+          <div class="chip-group" data-field="domLanguage" data-single="false">
+            <button class="chip" type="button" data-value="Gentle">Gentle</button>
+            <button class="chip" type="button" data-value="Direct">Direct</button>
+            <button class="chip" type="button" data-value="Harsh">Harsh</button>
+            <button class="chip" type="button" data-value="Loving">Loving</button>
+            <button class="chip" type="button" data-value="Empowering">Empowering</button>
+            <button class="chip" type="button" data-value="Authoritative">Authoritative</button>
+            <button class="chip" type="button" data-value="Humiliating">Humiliating</button>
+            <button class="chip" type="button" data-value="Silent">Silent</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Sub's language style -->
+          <label for="subLanguage">Sub's language style</label>
+          <div class="chip-group" data-field="subLanguage" data-single="false">
+            <button class="chip" type="button" data-value="Gentle">Gentle</button>
+            <button class="chip" type="button" data-value="Direct">Direct</button>
+            <button class="chip" type="button" data-value="Harsh">Harsh</button>
+            <button class="chip" type="button" data-value="Playful">Playful</button>
+            <button class="chip" type="button" data-value="Sassy">Sassy</button>
+            <button class="chip" type="button" data-value="Seductive">Seductive</button>
+            <button class="chip" type="button" data-value="Obedient">Obedient</button>
+            <button class="chip" type="button" data-value="Submissive">Submissive</button>
+            <button class="chip" type="button" data-value="Silent">Silent</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Nicknames for Dom -->
+          <label for="titlesDom">Dom's desired nicknames</label>
+          <div class="chip-group" data-field="titlesDom" data-single="false">
+            <button class="chip" type="button" data-value="Sir">Sir</button>
+            <button class="chip" type="button" data-value="Madam">Madam</button>
+            <button class="chip" type="button" data-value="Master/Mistress">Master/Mistress</button>
+            <button class="chip" type="button" data-value="Dom">Dom</button>
+            <button class="chip" type="button" data-value="Sensei">Sensei</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Forbidden nicknames for Dom -->
+          <label for="forbiddenTitlesDom">Forbidden words for Dom</label>
+          <div class="chip-group" data-field="forbiddenTitlesDom" data-single="false">
+            <button class="chip" type="button" data-value="Sir">Sir</button>
+            <button class="chip" type="button" data-value="Madam">Madam</button>
+            <button class="chip" type="button" data-value="Master/Mistress">Master/Mistress</button>
+            <button class="chip" type="button" data-value="Dom">Dom</button>
+            <button class="chip" type="button" data-value="Sensei">Sensei</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Nicknames for Sub -->
+          <label for="nicknamesSub">Nicknames for sub — turn-ons</label>
+          <div class="chip-group" data-field="nicknamesSub" data-single="false">
+            <button class="chip" type="button" data-value="Good Boy/Girl">Good Boy/Girl</button>
+            <button class="chip" type="button" data-value="Bad Boy/Girl">Bad Boy/Girl</button>
+            <button class="chip" type="button" data-value="Slut">Slut</button>
+            <button class="chip" type="button" data-value="Toy">Toy</button>
+            <button class="chip" type="button" data-value="Hole">Hole</button>
+            <button class="chip" type="button" data-value="Pet">Pet</button>
+            <button class="chip" type="button" data-value="Puppy">Puppy</button>
+            <button class="chip" type="button" data-value="Cow">Cow</button>
+            <button class="chip" type="button" data-value="Pig">Pig</button>
+            <button class="chip" type="button" data-value="Worm">Worm</button>
+            <button class="chip" type="button" data-value="Baby">Baby</button>
+            <button class="chip" type="button" data-value="Whore">Whore</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Forbidden nicknames for Sub -->
+          <label for="forbiddenNickSub">Forbidden words for sub</label>
+          <div class="chip-group" data-field="forbiddenNickSub" data-single="false">
+            <button class="chip" type="button" data-value="Good Boy/Girl">Good Boy/Girl</button>
+            <button class="chip" type="button" data-value="Bad Boy/Girl">Bad Boy/Girl</button>
+            <button class="chip" type="button" data-value="Slut">Slut</button>
+            <button class="chip" type="button" data-value="Toy">Toy</button>
+            <button class="chip" type="button" data-value="Hole">Hole</button>
+            <button class="chip" type="button" data-value="Pet">Pet</button>
+            <button class="chip" type="button" data-value="Puppy">Puppy</button>
+            <button class="chip" type="button" data-value="Cow">Cow</button>
+            <button class="chip" type="button" data-value="Pig">Pig</button>
+            <button class="chip" type="button" data-value="Worm">Worm</button>
+            <button class="chip" type="button" data-value="Baby">Baby</button>
+            <button class="chip" type="button" data-value="Whore">Whore</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+
+          <!-- Refinements for language/titles/nicknames -->
+          <div class="refinements" style="margin-top:1rem;">
+            <label for="refine-language">Refinements for language & nicknames</label>
+            <textarea id="refine-language" class="textarea-input" data-refine="language"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 6 -->
+      <section id="chapter-6" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">🍑 Sex & Intimacy</h2>
+
+        <div id="group-intimacy" class="activity-group" data-group="intimacy">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Desired intimacy & connection</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="intimacy"></div>
+        </div>
+
+        <div id="group-penetration" class="activity-group" data-group="penetration">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Penetration & sexual stimulation</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="penetration"></div>
+        </div>
+
+        <div id="group-erotic" class="activity-group" data-group="erotic">
+          <div class="title-line">
+            <h3 class="section-title with-persp">Sexual/Erotic dynamics</h3>
+            <span class="perspective" data-perspective></span>
+          </div>
+          <div class="activity-list" data-rows="erotic"></div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Continue</button>
+        </div>
+      </section>
+
+      <!-- Chapter 7 -->
+      <section id="chapter-7" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">🛌 Aftercare</h2>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">🧴 Immediate needs post-session</h3>
+            <button type="button" class="info-btn" data-info-target="aftercareInfoTop" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="aftercareInfoTop" class="info-text" hidden>
+            Aftercare is the process of physical and emotional support after a session. Its purpose is to help participants safely "land" from the intense experience, process emotions, return to themselves, and ensure everyone feels safe and valued. It is an essential part of responsible play.
+          </div>
+          <div class="chip-group" data-field="aftercareNeeds" data-single="false">
+            <button class="chip" type="button" data-value="Cuddling">Cuddling</button>
+            <button class="chip" type="button" data-value="Soothing touch">Soothing touch</button>
+            <button class="chip" type="button" data-value="Water">Water</button>
+            <button class="chip" type="button" data-value="Hot drink">Hot drink</button>
+            <button class="chip" type="button" data-value="Blanket">Blanket</button>
+            <button class="chip" type="button" data-value="Warm clothing">Warm clothing</button>
+            <button class="chip" type="button" data-value="Alone time">Alone time</button>
+            <button class="chip" type="button" data-value="Short talk">Short talk</button>
+            <button class="chip" type="button" data-value="Affirmation">Affirmation</button>
+            <button class="chip" type="button" data-value="Shower">Shower</button>
+            <button class="chip" type="button" data-value="Writing">Writing</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+          <div class="refinements">
+            <label>Add aftercare refinements</label>
+            <textarea class="textarea-input" data-refine="aftercare" placeholder="What would help after the session?"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">Aftercare duration</h3>
+          </div>
+          <div class="chip-group" data-field="aftercareDuration" data-single="false">
+            <button class="chip" type="button" data-value="5 min">5 min</button>
+            <button class="chip" type="button" data-value="10 min">10 min</button>
+            <button class="chip" type="button" data-value="15 min">15 min</button>
+            <button class="chip" type="button" data-value="20 min">20 min</button>
+            <button class="chip" type="button" data-value="30 min">30 min</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">Post-session expectations</h3>
+            <button type="button" class="info-btn" data-info-target="aftercareInfo" aria-expanded="false">ℹ️</button>
+          </div>
+          <div id="aftercareInfo" class="info-text" hidden>
+            This section is for setting expectations about communication after the session and immediate aftercare are over. Clear definition of the desired level of contact (if any) prevents misunderstandings and helps manage the emotional side of the meeting in a healthy way.
+          </div>
+          <div class="chip-group" data-field="postSession" data-single="false" style="margin-bottom:.6rem;">
+            <button class="chip" type="button" data-value="Check-in today">Check-in today</button>
+            <button class="chip" type="button" data-value="Check-in tomorrow">Check-in tomorrow</button>
+            <button class="chip" type="button" data-value="Deep talk later">Deep talk later</button>
+            <button class="chip" type="button" data-value="No further contact">No further contact</button>
+            <button class="chip" type="button" data-value="Open to more">Open to more</button>
+            <button class="chip chip-other" type="button" data-value="__other__">Other…</button>
+          </div>
+          <div class="refinements">
+            <label>Add post-session refinements</label>
+            <textarea class="textarea-input" data-refine="postSession" placeholder="Notes, specifics, expectation setting…"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+          <button class="btn" data-next>Summary</button>
+        </div>
+      </section>
+
+      <!-- Chapter 8 -->
+      <section id="chapter-8" class="chapter" tabindex="-1">
+  <h2 class="chapter-title">📋 Summary</h2>
+
+        <!-- Session header box -->
+        <div class="session-box" aria-live="polite"></div>
+
+        <!-- Session details: 3 columns -->
+        <div class="session-box session-box-grid" aria-live="polite">
+          <div class="session-col session-col-1">
+            <div class="session-col-title">Session Details</div>
+            <div class="row"><span class="lbl">Session name:</span> <span id="summarySessionName"></span></div>
+            <div class="row"><span class="lbl">Role:</span> <span id="summaryRole"></span></div>
+            <div class="row"><span class="lbl">Duration:</span> <span id="summaryDuration"></span></div>
+            <div class="row"><span class="lbl">Pronouns:</span> <span id="summaryPronouns"></span></div>
+          </div>
+          <div class="session-col session-col-2">
+            <div class="session-col-title">Limits & Health</div>
+            <div class="row"><span class="lbl">Traffic Light:</span> <span id="summaryTrafficLight"></span></div>
+            <div class="row"><span class="lbl">Safeword:</span> <span id="summarySafeword"></span></div>
+            <div class="row"><span class="lbl">Physical gesture:</span> <span id="summaryGesture"></span></div>
+            <div class="row"><span class="lbl">Hard limits:</span> <span id="summaryHardLimits"></span></div>
+            <div class="row"><span class="lbl">Physical conditions:</span> <span id="summaryHealthPhysical"></span></div>
+            <div class="row"><span class="lbl">Mental conditions:</span> <span id="summaryHealthMental"></span></div>
+            <div class="row"><span class="lbl">Protection:</span> <span id="summaryProtection"></span></div>
+          </div>
+          <div class="session-col session-col-3">
+            <div class="session-col-title">Pain, Marks & Exposure</div>
+            <div class="row"><span class="lbl">Desired pain:</span> <span id="summaryPainDesired"></span></div>
+            <div class="row"><span class="lbl">Tolerable pain:</span> <span id="summaryPainTolerable"></span></div>
+            <div class="row"><span class="lbl">Feelings about marks:</span> <span id="summaryMarks"></span></div>
+            <div class="row"><span class="lbl">Photo boundaries:</span> <span id="summaryPhotoLimits"></span></div>
+            <div class="row"><span class="lbl">My nudity level:</span> <span id="summaryNuditySelf"></span></div>
+            <div class="row"><span class="lbl">Partner's nudity level:</span> <span id="summaryNudityPartner"></span></div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters sticky-summary-filters" id="summaryFilters" aria-label="Summary filters">
+          <div class="chip-group" data-filter-group>
+            <button type="button" class="chip" data-filter="all_form">All form</button>
+            <button type="button" class="chip active" data-filter="answers">All answers</button>
+            <button type="button" class="chip" data-filter="yes">Yes</button>
+            <button type="button" class="chip" data-filter="maybe">Maybe</button>
+            <button type="button" class="chip" data-filter="no">No</button>
+            <button type="button" class="chip" data-filter="unanswered">Unanswered</button>
+          </div>
+          <div class="chip-group" data-sort-group data-single="true">
+            <span class="sort-label">Sort:</span>
+            <button type="button" class="chip active" data-sort="consent">By consent</button>
+            <button type="button" class="chip" data-sort="intensity">By intensity</button>
+            <button type="button" class="chip" data-sort="questionnaire">Form order</button>
+          </div>
+        </div>
+
+        <!-- Cards grid -->
+        <div class="summary-grid" id="summaryContent"></div>
+
+        <!-- Consent + signature -->
+        <div class="consent">
+          <h3 class="section-title">🖋️ Consent & Signature</h3>
+          <p class="consent-text">
+            Consent
+            I declare that I am entering BDSM activity of my own free will, for my enjoyment and growth; I am above the age of consent.
+            I may withdraw or change my consent at any time (using a safeword, "red", or a physical gesture) without penalty. Both parties are responsible for open communication, check-ins, and respecting boundaries.
+            Appropriate safety measures will be taken (hygiene, proper equipment, agreed signals/words). I have shared/will share relevant medical and mental health information. There is no guarantee of outcome or enjoyment and strong emotions may arise.
+            This tool is a conversation aid and not professional or legal advice. I take responsibility for my wellbeing during and after the scene.
+          </p>
+          <div class="consent-fields">
+            <div class="date-input-wrap">
+              <label for="consentName" style="min-width:150px;">Name/Nickname</label>
+              <input id="consentName" type="text" class="text-input" style="max-width:240px;" />
+            </div>
+
+            <div class="date-input-wrap">
+              <label for="consentDate" style="min-width:150px;">Date</label>
+              <input id="consentDate" type="date" class="text-input" style="max-width:200px;" />
+              <button type="button" id="openDatePicker" class="info-btn" aria-label="Open date picker">📅</button>
+              <span id="consentDateDisplay" aria-live="polite"></span>
+            </div>
+
+            <div class="signature-block" style="grid-column:1/-1;">
+              <label for="signatureCanvas">Signature</label>
+              <div class="sig-canvas-wrap">
+                <canvas id="signatureCanvas"></canvas>
+              </div>
+              <div class="actions" style="margin-top:.5rem;">
+                <button type="button" class="btn ghost" id="clearSignatureBtn">Clear signature</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share/print -->
+          <div class="actions" id="shareActionsBottom" style="margin-top:1rem;">
+            <button class="btn" id="copyLinkBottom" type="button">🔗 Copy link</button>
+            <button class="btn" id="printSummaryBtn" type="button">🖨️ Print/Export Summary</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>Back</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  // Ensure the code runs only after the DOM is ready
+  document.addEventListener('DOMContentLoaded', function () {
+    /* ========= Helpers ========= */
+    const $  = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
+
+    /* ========= Global State ========= */
+    const state = {
+      session: { sessionName:"", nickname:"", role:null, duration:90, pronouns:[] },
+      safety: {
+        trafficLight:false, safeword:"", gesture:"",
+        protectionMethods:[],
+        nuditySelf:[],
+        nudityPartner:[],
+        marks:[],
+        photoLimits:[],
+        painDesired:0, painTolerable:0,
+        hardLimits:"", healthPhysical:"", healthMental:""
+      },
+      refinements:{ gentle:"", rough:"", kisses:"", impact:"", restraints:"", sensory:"", somatic:"", roleplay:"", aftercare:"" },
+      text:{ sensitivityAreas:"" },
+      sets:{
+        roleplayScenes:[], domLanguage:[], subLanguage:[],
+        nicknamesSub:[], forbiddenNickSub:[],
+        titlesDom:[], forbiddenTitlesDom:[],
+        aftercareNeeds:[], aftercareDuration:[], postSession:[]
+      },
+      activities:{} // filled by buildActivities()
+    };
+    const STORAGE_KEY = 'planner_sessions_v1';
+    const SESSION_SCHEMA_VERSION = 1;
+    const sessionIdFromUrl = new URLSearchParams(window.location.search).get('sessionId') || '';
+    let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    let autosaveTimer = null;
+
+    function cloneState() {
+      return JSON.parse(JSON.stringify(state));
+    }
+    function parseSessionsSafe() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(s =>
+          s &&
+          typeof s === 'object' &&
+          typeof s.id === 'string' &&
+          typeof s.title === 'string' &&
+          typeof s.createdAt === 'string' &&
+          typeof s.updatedAt === 'string' &&
+          s.plannerState &&
+          typeof s.plannerState === 'object'
+        );
+      } catch (_) {
+        return [];
+      }
+    }
+    function writeSessionsSafe(sessions) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    }
+    function mergeStateFromSaved(savedState) {
+      if (!savedState || typeof savedState !== 'object') return;
+      if (savedState.session && typeof savedState.session === 'object') Object.assign(state.session, savedState.session);
+      if (savedState.safety && typeof savedState.safety === 'object') Object.assign(state.safety, savedState.safety);
+      if (savedState.refinements && typeof savedState.refinements === 'object') Object.assign(state.refinements, savedState.refinements);
+      if (savedState.text && typeof savedState.text === 'object') Object.assign(state.text, savedState.text);
+      if (savedState.sets && typeof savedState.sets === 'object') Object.assign(state.sets, savedState.sets);
+      if (savedState.activities && typeof savedState.activities === 'object') state.activities = savedState.activities;
+    }
+    function buildSummarySnapshot() {
+      return {
+        sessionName: state.session.sessionName || '',
+        role: state.session.role || null,
+        duration: Number(state.session.duration || 0)
+      };
+    }
+    function getSessionTitle() {
+      const fromForm = String(state.session.sessionName || '').trim();
+      if (fromForm) return fromForm;
+      return `Session ${new Date().toLocaleString()}`;
+    }
+    function saveActiveSession() {
+      const sessions = parseSessionsSafe();
+      const now = new Date().toISOString();
+      const existingIx = sessions.findIndex(s => s && s.id === activeSessionId);
+      const payload = {
+        id: activeSessionId,
+        schemaVersion: SESSION_SCHEMA_VERSION,
+        title: getSessionTitle(),
+        createdAt: existingIx >= 0 ? sessions[existingIx].createdAt : now,
+        updatedAt: now,
+        plannerState: cloneState(),
+        summarySnapshot: buildSummarySnapshot()
+      };
+      if (existingIx >= 0) sessions[existingIx] = payload;
+      else sessions.unshift(payload);
+      writeSessionsSafe(sessions.slice(0, 100));
+    }
+    function scheduleAutosave() {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(saveActiveSession, 240);
+    }
+    function loadSessionFromStorageIfPresent() {
+      if (!sessionIdFromUrl) return;
+      const sessions = parseSessionsSafe();
+      const saved = sessions.find(s => s && s.id === sessionIdFromUrl);
+      if (!saved || !saved.plannerState) return;
+      if (saved.schemaVersion && Number(saved.schemaVersion) > SESSION_SCHEMA_VERSION) return;
+      mergeStateFromSaved(saved.plannerState);
+      activeSessionId = saved.id;
+    }
+
+    /* ========= Info texts ========= */
+    const infoTexts = {
+      primal: {
+        en: 'Primal is a dynamic style focused on basic instincts, animalistic drives, and sometimes natural power struggles. It may include wrestling, growling, biting, or any consensual expression of "animal nature".'
+      },
+      cnc: {
+        en: 'CNC is an advanced roleplay where the sub "resists" or says "no" as part of the agreed scene, and the dom ignores it. This requires absolute trust and precise negotiation. The real safeword always works and stops everything, even in CNC.'
+      },
+      cuckolding: {
+        en: 'Cuckolding is a fantasy or practice where a person is aroused by watching their partner have sex with someone else, often with elements of humiliation or loss of control.'
+      },
+      discipline: {
+        en: 'Discipline is a system of rules, tasks, and behaviors the sub commits to. Breaking the rules leads to agreed consequences ("punishment"). The goal is usually education, training, and strengthening the dynamic, not necessarily humiliation.'
+      },
+      punishment: {
+        en: 'Punishment is the result of breaking an agreed rule in a discipline dynamic. It can be "funishment" (secretly enjoyed) or real, and the type and purpose are agreed in advance.'
+      },
+      groupScenes: {
+        en: 'A scene involving more than two people, as participants or observers. Group scenes require a high level of communication and agreement with all involved.'
+      },
+      spreader: {
+        en: 'A spreader bar is a rigid bar (metal or wood) designed to keep the legs or arms spread at a fixed distance. It restricts movement and increases the sense of vulnerability and exposure.'
+      },
+      ballgag: {
+        en: 'A ball gag is a restraint device that prevents speech, consisting of a ball placed in the mouth and a strap fastened around the head. Safety is critical: always ensure nasal breathing is possible and there is an agreed way to signal distress (physical gesture).'
+      },
+      pinwheel: {
+        en: 'The Wartenberg wheel is originally a medical device, consisting of a wheel with small sharp pins. Rolling it over the skin creates a prickly, electric sensation, but it is not intended to pierce the skin.'
+      },
+      electric: {
+        en: 'Refers to dedicated erotic E-Stim devices that create tingling and muscle contractions. This is a high-risk practice. Safety rules are essential: never use improvised equipment.'
+      },
+      needles: {
+        en: 'Play piercing is an advanced practice involving the insertion of sterile medical needles into the top layer of the skin. This requires knowledge, experience, and strict hygiene to prevent infection. Do not attempt without proper training.'
+      },
+      cutting: {
+        en: 'Cutting is the intentional cutting of the skin as part of play. This is a very risky practice requiring medical knowledge, absolute sterility, and understanding of physical and emotional risks. Not recommended for beginners.'
+      },
+      breath: {
+        en: 'Controlled restriction of breathing to enhance sexual arousal. This is an extremely high-risk practice that can cause brain damage or death. Requires extensive experience, absolute trust, and strict safety protocol.'
+      },
+      choking: {
+        en: 'A type of breath play involving pressure on the neck. It is critical to distinguish between pressure on the windpipe (extremely dangerous) and on the carotid arteries (also dangerous). This is a high-risk practice and not recommended for beginners.'
+      },
+      trafficLight: 'Traffic Light: Green = Go, Yellow = Slow/Check, Red = Stop.',
+      safeword: 'A safeword stops everything immediately. It distinguishes between play resistance and real desire to stop.',
+      gesture: 'A physical gesture serves as a safeword when speech isn\'t possible.',
+      pain: 'Desired: your play zone. Tolerable: absolute maximum.',
+      hardLimits: 'Absolute "no" under any circumstances.',
+      impact: 'Impact Play is any type of play involving controlled striking of the body, using hands or various implements. The goal is to create a physical sensation (from sharp to dull pain) and a psychological effect.',
+      paddle: 'A paddle is a flat, wide implement (usually wood or leather) that creates a shallow, thuddy pain. Especially effective on fleshy areas like the buttocks.',
+      caning: 'A cane is a thin, flexible stick (usually bamboo or rattan) that creates sharp, stinging, and very focused pain. This is an advanced practice requiring precision to avoid injury to bones, joints, or internal organs like the kidneys.',
+      groupScenes: 'Involves more than two people. Requires agreement with all participants.',
+      aftercare: 'Physical and emotional support after the session. Essential for responsible play.',
+      postSession: 'Setting expectations for communication after the session.',
+      summary: 'Summary page with filters/sorting, for final discussion before starting the session.'
+    };
+
+    /* ========= Activity Definitions ========= */
+    const activityDefs = {
+      gentle: [
+        {id:'face', en:'Face'},
+        {id:'hair', en:'Hair'},
+        {id:'neck', en:'Neck'},
+        {id:'shoulders', en:'Shoulders'},
+        {id:'back', en:'Back'},
+        {id:'chest', en:'Chest/Breasts & Nipples'},
+        {id:'buttocks', en:'Buttocks'},
+        {id:'clitpen', en:'Clitoris/Penis'},
+        {id:'vagtest', en:'Vagina/Testicles'},
+        {id:'anus', en:'Anus'},
+        {id:'other', en:'Other', other:true}
+      ],
+      rough: [
+        {id:'face', en:'Face'},
+        {id:'hair', en:'Hair'},
+        {id:'neck', en:'Neck'},
+        {id:'shoulders', en:'Shoulders'},
+        {id:'back', en:'Back'},
+        {id:'chest', en:'Chest/Breasts & Nipples'},
+        {id:'buttocks', en:'Buttocks'},
+        {id:'clitpen', en:'Clitoris/Penis'},
+        {id:'vagtest', en:'Vagina/Testicles'},
+        {id:'anus', en:'Anus'},
+        {id:'other', en:'Other', other:true}
+      ],
+      kisses: [
+        {id:'neck', en:'Neck'},
+        {id:'shoulders', en:'Shoulders'},
+        {id:'chest', en:'Chest/Breasts & Nipples'},
+        {id:'buttocks', en:'Buttocks'},
+        {id:'belly', en:'Belly'},
+        {id:'limbs', en:'Limbs'},
+        {id:'kissMouth', en:'Kissing on the Mouth'},
+        {id:'frenchKiss', en:'French Kissing'},
+        {id:'other', en:'Other', other:true}
+      ],
+      impact: [
+        {id:'spanking', en:'Spanking'},
+        {id:'paddle', en:'Paddle'},
+        {id:'flogger', en:'Flogger'},
+        {id:'caning', en:'Caning'},
+        {id:'slapChest', en:'Slapping Chest/Breasts'},
+        {id:'slapFace', en:'Face Slapping'},
+        {id:'slapGenitals', en:'Slapping Genitals'},
+        {id:'punching', en:'Punching'},
+        {id:'other', en:'Other', other:true}
+      ],
+      restraints: [
+        {id:'rope', en:'Rope'},
+        {id:'cuffs', en:'Cuffs'},
+        {id:'spreader', en:'Spreader Bar'},
+        {id:'ballgag', en:'Ball Gag'},
+        {id:'blindfold', en:'Blindfold'},
+        {id:'cage', en:'Cage'},
+        {id:'collar', en:'Collar'},
+        {id:'leash', en:'Leash'},
+        {id:'other', en:'Other', other:true}
+      ],
+      sensory: [
+        {id:'fur', en:'Fur'},
+        {id:'pinwheel', en:'Wartenberg Wheel'},
+        {id:'knife', en:'Knife (no cutting)'},
+        {id:'nipClamps', en:'Nipple Clamps'},
+        {id:'wax', en:'Wax'},
+        {id:'ice', en:'Ice'},
+        {id:'electric', en:'Electricity (E-Stim)'},
+        {id:'needles', en:'Needle Play'},
+        {id:'scratches', en:'Scratches'},
+        {id:'food', en:'Food Play'},
+        {id:'other', en:'Other', other:true}
+      ],
+      somatic: [
+        {id:'breath', en:'Breath Play'},
+        {id:'choking', en:'Choking'},
+        {id:'gagging', en:'Gagging'},
+        {id:'spitBody', en:'Spitting (on body)'},
+        {id:'spitFace', en:'Spitting (on face)'},
+        {id:'golden', en:'Golden Shower'},
+        {id:'other', en:'Other', other:true}
+      ],
+      objectification: [
+        {id:'pose', en:'Hold a pose'},
+        {id:'beObject', en:'Become furniture/object'},
+        {id:'publicExposure', en:'Public exposure'},
+        {id:'sexualObj', en:'Sexual objectification'},
+        {id:'other', en:'Other', other:true}
+      ],
+      esteem: [
+        {id:'diminish', en:'Diminishment'},
+        {id:'humiliation', en:'Humiliation'},
+        {id:'verbalHum', en:'Verbal humiliation'},
+        {id:'empower', en:'Empowerment'},
+        {id:'worship', en:'Worship'},
+        {id:'primal', en:'Primal'},
+        {id:'other', en:'Other', other:true}
+      ],
+      psych: [
+        {id:'ddlg', en:'Caregiver/Little'},
+        {id:'cnc', en:'Consensual Non-Consent'},
+        {id:'fear', en:'Fear play'},
+        {id:'cuckolding', en:'Cuckolding'},
+        {id:'exclusion', en:'Exclusion'},
+        {id:'discipline', en:'Discipline'},
+        {id:'punishment', en:'Punishment'},
+        {id:'bodyWriting', en:'Body writing'},
+        {id:'finEx', en:'Financial exploitation'},
+        {id:'sexEx', en:'Sexual exploitation'},
+        {id:'physEx', en:'Physical exploitation'},
+        {id:'other', en:'Other', other:true}
+      ],
+      groupScenes: [
+        {id:'visible', en:'Visible to others'},
+        {id:'nonSexPublic', en:'Non-sexual interaction in public'},
+        {id:'sexPublic', en:'Sexual interaction in public'},
+        {id:'othersTouch', en:'Allow others to touch me'},
+        {id:'othersSex', en:'Allow others sexual interaction'},
+        {id:'other', en:'Other', other:true}
+      ],
+      intimacy: [
+        {id:'emotional', en:'Intimate & Emotional'},
+        {id:'sensual', en:'Sensual'},
+        {id:'sexual', en:'Sexual'},
+        {id:'distant', en:'Distant/Mechanical'},
+        {id:'warm', en:'Warm'},
+        {id:'cold', en:'Cold'},
+        {id:'transpersonal', en:'Transpersonal'},
+        {id:'other', en:'Other', other:true}
+      ],
+      penetration: [
+        {id:'nonSexTouch', en:'Non-sexual Touch'},
+        {id:'manualGen', en:'Manual Genital Stimulation'},
+        {id:'toyStim', en:'Toy/Device Stimulation'},
+        {id:'vagFingers', en:'Vaginal Fingering'},
+        {id:'analFingers', en:'Anal Fingering'},
+        {id:'vagToy', en:'Vaginal (Toy/Dildo)'},
+        {id:'analToy', en:'Anal (Plug/Dildo)'},
+        {id:'vagInter', en:'Vaginal Intercourse'},
+        {id:'analInter', en:'Anal Intercourse'},
+        {id:'oral', en:'Oral Sex'},
+        {id:'faceF', en:'Face-f*cking'},
+        {id:'semenSwallow', en:'Semen Swallowing'},
+        {id:'other', en:'Other', other:true}
+      ],
+      erotic: [
+        {id:'orgControl', en:'Orgasm Control'},
+        {id:'orgDenial', en:'Orgasm Denial'},
+        {id:'forcedOrg', en:'Forced Orgasm'},
+        {id:'sexualObj', en:'Sexual Objectification'},
+        {id:'publicSex', en:'Public Sexual Exposure'},
+        {id:'ravishing', en:'Consensual Ravishing'},
+        {id:'beingUsed', en:'Being Sexually Used'},
+        {id:'other', en:'Other', other:true}
+      ]
+    };
+
+    /* ========= Perspective label helpers ========= */
+    function perspectiveText(){
+      if (state.session.role === 'dom') return '• To give';
+      if (state.session.role === 'sub') return '• To receive';
+      return '';
+    }
+    function updatePerspectiveBadges(){
+      $$('.section-title .perspective').forEach(el => el.textContent = perspectiveText());
+    }
+    function updateRoleSensitiveLabels(){
+      const row = document.querySelector('.activity-list[data-rows="groupScenes"] .activity-row[data-item-id="othersSex"]');
+      if (!row) return;
+      const labelMain = row.querySelector('.activity-label > span');
+      if (!labelMain) return;
+      let suffix = 'me';
+      if (state.session.role === 'sub')  suffix = 'me';
+      if (state.session.role === 'dom')  suffix = 'you';
+      labelMain.textContent = `Allow others sexual interaction with ${suffix}`;
+      const entry = state.activities.groupScenes?.othersSex;
+      if (entry){ entry.name = `Allow others sexual interaction with ${suffix}`; }
+    }
+
+    /* ========= Navigation ========= */
+    function showChapter(id){
+      $$('.chapter').forEach(sec => sec.classList.remove('visible'));
+      const el = document.getElementById(id);
+      if (el){
+        el.classList.add('visible');
+        el.classList.remove('is-collapsed');
+        const title = el.querySelector('.chapter-title');
+        if (title) title.setAttribute('aria-expanded', 'true');
+      }
+      $$('.step-btn').forEach(b => b.classList.toggle('active', b.dataset.target===id));
+      // Scroll to top after showing chapter
+      window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+      if (id==='chapter-8') {
+        renderSummary();
+        setTimeout(()=>{
+          initializeSignaturePad(true);
+          initSummaryFiltersUI();
+        }, 50);
+      }
+    }
+    function setupStepper(){
+      $$('.step-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const target = btn.dataset.target;
+          showChapter(target);
+        });
+      });
+    }
+    function setupPrevNext(){
+      $$('.chapter').forEach((sec, idx, arr)=>{
+        const prevBtn = sec.querySelector('[data-prev]');
+        const nextBtn = sec.querySelector('[data-next]');
+        if (prevBtn) prevBtn.addEventListener('click', ()=> {
+          const targetId = arr[clamp(idx-1,0,arr.length-1)].id;
+          showChapter(targetId);
+        });
+        if (nextBtn) nextBtn.addEventListener('click', ()=> {
+          const targetId = arr[clamp(idx+1,0,arr.length-1)].id;
+          showChapter(targetId);
+        });
+      });
+    }
+    function setupCollapsibleChapters(){
+      $$('.chapter').forEach(sec => {
+        const title = sec.querySelector('.chapter-title');
+        if (!title) return;
+        if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '0');
+        if (!title.id) title.id = `${sec.id}-title`;
+        sec.setAttribute('aria-labelledby', title.id);
+        sec.classList.remove('is-collapsed');
+        title.setAttribute('aria-expanded', 'true');
+        const toggle = () => {
+          if (sec.id === 'chapter-8') return;
+          const next = !sec.classList.contains('is-collapsed');
+          sec.classList.toggle('is-collapsed', next);
+          title.setAttribute('aria-expanded', String(!next));
+        };
+        title.addEventListener('click', toggle);
+        title.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        });
+      });
+    }
+
+    /* ========= Info buttons ========= */
+    function setupInfoButtons(){
+      // Primal info
+      const primalDiv = $('#primalInfo');
+      if (primalDiv && infoTexts.primal) {
+        primalDiv.textContent = infoTexts.primal.en;
+      }
+      // CNC info
+      const cncDiv = $('#cncInfo');
+      if (cncDiv && infoTexts.cnc) {
+        cncDiv.textContent = infoTexts.cnc.en;
+      }
+      // Cuckolding info
+      const cuckoldingDiv = $('#cuckoldingInfo');
+      if (cuckoldingDiv && infoTexts.cuckolding) {
+        cuckoldingDiv.textContent = infoTexts.cuckolding.en;
+      }
+      // Discipline info
+      const disciplineDiv = $('#disciplineInfo');
+      if (disciplineDiv && infoTexts.discipline) {
+        disciplineDiv.textContent = infoTexts.discipline.en;
+      }
+      // Punishment info
+      const punishmentDiv = $('#punishmentInfo');
+      if (punishmentDiv && infoTexts.punishment) {
+        punishmentDiv.textContent = infoTexts.punishment.en;
+      }
+      // Group scenes info
+      const groupScenesDiv = $('#groupScenesInfo');
+      if (groupScenesDiv && infoTexts.groupScenes) {
+        groupScenesDiv.textContent = infoTexts.groupScenes.en;
+      }
+      $('#trafficLightInfo') && ($('#trafficLightInfo').textContent = infoTexts.trafficLight);
+      $('#safewordInfo')    && ($('#safewordInfo').textContent    = infoTexts.safeword);
+      $('#gestureInfo')     && ($('#gestureInfo').textContent     = infoTexts.gesture);
+      $('#painInfo')        && ($('#painInfo').textContent        = 'Desired: your play zone. Tolerable: absolute maximum.');
+      $('#hardLimitsInfo')  && ($('#hardLimitsInfo').textContent  = infoTexts.hardLimits);
+      // Impact info
+      const impactDiv = $('#impactInfo');
+      if (impactDiv && infoTexts.impact) {
+        impactDiv.textContent = infoTexts.impact;
+      }
+      // Spreader bar info
+      const spreaderDiv = $('#spreaderInfo');
+      if (spreaderDiv && infoTexts.spreader) {
+        spreaderDiv.textContent = infoTexts.spreader.en;
+      }
+      // Ball gag info
+      const ballgagDiv = $('#ballgagInfo');
+      if (ballgagDiv && infoTexts.ballgag) {
+        ballgagDiv.textContent = infoTexts.ballgag.en;
+      }
+      // Pinwheel info
+      const pinwheelDiv = $('#pinwheelInfo');
+      if (pinwheelDiv && infoTexts.pinwheel) {
+        pinwheelDiv.textContent = infoTexts.pinwheel.en;
+      }
+      // Electric info
+      const electricDiv = $('#electricInfo');
+      if (electricDiv && infoTexts.electric) {
+        electricDiv.textContent = infoTexts.electric.en;
+      }
+      // Needles info
+      const needlesDiv = $('#needlesInfo');
+      if (needlesDiv && infoTexts.needles) {
+        needlesDiv.textContent = infoTexts.needles.en;
+      }
+      // Cutting info
+      const cuttingDiv = $('#cuttingInfo');
+      if (cuttingDiv && infoTexts.cutting) {
+        cuttingDiv.textContent = infoTexts.cutting.en;
+      }
+      // Breath play info
+      const breathDiv = $('#breathInfo');
+      if (breathDiv && infoTexts.breath) {
+        breathDiv.textContent = infoTexts.breath.en;
+      }
+      // Choking info
+      const chokingDiv = $('#chokingInfo');
+      if (chokingDiv && infoTexts.choking) {
+        chokingDiv.textContent = infoTexts.choking.en;
+      }
+      // Paddle info
+      const paddleDiv = $('#paddleInfo');
+      if (paddleDiv && infoTexts.paddle) {
+        paddleDiv.textContent = infoTexts.paddle;
+      }
+      // Caning info
+      const caningDiv = $('#caningInfo');
+      if (caningDiv && infoTexts.caning) {
+        caningDiv.textContent = infoTexts.caning;
+      }
+      $('#groupScenesInfo') && ($('#groupScenesInfo').textContent = infoTexts.groupScenes);
+      $('#aftercareInfoTop')&& ($('#aftercareInfoTop').textContent= infoTexts.aftercare);
+      $('#aftercareInfo')   && ($('#aftercareInfo').textContent   = infoTexts.postSession);
+      $('#summaryInfo')     && ($('#summaryInfo').textContent     = infoTexts.summary);
+
+      $$('.info-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.dataset.infoTarget;
+          const panel = document.getElementById(id);
+          if (panel){
+            panel.hidden = !panel.hidden;
+            btn.setAttribute('aria-expanded', String(!panel.hidden));
+          }
+        });
+      });
+    }
+
+    /* ========= Basic inputs & sliders ========= */
+    function bindBasicInputs(){
+      if ($('#sessionName')) $('#sessionName').value = state.session.sessionName || '';
+      if ($('#nickname')) $('#nickname').value = state.session.nickname || '';
+      if ($('#duration')) $('#duration').value = String(Number(state.session.duration || 90));
+      if ($('#trafficLightChk')) $('#trafficLightChk').checked = !!state.safety.trafficLight;
+      if ($('#safeword')) $('#safeword').value = state.safety.safeword || '';
+      if ($('#safegesture')) $('#safegesture').value = state.safety.gesture || '';
+      if ($('#hardLimits')) $('#hardLimits').value = state.safety.hardLimits || '';
+      if ($('#healthPhysical')) $('#healthPhysical').value = state.safety.healthPhysical || '';
+      if ($('#healthMental')) $('#healthMental').value = state.safety.healthMental || '';
+      if ($('#sensitivityAreas')) $('#sensitivityAreas').value = state.text.sensitivityAreas || '';
+      $('#sessionName')?.addEventListener('input', e=>{
+        state.session.sessionName = e.target.value.trim();
+        refreshSummaryTitle();
+      });
+      $('#nickname')?.addEventListener('input', e => state.session.nickname = e.target.value.trim());
+      $('#duration')?.addEventListener('input', e => state.session.duration = parseInt(e.target.value||'0',10));
+      $('#trafficLightChk')?.addEventListener('change', e => state.safety.trafficLight = e.target.checked);
+      $('#safeword')?.addEventListener('input', e => state.safety.safeword = e.target.value.trim());
+      $('#safegesture')?.addEventListener('input', e => state.safety.gesture = e.target.value.trim());
+      $('#hardLimits')?.addEventListener('input', e => state.safety.hardLimits = e.target.value);
+      $('#healthPhysical')?.addEventListener('input', e => state.safety.healthPhysical = e.target.value);
+      $('#healthMental')?.addEventListener('input', e => state.safety.healthMental = e.target.value);
+      $('#sensitivityAreas')?.addEventListener('input', e => state.text.sensitivityAreas = e.target.value);
+    }
+
+    /* ====== Pain sliders — independent ====== */
+    function setupPainSliders(){
+      const desired = document.getElementById('painDesired');
+      const toler   = document.getElementById('painTolerable');
+      const outD    = document.querySelector('.intensity-value[data-for="painDesired"]');
+      const outT    = document.querySelector('.intensity-value[data-for="painTolerable"]');
+      if (!desired || !toler || !outD || !outT) return;
+
+      desired.min='0'; desired.max='10';
+      toler.min = '0'; toler.max = '10';
+      desired.value = String(clamp(parseInt(state.safety.painDesired || 0, 10), 0, 10));
+      toler.value = String(clamp(parseInt(state.safety.painTolerable || 0, 10), 0, 10));
+
+      function syncDesired(){
+        let dv = clamp(parseInt(desired.value||'0',10), 0, 10);
+        desired.value = String(dv);
+        outD.textContent = `${dv}/10`;
+        state.safety.painDesired = dv;
+        // If desired exceeds tolerable, update tolerable
+        let tv = clamp(parseInt(toler.value||'0',10), 0, 10);
+        if (dv > tv) {
+          toler.value = String(dv);
+          outT.textContent = `${dv}/10`;
+          state.safety.painTolerable = dv;
+        }
+      }
+      function syncTolerable(){
+        let dv = clamp(parseInt(desired.value||'0',10), 0, 10);
+        let tv = clamp(parseInt(toler.value||'0',10), 0, 10);
+        // If tolerable is less than desired, set it to desired
+        if (tv < dv) tv = dv;
+        toler.value = String(tv);
+        outT.textContent = `${tv}/10`;
+        state.safety.painTolerable = tv;
+      }
+
+      desired.addEventListener('input', syncDesired);
+      toler.addEventListener('input', syncTolerable);
+      syncDesired();
+      syncTolerable();
+    }
+
+    /* ========= Chips ========= */
+    function setupChipGroups(){
+      $$('.chip-group').forEach(group=>{
+        const field = group.dataset.field;
+        // Identify special chip groups in chapter 5
+        const isDomNicknames    = field === 'titlesDom';
+        const isDomForbidden    = field === 'forbiddenTitlesDom';
+        const isSubNicknames    = field === 'nicknamesSub';
+        const isSubForbidden    = field === 'forbiddenNickSub';
+        const isSpecial = isDomNicknames || isDomForbidden || isSubNicknames || isSubForbidden;
+
+        function writeSelection(){
+          const selected = Array.from(group.querySelectorAll('.chip.active'))
+            .map(c=> c.dataset.value)
+            .filter(v=> v !== '__other__');
+          if (field === 'role') {
+            // Role is a single value
+            state.session.role = selected[0] || null;
+            updateRoleSensitiveLabels();
+            updatePerspectiveBadges();
+          }
+          else if (Array.isArray(state.session[field]))      state.session[field] = selected;
+          else if (Array.isArray(state.safety[field]))       state.safety[field]  = selected;
+          else if (Array.isArray(state.sets[field]))         state.sets[field]    = selected;
+          else                                              state[field]         = selected;
+        }
+
+        function handleChip(btn){
+          const value = btn.dataset.value;
+          if (value === '__other__'){
+            const input = document.createElement('input');
+            input.type='text'; input.className='text-input'; input.placeholder='Add custom… Enter to confirm';
+            input.style.maxWidth='280px';
+            btn.insertAdjacentElement('afterend', input);
+            input.focus();
+            const commit = ()=>{
+              const v = input.value.trim(); input.remove();
+              if (!v) return;
+              if ([...group.querySelectorAll('.chip')].some(c=>c.dataset.value===v)) return;
+              const chip = document.createElement('button');
+              chip.type='button'; chip.className='chip'; chip.dataset.value=v;
+              chip.textContent = v;
+              btn.insertAdjacentElement('beforebegin', chip);
+              chip.classList.add('active');
+              if (isDomNicknames || isSubNicknames) chip.classList.add('chip-green');
+              if (isDomForbidden || isSubForbidden) chip.classList.add('chip-red');
+              writeSelection();
+            };
+            input.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); commit(); } });
+            input.addEventListener('blur', commit);
+            return;
+          }
+          if (isSpecial) {
+            btn.classList.toggle('active');
+            if (btn.classList.contains('active')) {
+              if (isDomNicknames || isSubNicknames) btn.classList.add('chip-green');
+              if (isDomForbidden || isSubForbidden) btn.classList.add('chip-red');
+            } else {
+              btn.classList.remove('chip-green', 'chip-red');
+            }
+          } else {
+            // Other groups: single/multi based on data-single
+            const single = group.dataset.single === 'true';
+            if (single){
+              group.querySelectorAll('.chip.active').forEach(c=> c.classList.remove('active'));
+              btn.classList.add('active');
+            } else {
+              btn.classList.toggle('active');
+            }
+          }
+          writeSelection();
+        }
+
+        function loadFromState(){
+          let selected = [];
+          if (Array.isArray(state.session[field]))      selected = state.session[field];
+          else if (Array.isArray(state.safety[field]))  selected = state.safety[field];
+          else if (Array.isArray(state.sets[field]))    selected = state.sets[field];
+          else                                         selected = state[field];
+          // Role is a single value
+          if (field === 'role') {
+            group.querySelectorAll('.chip').forEach(chip=>{
+              chip.classList.remove('active', 'chip-green', 'chip-red');
+              if (state.session.role === chip.dataset.value) {
+                chip.classList.add('active');
+              }
+            });
+            return;
+          }
+          if (!Array.isArray(selected)) return;
+          group.querySelectorAll('.chip').forEach(chip=>{
+            chip.classList.remove('active', 'chip-green', 'chip-red');
+            if (selected.includes(chip.dataset.value)) {
+              chip.classList.add('active');
+              if (isDomNicknames || isSubNicknames) chip.classList.add('chip-green');
+              if (isDomForbidden || isSubForbidden) chip.classList.add('chip-red');
+            }
+          });
+        }
+
+        group.addEventListener('click', e=>{
+          const btn = e.target.closest('.chip'); if (!btn) return;
+          handleChip(btn);
+        });
+
+        loadFromState();
+      });
+    }
+
+    /* ========= Activities (Yes/Maybe/No + slider) ========= */
+    function createActivityRow(groupKey, item){
+      const row = document.createElement('div');
+      row.className = 'activity-row';
+      row.dataset.group = groupKey;
+      row.dataset.itemId = item.id;
+
+      const label = document.createElement('div');
+      label.className = 'activity-label';
+      label.innerHTML = `<span>${item.en}</span>`;
+
+      const controls = document.createElement('div');
+      controls.className = 'controls-wrap';
+
+      const choice = document.createElement('div');
+      choice.className = 'choice-group';
+      const bYes   = document.createElement('button'); bYes.type='button';   bYes.className='choice-btn yes';   bYes.textContent='Yes';
+      const bMaybe = document.createElement('button'); bMaybe.type='button'; bMaybe.className='choice-btn maybe'; bMaybe.textContent='Maybe';
+      const bNo    = document.createElement('button'); bNo.type='button';    bNo.className='choice-btn no';    bNo.textContent='No';
+      choice.append(bYes,bMaybe,bNo);
+
+      const sliderWrap = document.createElement('div');
+      sliderWrap.className = 'slider-container disabled';
+      const slider = document.createElement('input');
+      slider.type='range'; slider.min='0'; slider.max='10'; slider.value='0'; slider.className='intensity-slider';
+      slider.setAttribute('aria-label', `${item.en} — intensity`);
+      const sval = document.createElement('span'); sval.className='intensity-value'; sval.textContent='0/10';
+      sliderWrap.append(slider,sval);
+
+      controls.append(choice, sliderWrap);
+
+      function setActive(btn){ [bYes,bMaybe,bNo].forEach(b=> b.classList.remove('active')); btn.classList.add('active'); }
+      function setStatus(stat){
+        const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.en});
+        entry.status = stat;
+      }
+      function hydrateFromState(){
+        const entry = state.activities[groupKey][item.id];
+        if (!entry) return;
+        const stat = entry.status || null;
+        const intensity = clamp(parseInt(entry.intensity || 0, 10), 0, 10);
+        slider.value = String(intensity);
+        sval.textContent = `${intensity}/10`;
+        if (stat === 'yes') {
+          setActive(bYes);
+          sliderWrap.classList.remove('disabled');
+        } else if (stat === 'maybe') {
+          setActive(bMaybe);
+          sliderWrap.classList.remove('disabled');
+        } else if (stat === 'no') {
+          setActive(bNo);
+          sliderWrap.classList.add('disabled');
+        }
+      }
+
+      bYes.addEventListener('click', ()=>{ setActive(bYes); setStatus('yes');   sliderWrap.classList.remove('disabled'); });
+      bMaybe.addEventListener('click', ()=>{ setActive(bMaybe); setStatus('maybe'); sliderWrap.classList.remove('disabled'); });
+      bNo.addEventListener('click', ()=>{
+        setActive(bNo); setStatus('no'); sliderWrap.classList.add('disabled');
+        slider.value='0'; sval.textContent='0/10';
+        (state.activities[groupKey][item.id]||{}).intensity=0;
+      });
+
+      slider.addEventListener('pointerdown', ()=>{
+        if (sliderWrap.classList.contains('disabled')) {
+          sliderWrap.classList.remove('disabled');
+          setActive(bYes);
+          setStatus('yes');
+        }
+      });
+      slider.addEventListener('input', ()=>{
+        if (sliderWrap.classList.contains('disabled')) {
+          sliderWrap.classList.remove('disabled');
+        }
+        if (!bYes.classList.contains('active')) {
+          setActive(bYes);
+          setStatus('yes');
+        }
+        sval.textContent = `${slider.value}/10`;
+        const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.en});
+        entry.intensity = parseInt(slider.value,10);
+      });
+
+      hydrateFromState();
+      row.append(label, controls);
+      return row;
+    }
+    function addDynamicActivityRow(container, groupKey, labelText){
+      const id = `dyn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`;
+      const item = { id, en: labelText };
+      const row = createActivityRow(groupKey, item);
+      container.insertBefore(row, container.lastElementChild);
+      state.activities[groupKey][id] = { status:null, intensity:0, name:labelText };
+    }
+    function buildActivities(){
+      Object.entries(activityDefs).forEach(([groupKey, items])=>{
+        state.activities[groupKey] = state.activities[groupKey] || {};
+        const container = document.querySelector(`.activity-list[data-rows="${groupKey}"]`);
+        if (!container) return;
+        container.innerHTML = '';
+        const staticIds = new Set(items.filter(i => !i.other).map(i => i.id));
+        items.forEach(item=>{
+          if (item.other){
+            const row = document.createElement('div');
+            row.className = 'activity-row';
+            row.dataset.group = groupKey;
+            row.dataset.itemId = 'other';
+            const label = document.createElement('div');
+            label.className = 'activity-label';
+            label.innerHTML = `<span>Other</span>`;
+            const controls = document.createElement('div');
+            controls.className = 'controls-wrap';
+            const otherInput = document.createElement('input');
+            otherInput.className = 'text-input';
+            otherInput.placeholder = 'Add custom… Enter to confirm';
+            otherInput.style.maxWidth = '320px';
+            controls.appendChild(otherInput);
+            row.append(label, controls);
+            container.appendChild(row);
+            const commit = ()=>{
+              const v = otherInput.value.trim(); if (!v) return;
+              otherInput.value = '';
+              addDynamicActivityRow(container, groupKey, v);
+            };
+            otherInput.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); commit(); } });
+            otherInput.addEventListener('blur', commit);
+            return;
+          }
+          const row = createActivityRow(groupKey, item);
+          container.appendChild(row);
+          if (!state.activities[groupKey][item.id]) {
+            state.activities[groupKey][item.id] = { status:null, intensity:0, name:item.en };
+          } else {
+            state.activities[groupKey][item.id].name = item.en;
+          }
+        });
+
+        // Rebuild previously saved custom "Other" rows for this group.
+        const savedEntries = state.activities[groupKey] || {};
+        Object.keys(savedEntries).forEach(id => {
+          if (staticIds.has(id) || id === 'other') return;
+          const entry = savedEntries[id] || {};
+          const label = String(entry.name || '').trim() || 'Other';
+          const row = createActivityRow(groupKey, { id, en: label });
+          const otherRow = container.querySelector('.activity-row[data-item-id="other"]');
+          if (otherRow) container.insertBefore(row, otherRow);
+          else container.appendChild(row);
+        });
+      });
+      adjustRefinementLabels();
+      updateRoleSensitiveLabels();
+    }
+
+    /* ========= Refinements ========= */
+    function setupRefinements(){
+      $$('textarea[data-refine]').forEach(t=>{
+        const existing = state.refinements[t.dataset.refine];
+        if (typeof existing === 'string') t.value = existing;
+        t.addEventListener('input',()=> state.refinements[t.dataset.refine] = t.value );
+      });
+    }
+    function titleForGroup(k){
+      const map = {
+        gentle:'Gentle touch', rough:'Rough handling', kisses:'Kisses/Licks/Bites', impact:'Impact',
+        restraints:'Restraints', sensory:'Sensory', somatic:'Somatic edge',
+        objectification:'Objectification', esteem:'Esteem & Identity', psych:'Psychological Dynamics', groupScenes:'Group Scenes',
+        intimacy:'Desired Intimacy & Connection', penetration:'Penetration & Sexual Stimulation', erotic:'Sexual/Erotic Dynamics',
+        roleplay:'Roleplay & Scenes', aftercare:'Aftercare'
+      };
+      return map[k] || k;
+    }
+    function titleForGroupEN(k){
+      return titleForGroup(k);
+    }
+    function adjustRefinementLabels(){
+      $$('textarea[data-refine]').forEach(t=>{
+        const key = t.dataset.refine;
+        const label = t.closest('.refinements')?.querySelector('label');
+        if (!label) return;
+        label.textContent = `Refinements for ${titleForGroupEN(key)}`;
+      });
+    }
+
+    /* ========= Summary ========= */
+    function refreshSummaryTitle(){
+      const h2 = document.querySelector('#chapter-8 .chapter-title');
+      if (!h2) return;
+      const name = state.session.sessionName?.trim();
+      h2.textContent = `Session Agreements Summary${name?` — ${name}`:''}`;
+    }
+    function getSummaryFilterOptions(){
+      const box = $('#summaryFilters');
+      const filters = { allForm:false, yes:false, maybe:false, no:false, unanswered:false, answers:true, sort:'consent' };
+      if (!box) return filters;
+
+      const activeFilters = Array.from(box.querySelectorAll('[data-filter-group] .chip.active')).map(b=> b.dataset.filter);
+      filters.allForm = activeFilters.includes('all_form');
+      filters.answers = activeFilters.includes('answers') || (!filters.allForm && activeFilters.length===0);
+      filters.yes = activeFilters.includes('yes');
+      filters.maybe = activeFilters.includes('maybe');
+      filters.no = activeFilters.includes('no');
+      filters.unanswered = activeFilters.includes('unanswered');
+
+      const sortBtn = box.querySelector('[data-sort-group] .chip.active');
+      filters.sort = sortBtn?.dataset.sort || 'consent';
+      return filters;
+    }
+    function initSummaryFiltersUI(){
+      const box = document.getElementById('summaryFilters');
+      if (!box) return;
+      box.addEventListener('click', e=>{
+        const chip = e.target.closest('.chip'); if (!chip) return;
+        const group = chip.parentElement;
+        const yes = box.querySelector('[data-filter="yes"]');
+        const maybe = box.querySelector('[data-filter="maybe"]');
+        const no = box.querySelector('[data-filter="no"]');
+        const unanswered = box.querySelector('[data-filter="unanswered"]');
+        const answers = box.querySelector('[data-filter="answers"]');
+        const allForm = box.querySelector('[data-filter="all_form"]');
+
+        if (group?.dataset.single === 'true'){
+          group.querySelectorAll('.chip').forEach(c=> c.classList.remove('active'));
+          chip.classList.add('active');
+        } else {
+          // Multi-choice: yes/maybe/no/unanswered - toggle
+          if (["yes","maybe","no","unanswered"].includes(chip.dataset.filter)) {
+            chip.classList.toggle('active');
+            // If any specific filter is selected, deselect answers/all_form
+            if (yes.classList.contains('active') || maybe.classList.contains('active') || no.classList.contains('active') || unanswered.classList.contains('active')) {
+              answers.classList.remove('active');
+              allForm?.classList.remove('active');
+            }
+          } else if (chip.dataset.filter === 'answers') {
+            answers.classList.add('active');
+            allForm?.classList.remove('active');
+            [yes, maybe, no, unanswered].forEach(c=>c.classList.remove('active'));
+          } else if (chip.dataset.filter === 'all_form') {
+            allForm.classList.add('active');
+            answers.classList.remove('active');
+            [yes, maybe, no, unanswered].forEach(c=>c.classList.remove('active'));
+          }
+          // Prevent state where no filter is active (always have at least one)
+          if (
+            !yes.classList.contains('active') &&
+            !maybe.classList.contains('active') &&
+            !no.classList.contains('active') &&
+            !unanswered.classList.contains('active') &&
+            !answers.classList.contains('active') &&
+            !(allForm && allForm.classList.contains('active'))
+          ) {
+            answers.classList.add('active');
+          }
+        }
+        renderSummary();
+      });
+    }
+    function collectGroupRows(groupKey){
+      const group = state.activities[groupKey] || {};
+      return Object.values(group).map(e=>{
+        const status = e.status || 'unanswered';
+        return {type:'activity', group:groupKey, name:e.name, status, intensity:e.intensity||0};
+      });
+    }
+    function shouldInclude(row, filters){
+      if (row.type !== 'activity') return false;
+      if (filters.allForm) return true;
+      if (filters.answers){
+        return row.status !== 'unanswered';
+      }
+      if (filters.yes || filters.maybe || filters.no || filters.unanswered){
+        return (filters[row.status] === true);
+      }
+      // No specific filter => default show answers
+      return row.status !== 'unanswered';
+    }
+    function sortItems(rows, sortKey){
+      const statusOrder = { yes:0, maybe:1, no:2, unanswered:3 };
+      const byName = (a,b)=> a.name.localeCompare(b);
+      if (sortKey === 'intensity'){
+        return rows.sort((a,b)=>{
+          const di = (b.intensity||0) - (a.intensity||0);
+          if (di) return di;
+          const so = statusOrder[a.status]-statusOrder[b.status];
+          if (so) return so;
+          return byName(a,b);
+        });
+      }
+      if (sortKey === 'questionnaire'){
+        // Keep natural order by definition insertion (skip special)
+        return rows; // Already mostly in questionnaire order
+      }
+      // Consent
+      return rows.sort((a,b)=>{
+        const so = statusOrder[a.status]-statusOrder[b.status];
+        if (so) return so;
+        return byName(a,b);
+      });
+    }
+    function renderSummary(){
+      refreshSummaryTitle();
+
+      // Session box: fill 3 columns
+      const fill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      fill('summarySessionName', state.session.sessionName || '—');
+      fill('summaryRole', state.session.role ? ({dom:'Dom',sub:'Sub','switch':'Switch'}[state.session.role]) : '—');
+      fill('summaryDuration', state.session.duration ? `${state.session.duration} min` : '—');
+      fill('summaryPronouns', (state.session.pronouns||[]).join(' • ') || '—');
+      fill('summaryTrafficLight', state.safety.trafficLight ? 'Enabled' : '—');
+      fill('summarySafeword', state.safety.safeword || '—');
+      fill('summaryGesture', state.safety.gesture || '—');
+      fill('summaryHardLimits', state.safety.hardLimits || '—');
+      fill('summaryHealthPhysical', state.safety.healthPhysical || '—');
+      fill('summaryHealthMental', state.safety.healthMental || '—');
+      fill('summaryProtection', (state.safety.protectionMethods||[]).join(' • ') || '—');
+      fill('summaryPainDesired', state.safety.painDesired != null ? state.safety.painDesired + '/10' : '—');
+      fill('summaryPainTolerable', state.safety.painTolerable != null ? state.safety.painTolerable + '/10' : '—');
+      fill('summaryMarks', (state.safety.marks||[]).join(' • ') || '—');
+      fill('summaryPhotoLimits', (state.safety.photoLimits||[]).join(' • ') || '—');
+      fill('summaryNuditySelf', (state.safety.nuditySelf||[]).join(' • ') || '—');
+      fill('summaryNudityPartner', (state.safety.nudityPartner||[]).join(' • ') || '—');
+
+      const root = $('#summaryContent'); if (!root) return;
+      root.innerHTML = '';
+
+      const filters = getSummaryFilterOptions();
+
+      const sections = [
+        { title:'🫳🏼 Touch Preferences', groups:['gentle','rough','kisses','impact'], extras:[
+          {label:'Specific sensitivity areas', text: state.text.sensitivityAreas }
+        ]},
+        { title:'⛓️ Restraints & Sensations', groups:['restraints','sensory','somatic'] },
+        { title:'🎭 Dynamics & Language', groups:['objectification','esteem','psych','groupScenes'], chips:[
+          {label:'Roleplay & Scenes', items: state.sets.roleplayScenes, refine: state.refinements.roleplay},
+          {label:'Dom\'s language style',   items: state.sets.domLanguage},
+          {label:'Sub\'s language style',   items: state.sets.subLanguage},
+          {label:'Nicknames for sub — turn-ons', items: state.sets.nicknamesSub, good:true},
+          {label:'Forbidden words for sub', items: state.sets.forbiddenNickSub, bad:true},
+          {label:'Dom\'s desired nicknames', items: state.sets.titlesDom, good:true},
+          {label:'Forbidden words for Dom',   items: state.sets.forbiddenTitlesDom, bad:true}
+        ]},
+        { title:'🏷️ Nicknames & Titles', groups:[], chips:[] },
+        { title:'🍑 Sex & Intimacy', groups:['intimacy','penetration','erotic'] },
+        { title:'🛌 Aftercare', groups:[], chips:[
+          {label:'Immediate needs', items: state.sets.aftercareNeeds, refine: state.refinements.aftercare},
+          {label:'Aftercare duration',   items: state.sets.aftercareDuration},
+          {label:'Post-session expectations', items: state.sets.postSession}
+        ]}
+      ];
+
+      sections.forEach(sec=>{
+        const card = document.createElement('div');
+        card.className = 'summary-card';
+        const h = document.createElement('h4');
+        h.textContent = sec.title;
+        card.appendChild(h);
+
+        (sec.groups||[]).forEach(gkey=>{
+          // Collect
+          let rows = collectGroupRows(gkey).filter(r=> shouldInclude(r, filters));
+          rows = sortItems(rows, filters.sort);
+          const sub = document.createElement('div');
+          const st = document.createElement('div');
+          sub.className = 'summary-subsection';
+          st.className = 'summary-subtitle';
+          st.textContent = titleForGroup(gkey);
+          sub.appendChild(st);
+
+          const tagWrap = document.createElement('div');
+          tagWrap.className = 'summary-tags';
+          rows.forEach(r=>{
+            const tag = document.createElement('span');
+            tag.className = 'summary-tag';
+            if (r.status === 'yes') tag.classList.add('summary-tag-yes');
+            else if (r.status === 'maybe') tag.classList.add('summary-tag-maybe');
+            else if (r.status === 'no') tag.classList.add('summary-tag-no');
+            // Create structure: name + intensity
+            tag.innerHTML = `<span class="summary-tag-label">${r.name}</span>`;
+            if (r.status !== 'unanswered' && (r.intensity || 0) > 0) {
+              const intensity = document.createElement('span');
+              intensity.className = 'summary-tag-intensity';
+              intensity.textContent = ` ${r.intensity}/10`;
+              tag.appendChild(intensity);
+            }
+            tagWrap.appendChild(tag);
+          });
+          sub.appendChild(tagWrap);
+
+          // Always show refinement field at bottom of card
+          const refineVal = (state.refinements?.[gkey]||'').trim();
+          const refineBlock = document.createElement('div');
+          refineBlock.className = 'summary-refine-block';
+          const refineTitle = document.createElement('div');
+          refineTitle.className = 'summary-refine-title';
+          refineTitle.textContent = `Refinements for ${titleForGroup(gkey)}`;
+          refineBlock.appendChild(refineTitle);
+          if (refineVal) {
+            const wrap = document.createElement('div');
+            wrap.className = 'summary-tags';
+            const t = document.createElement('span');
+            t.className = 'summary-tag';
+            t.textContent = refineVal;
+            wrap.appendChild(t);
+            refineBlock.appendChild(wrap);
+          }
+          sub.appendChild(refineBlock);
+
+          card.appendChild(sub);
+        });
+
+        (sec.extras||[]).forEach(ex=>{
+          if (!ex.text || !String(ex.text).trim()) return;
+          const sub = document.createElement('div');
+          sub.className = 'summary-subsection';
+          const st = document.createElement('div');
+          st.className = 'summary-subtitle';
+          st.textContent = ex.label || '';
+          sub.appendChild(st);
+          const wrap = document.createElement('div');
+          wrap.className = 'summary-tags';
+          const tag = document.createElement('span');
+          tag.className = 'summary-tag';
+          tag.textContent = ex.text;
+          wrap.appendChild(tag);
+          sub.appendChild(wrap);
+          card.appendChild(sub);
+        });
+
+        (sec.chips||[]).forEach(c=>{
+          // Show chip-group including "other" values (state.sets[field] always includes dynamics)
+          const items = Array.isArray(c.items) ? c.items : [];
+          // Map field to refinement (by data-refine)
+          let refineKey = null;
+          if (c.refine) {
+            refineKey = c.refine;
+          } else if (c.label) {
+            // Try to guess key from label
+            const labelMap = {
+              'Gentle touch':'gentle', 'Rough handling':'rough', 'Kisses/Licks/Bites':'kisses', 'Impact':'impact',
+              'Restraints':'restraints', 'Sensory':'sensory', 'Somatic edge':'somatic',
+              'Roleplay & Scenes':'roleplay', 'Aftercare':'aftercare',
+              'Post-session expectations':'postSession', 'Language':'language', 'Esteem & Identity':'esteem', 'Objectification':'objectification', 'Psychological Dynamics':'psych', 'Group Scenes':'groupScenes'
+            };
+            Object.entries(labelMap).forEach(([lbl, key])=>{
+              if ((c.label||'').includes(lbl)) refineKey = key;
+            });
+          }
+          const refineVal = refineKey ? (state.refinements?.[refineKey]||'').trim() : '';
+
+          // Always show card (even if no values and no refinement)
+          const sub = document.createElement('div');
+          sub.className = 'summary-subsection';
+          const st = document.createElement('div');
+          st.className = 'summary-subtitle';
+          st.textContent = c.label || '';
+          sub.appendChild(st);
+
+          if (items.length){
+            const tagWrap = document.createElement('div');
+            tagWrap.className = 'summary-tags';
+            items.forEach(v=>{
+              const t = document.createElement('span');
+              t.className = 'summary-tag';
+              if (c.good) t.classList.add('summary-tag-good');
+              if (c.bad)  t.classList.add('summary-tag-bad');
+              t.textContent = v;
+              tagWrap.appendChild(t);
+            });
+            sub.appendChild(tagWrap);
+          }
+          // Always show refinement field at bottom of card
+          if (refineKey) {
+            const refineBlock = document.createElement('div');
+            refineBlock.className = 'summary-refine-block';
+            const refineTitle = document.createElement('div');
+            refineTitle.className = 'summary-refine-title';
+            refineTitle.textContent = `Refinements for ${titleForGroup(refineKey)}`;
+            refineBlock.appendChild(refineTitle);
+            if (refineVal) {
+              const wrap = document.createElement('div');
+              wrap.className = 'summary-tags';
+              const t = document.createElement('span');
+              t.className = 'summary-tag';
+              t.textContent = refineVal;
+              wrap.appendChild(t);
+              refineBlock.appendChild(wrap);
+            }
+            sub.appendChild(refineBlock);
+          }
+          card.appendChild(sub);
+        });
+
+        root.appendChild(card);
+      });
+    }
+
+    /* ========= Date ========= */
+    function setupDateField(){
+      const input = document.getElementById('consentDate');
+      const openBtn = document.getElementById('openDatePicker');
+      const display = document.getElementById('consentDateDisplay');
+      if (!input || !display) return;
+
+      const toYYYYMMDD = d => {
+        const dt = new Date(d.getTime() - d.getTimezoneOffset()*60000);
+        return dt.toISOString().slice(0,10);
+      };
+      const toDDMMYYYY = (yyyy_mm_dd) => {
+        if (!yyyy_mm_dd) return '';
+        const [y,m,d] = yyyy_mm_dd.split('-');
+        return `${d}/${m}/${y}`;
+      };
+
+      const todayISO = toYYYYMMDD(new Date());
+      if (!input.value) input.value = todayISO;
+      display.textContent = toDDMMYYYY(input.value);
+
+      input.addEventListener('change', () => { display.textContent = toDDMMYYYY(input.value); });
+      if (openBtn) {
+        openBtn.addEventListener('click', () => {
+          if (typeof input.showPicker === 'function') input.showPicker();
+          else input.focus();
+        });
+      }
+    }
+
+    /* ========= Signature ========= */
+    function initializeSignaturePad(forceResize = false){
+      const canvas = document.getElementById('signatureCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.style.touchAction = 'none';
+
+      const statePad = (canvas.__padState ||= { drawing:false, bound:false });
+
+      const resize = () => {
+        const dpr = Math.max(window.devicePixelRatio || 1, 1);
+        const w = canvas.clientWidth || canvas.parentElement.clientWidth || 600;
+        const h = canvas.clientHeight || 180;
+        if (!forceResize && canvas.width === Math.floor(w*dpr) && canvas.height === Math.floor(h*dpr)) return;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(dpr, dpr);
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#ffffff';
+      };
+      resize();
+
+      const pos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+        const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? 0;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+      const start = (e) => {
+        e.preventDefault();
+        const p = pos(e);
+        statePad.drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        canvas.setPointerCapture?.(e.pointerId || 0);
+      };
+      const move = (e) => {
+        if (!statePad.drawing) return;
+        e.preventDefault();
+        const p = pos(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      };
+      const end = (e) => {
+        statePad.drawing = false;
+        canvas.releasePointerCapture?.(e.pointerId || 0);
+      };
+
+      if (!statePad.bound) {
+        canvas.addEventListener('pointerdown', start);
+        canvas.addEventListener('pointermove', move);
+        canvas.addEventListener('pointerup', end);
+        canvas.addEventListener('pointerleave', end);
+        statePad.bound = true;
+      }
+
+      const clearBtn = document.getElementById('clearSignatureBtn');
+      if (clearBtn && !clearBtn.__bound) {
+        clearBtn.addEventListener('click', () => { ctx.clearRect(0, 0, canvas.width, canvas.height); });
+        clearBtn.__bound = true;
+      }
+
+      if (forceResize) setTimeout(resize, 10);
+      if (!canvas.__resizeBound) {
+        window.addEventListener('resize', () => initializeSignaturePad(true));
+        canvas.__resizeBound = true;
+      }
+    }
+
+    /* ========= Share / Print ========= */
+    function setupActions(){
+      const shareHeader = document.getElementById('shareLinkBtn');
+      const copyLinkBottom = document.getElementById('copyLinkBottom');
+      const printSummaryBtn = document.getElementById('printSummaryBtn');
+
+      function doCopy(){
+        const url = location.href;
+        navigator.clipboard?.writeText(url).then(()=>alert('Link copied 📋')).catch(()=>alert(url));
+      }
+      function printSummary() {
+        window.print();
+      }
+
+      shareHeader?.addEventListener('click', doCopy);
+      copyLinkBottom?.addEventListener('click', doCopy);
+      printSummaryBtn?.addEventListener('click', printSummary);
+    }
+
+    /* ========= DOM Ready ========= */
+    function init(){
+      setupStepper();
+      setupPrevNext();
+      setupCollapsibleChapters();
+      setupInfoButtons();
+      bindBasicInputs();
+      setupPainSliders();
+      setupChipGroups();
+      buildActivities();
+      setupRefinements();
+      setupDateField();
+      setupActions();
+      initSummaryFiltersUI();
+
+      // Mark first step active
+      const sb = document.querySelector('.step-btn[data-target="chapter-1"]');
+      sb && sb.classList.add('active');
+
+      // Live update summary title when editing name while on chapter 8
+      $('#nickname')?.addEventListener('input', ()=>{
+        if ($('#chapter-8')?.classList.contains('visible')) renderSummary();
+      });
+      $('#sessionName')?.addEventListener('input', ()=>{
+        if ($('#chapter-8')?.classList.contains('visible')) renderSummary();
+      });
+
+      updatePerspectiveBadges();
+      saveActiveSession();
+      document.addEventListener('input', scheduleAutosave, true);
+      document.addEventListener('change', scheduleAutosave, true);
+      document.addEventListener('click', e => {
+        if (e.target && e.target.closest && e.target.closest('.chip, .step-btn, .btn')) scheduleAutosave();
+      }, true);
+    }
+
+    loadSessionFromStorageIfPresent();
+    init();
+  });
+</script>
+</body>
+</html>
+
