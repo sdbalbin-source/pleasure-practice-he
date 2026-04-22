@@ -1394,11 +1394,14 @@ label,
     };
     const STORAGE_KEY = 'planner_sessions_v1';
     const SESSION_SCHEMA_VERSION = 1;
+    const PDF_CACHE_DB = 'planner-pdf-cache-v1';
+    const PDF_CACHE_STORE = 'pdfs';
     const urlParams = new URLSearchParams(window.location.search);
     const sessionIdFromUrl = urlParams.get('sessionId') || '';
     const startChapterFromUrl = urlParams.get('startChapter') || '';
     const autoShareFromUrl = urlParams.get('autoShare') || '';
     let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    let currentSessionVersion = '';
 
     function cloneState() {
       return JSON.parse(JSON.stringify(state));
@@ -1462,6 +1465,7 @@ label,
       if (existingIx >= 0) sessions[existingIx] = payload;
       else sessions.unshift(payload);
       writeSessionsSafe(sessions.slice(0, 100));
+      currentSessionVersion = now;
     }
     function loadSessionFromStorageIfPresent() {
       if (!sessionIdFromUrl) return;
@@ -1471,6 +1475,85 @@ label,
       if (saved.schemaVersion && Number(saved.schemaVersion) > SESSION_SCHEMA_VERSION) return;
       mergeStateFromSaved(saved.plannerState);
       activeSessionId = saved.id;
+      currentSessionVersion = saved.updatedAt || '';
+    }
+
+    let pdfDbPromise = null;
+    function openPdfDb(){
+      if (!window.indexedDB) return Promise.resolve(null);
+      if (pdfDbPromise) return pdfDbPromise;
+      pdfDbPromise = new Promise((resolve, reject) => {
+        const req = indexedDB.open(PDF_CACHE_DB, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(PDF_CACHE_STORE)) {
+            const store = db.createObjectStore(PDF_CACHE_STORE, { keyPath: 'cacheKey' });
+            store.createIndex('sessionId', 'sessionId', { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error || new Error('Failed to open PDF cache DB'));
+      }).catch(() => null);
+      return pdfDbPromise;
+    }
+    function makePdfCacheKey(sessionId, version){
+      return `${sessionId}::${version}`;
+    }
+    async function getCachedPdfBlob(sessionId, version){
+      if (!sessionId || !version) return null;
+      const db = await openPdfDb();
+      if (!db) return null;
+      const key = makePdfCacheKey(sessionId, version);
+      return new Promise(resolve => {
+        const tx = db.transaction(PDF_CACHE_STORE, 'readonly');
+        const store = tx.objectStore(PDF_CACHE_STORE);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result && req.result.blob ? req.result.blob : null);
+        req.onerror = () => resolve(null);
+      });
+    }
+    async function saveCachedPdfBlob(sessionId, version, blob){
+      if (!sessionId || !version || !blob) return;
+      const db = await openPdfDb();
+      if (!db) return;
+      await new Promise(resolve => {
+        const tx = db.transaction(PDF_CACHE_STORE, 'readwrite');
+        const store = tx.objectStore(PDF_CACHE_STORE);
+        const key = makePdfCacheKey(sessionId, version);
+        store.put({
+          cacheKey: key,
+          sessionId,
+          version,
+          blob,
+          savedAt: new Date().toISOString()
+        });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+        tx.onabort = () => resolve();
+      });
+      // Keep only latest few cached PDFs per session.
+      await trimSessionPdfCache(sessionId, 3);
+    }
+    async function trimSessionPdfCache(sessionId, keepLatest){
+      const db = await openPdfDb();
+      if (!db) return;
+      await new Promise(resolve => {
+        const tx = db.transaction(PDF_CACHE_STORE, 'readwrite');
+        const store = tx.objectStore(PDF_CACHE_STORE);
+        const index = store.index('sessionId');
+        const req = index.getAll(IDBKeyRange.only(sessionId));
+        req.onsuccess = () => {
+          const rows = Array.isArray(req.result) ? req.result : [];
+          if (rows.length <= keepLatest) return;
+          rows
+            .sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')))
+            .slice(keepLatest)
+            .forEach(row => store.delete(row.cacheKey));
+        };
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+        tx.onabort = () => resolve();
+      });
     }
 
     /* ========= Info texts ========= */
@@ -2854,6 +2937,20 @@ label,
         return pdf.output('blob');
       }
     }
+    async function primeSessionPdfCache(sessionId, version){
+      if (!sessionId || !version) return null;
+      const cached = await getCachedPdfBlob(sessionId, version);
+      if (cached) return cached;
+      const blob = await createSummaryPdfBlob();
+      await saveCachedPdfBlob(sessionId, version, blob);
+      return blob;
+    }
+    function getSavedSessionVersion(sessionId){
+      if (!sessionId) return '';
+      const sessions = parseSessionsSafe();
+      const item = sessions.find(s => s && s.id === sessionId);
+      return item && typeof item.updatedAt === 'string' ? item.updatedAt : '';
+    }
     function setupActions(){
       const sharePdfBtn = document.getElementById('sharePdfBtn');
       const finishSessionBtn = document.getElementById('finishSessionBtn');
@@ -2864,7 +2961,10 @@ label,
           sharePdfBtn.textContent = '⏳ Preparing PDF...';
         }
         try {
-          const blob = await createSummaryPdfBlob();
+          const version = currentSessionVersion || getSavedSessionVersion(activeSessionId) || '';
+          const blob = (activeSessionId && version)
+            ? await primeSessionPdfCache(activeSessionId, version)
+            : await createSummaryPdfBlob();
           const safeName = String(state.session.sessionName || 'session-summary').replace(/[^\w\-]+/g, '-').slice(0, 48) || 'session-summary';
           const supportsFileCtor = typeof File === 'function';
           if (supportsFileCtor && navigator.share && navigator.canShare) {
@@ -2901,8 +3001,24 @@ label,
         }
       }
       sharePdfBtn?.addEventListener('click', shareAsPdf);
-      finishSessionBtn?.addEventListener('click', () => {
+      finishSessionBtn?.addEventListener('click', async () => {
         saveActiveSession();
+        if (finishSessionBtn) {
+          finishSessionBtn.disabled = true;
+          finishSessionBtn.textContent = '⏳ Saving...';
+        }
+        try {
+          if (activeSessionId && currentSessionVersion) {
+            await primeSessionPdfCache(activeSessionId, currentSessionVersion);
+          }
+        } catch (_) {
+          // Session is saved regardless; PDF can still be generated later via Share.
+        } finally {
+          if (finishSessionBtn) {
+            finishSessionBtn.disabled = false;
+            finishSessionBtn.textContent = '✅ Save Session';
+          }
+        }
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({ type: 'planner_session_finished', sessionId: activeSessionId }, '*');
         } else {
