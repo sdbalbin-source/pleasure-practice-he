@@ -657,8 +657,8 @@
         const THEME_ORDER = ['Freedom','Joy','Mischief','Playfulness','Safety & Trust','Relaxation','Pleasure','Desire','Sexy','Wildness'];
         const DEFAULT_EXCLUDED_CATEGORIES = ['Deepeners', 'Convincers', 'Triggers', 'Pleasure Metaphors'];
         const CANONICAL_ORIGIN = 'https://hypnocards-eng.pages.dev';
-        const APP_BUILD = 'build-canonical-2026-04-22-hypno-guidebook-about';
-        const SW_BUILD = '2026-04-22-10';
+        const APP_BUILD = 'build-canonical-2026-04-22-hypno-foundations-sections';
+        const SW_BUILD = '2026-04-22-11';
 
         const AppState = {
             rawRows: [],          
@@ -1490,12 +1490,45 @@
             const app = document.getElementById('app');
             const intro = Array.isArray(HYPNO_GUIDEBOOK_DATA.intro) ? HYPNO_GUIDEBOOK_DATA.intro : [];
             const categories = Array.isArray(HYPNO_GUIDEBOOK_DATA.categories) ? HYPNO_GUIDEBOOK_DATA.categories : [];
-            const introHtml = intro.length
-                ? intro.map(p => `<p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtmlArchetype(p)}</p>`).join('')
-                : `<p class="text-gray-400 serif-font text-sm leading-relaxed">Guidebook content is still loading...</p>`;
-            const categoryIndexHtml = categories.length
-                ? categories.map(c => `<a href="#hypno-cat-${c.number}" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-200 text-xs font-mono hover:border-purple-400/40 transition">${escapeHtmlArchetype(c.name)}</a>`).join('')
-                : '';
+            const foundationTitles = [
+                'A Note Before You Begin',
+                'What Is HypnoErotica?',
+                'The Language of Trance',
+                'Ethics, Consent, and Agreements',
+                'Understanding the Structure',
+                'The Role of Themes',
+                'How to Use the Cards',
+                'The Language Pattern Categories'
+            ];
+            const introSections = [];
+            let currentSection = null;
+            intro.forEach(line => {
+                if (foundationTitles.includes(line)) {
+                    currentSection = { title: line, content: [] };
+                    introSections.push(currentSection);
+                    return;
+                }
+                if (!currentSection) {
+                    currentSection = { title: 'A Note Before You Begin', content: [] };
+                    introSections.push(currentSection);
+                }
+                currentSection.content.push(line);
+            });
+            const foundationsHtml = introSections.length
+                ? introSections.map(section => {
+                    const body = (section.content || [])
+                        .map(p => `<p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtmlArchetype(p)}</p>`)
+                        .join('');
+                    return `
+                        <details class="bg-white/5 border border-purple-500/20 rounded-2xl p-4">
+                            <summary class="cursor-pointer list-none">
+                                <h3 class="text-xl text-white serif-font font-bold">${escapeHtmlArchetype(section.title)}</h3>
+                            </summary>
+                            <div class="mt-4 space-y-3">${body}</div>
+                        </details>
+                    `;
+                }).join('')
+                : `<div class="text-gray-400 serif-font text-sm leading-relaxed">Guidebook content is still loading...</div>`;
             const categoriesHtml = categories.length
                 ? categories.map(c => {
                     const content = (c.content || []).map(p => `<p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtmlArchetype(p)}</p>`).join('');
@@ -1527,14 +1560,13 @@
                             <p class="text-gray-300 serif-font text-base leading-relaxed">This section brings the full conceptual framework of the HypnoErotica language deck into the app. Use it as study material before and between live practice sessions.</p>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Foundations (full text)</h3>
-                            <div class="space-y-3">${introHtml}</div>
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Foundations</h3>
+                            <div class="space-y-3">${foundationsHtml}</div>
                         </div>
                         <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">Categories Index</h3>
-                            <div class="flex flex-wrap gap-2">${categoryIndexHtml}</div>
+                            <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">The Language Pattern Categories</h3>
+                            <div class="space-y-3">${categoriesHtml}</div>
                         </div>
-                        ${categoriesHtml}
                     </div>
                 </div>
             `;
