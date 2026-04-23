@@ -726,8 +726,9 @@
 
         <!-- Filters -->
         <div class="filters">
-          <div class="chip-group small" data-field="summaryFilter" data-single="true">
-            <button class="chip active" data-value="all">הכול</button>
+          <div class="chip-group small" data-field="summaryFilter">
+            <button class="chip" data-value="all_form">כל הטופס</button>
+            <button class="chip active" data-value="answers">כל התשובות</button>
             <button class="chip" data-value="yes">כן</button>
             <button class="chip" data-value="maybe">אולי</button>
             <button class="chip" data-value="no">לא</button>
@@ -745,7 +746,10 @@
             <span class="lang-he"><strong>🖋️ כתב הסכמה | Consent</strong></span>
           </h3>
           <p class="consent-text">
-            אני מצהיר/ה כי אני נכנס/ת לפעילות BDSM מרצוני החופשי… הכלי הזה הוא כלי עזר לשיחה ואינו ייעוץ מקצועי או משפטי.
+            אני מצהיר/ה כי אני נכנס/ת לפעילות BDSM מרצוני החופשי, להנאתי ולהתפתחותי; אני מעל גיל ההסכמה.<br><br>
+            באפשרותי למשוך או לשנות את הסכמתי בכל עת (באמצעות מילת ביטחון, "אדום" או מחווה פיזית) ללא ענישה. שני הצדדים אחראים לתקשורת פתוחה, לביצוע צ'ק-אין ולשמירה על גבולות.<br><br>
+            ינקטו אמצעי בטיחות הולמים (היגיינה, ציוד תקין, אותות/מילים מוסכמים). שיתפתי/אשתף מידע רפואי ונפשי רלוונטי. אין התחייבות לתוצאה או להנאה וייתכנו רגשות עזים.<br><br>
+            הכלי הזה הוא כלי עזר לשיחה ואינו ייעוץ מקצועי או משפטי.
           </p>
 
           <div class="consent-fields">
@@ -769,8 +773,8 @@
         <div class="actions">
           <button id="saveSession" class="btn ghost" type="button">שמירת Session</button>
           <button id="printPdf" class="btn" type="button">הדפס ל-PDF</button>
-          <button id="shareWhatsApp" class="btn" type="button">שליחה ב-WhatsApp</button>
-          <button id="copyLink" class="btn ghost" type="button">העתקת קישור</button>
+          <button id="shareWhatsApp" class="btn" type="button">שיתוף קישור לסיכום</button>
+          <button id="copyLink" class="btn ghost" type="button">העתקת קישור לסיכום</button>
         </div>
 
         <div class="nav-buttons">
