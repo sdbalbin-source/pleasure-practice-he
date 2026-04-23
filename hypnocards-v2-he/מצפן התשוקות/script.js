@@ -161,27 +161,36 @@ const infoTexts = {
 };
 
 function setupInfoButtons(){
-  // Fill texts for allowed anchors only
-  $('#trafficLightInfo').textContent = infoTexts.trafficLight;
-  $('#safewordInfo').textContent     = infoTexts.safeword;
-  $('#gestureInfo').textContent      = infoTexts.gesture;
-  $('#painInfo').textContent         = infoTexts.pain;
-  $('#hardLimitsInfo').textContent   = infoTexts.hardLimits;
-  $('#healthInfo').textContent       = infoTexts.health;
-
-  $('#impactInfo').textContent       = infoTexts.impact;
-  $('#groupScenesInfo').textContent  = infoTexts.groupScenes;
-
-  $('#aftercareInfoTop').textContent = infoTexts.aftercare;
-  $('#aftercareInfo').textContent    = infoTexts.postSession;
-
-  $('#summaryInfo').textContent      = infoTexts.summary;
+  const infoById = {
+    trafficLightInfo: 'trafficLight',
+    safewordInfo: 'safeword',
+    gestureInfo: 'gesture',
+    painInfo: 'pain',
+    hardLimitsInfo: 'hardLimits',
+    healthInfo: 'health',
+    impactInfo: 'impact',
+    groupScenesInfo: 'groupScenes',
+    aftercareInfoTop: 'aftercare',
+    aftercareInfo: 'postSession',
+    summaryInfo: 'summary'
+  };
+  Object.entries(infoById).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = infoTexts[key] || '';
+  });
 
   $$('.info-btn').forEach(btn=>{
+    const id = btn.dataset.infoTarget;
+    const panel = id ? document.getElementById(id) : null;
+    if (panel && !panel.textContent.trim()) {
+      panel.textContent = 'מידע נוסף יתווסף בהמשך.';
+      console.warn('[planner-he] missing info text for target:', id);
+    }
+    btn.setAttribute('aria-expanded', panel && !panel.hidden ? 'true' : 'false');
     btn.addEventListener('click', ()=>{
-      const id = btn.dataset.infoTarget;
-      const panel = document.getElementById(id);
-      if (panel){ panel.hidden = !panel.hidden; }
+      if (!panel) return;
+      panel.hidden = !panel.hidden;
+      btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
     });
   });
 }
@@ -495,15 +504,22 @@ function buildActivities(){
 
 function addDynamicActivityRow(container, groupKey, labelText){
   const id = `dyn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`;
+  return addDynamicActivityRowWithId(container, groupKey, labelText, id);
+}
+function addDynamicActivityRowWithId(container, groupKey, labelText, forcedId){
+  const id = forcedId || `dyn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`;
   const item = { id, he: labelText, en:'' };
   const row = createActivityRow(groupKey, item);
   container.insertBefore(row, container.lastElementChild);
   state.activities[groupKey][id] = { status:null, intensity:0, name:labelText };
+  return id;
 }
 
 function createActivityRow(groupKey, item){
   const row = document.createElement('div');
   row.className = 'activity-row';
+  row.dataset.groupKey = groupKey;
+  row.dataset.itemId = item.id;
 
   const label = document.createElement('div');
   label.className = 'activity-label';
@@ -521,15 +537,15 @@ function createActivityRow(groupKey, item){
 
   const choice = document.createElement('div');
   choice.className = 'choice-group';
-  const bYes = document.createElement('button'); bYes.type='button'; bYes.className='choice-btn yes'; bYes.textContent='כן';
-  const bMaybe = document.createElement('button'); bMaybe.type='button'; bMaybe.className='choice-btn maybe'; bMaybe.textContent='אולי';
-  const bNo = document.createElement('button'); bNo.type='button'; bNo.className='choice-btn no'; bNo.textContent='לא';
+  const bYes = document.createElement('button'); bYes.type='button'; bYes.className='choice-btn yes'; bYes.textContent='כן'; bYes.dataset.choice='yes';
+  const bMaybe = document.createElement('button'); bMaybe.type='button'; bMaybe.className='choice-btn maybe'; bMaybe.textContent='אולי'; bMaybe.dataset.choice='maybe';
+  const bNo = document.createElement('button'); bNo.type='button'; bNo.className='choice-btn no'; bNo.textContent='לא'; bNo.dataset.choice='no';
   choice.append(bYes,bMaybe,bNo);
 
   const sliderWrap = document.createElement('div');
   sliderWrap.className = 'slider-container disabled';
   const slider = document.createElement('input');
-  slider.type='range'; slider.min='0'; slider.max='10'; slider.value='0'; slider.className='intensity-slider';
+  slider.type='range'; slider.min='0'; slider.max='10'; slider.value='0'; slider.className='intensity-slider'; slider.dataset.slider='intensity';
   const sval = document.createElement('span'); sval.className='intensity-value'; sval.textContent='0/10';
   sliderWrap.append(slider,sval);
 
@@ -560,6 +576,48 @@ function createActivityRow(groupKey, item){
 
   row.append(label, controls);
   return row;
+}
+
+function restoreDynamicRowsFromState(){
+  Object.entries(state.activities || {}).forEach(([groupKey, group]) => {
+    const container = document.querySelector(`.activity-list[data-rows="${groupKey}"]`);
+    if (!container || !group || typeof group !== 'object') return;
+    Object.entries(group).forEach(([id, entry]) => {
+      if (!id || !String(id).startsWith('dyn_')) return;
+      if (!entry || typeof entry !== 'object') return;
+      if (container.querySelector(`.activity-row[data-item-id="${id}"]`)) return;
+      const name = String(entry.name || '').trim();
+      if (!name) return;
+      addDynamicActivityRowWithId(container, groupKey, name, id);
+    });
+  });
+}
+
+function applyActivitiesStateToUi(){
+  $$('.activity-row[data-group-key][data-item-id]').forEach(row => {
+    const groupKey = row.dataset.groupKey;
+    const itemId = row.dataset.itemId;
+    const entry = (((state.activities || {})[groupKey]) || {})[itemId];
+    if (!entry) return;
+    const status = entry.status || null;
+    const intensity = Number.isFinite(entry.intensity) ? entry.intensity : 0;
+    const yes = row.querySelector('.choice-btn.yes');
+    const maybe = row.querySelector('.choice-btn.maybe');
+    const no = row.querySelector('.choice-btn.no');
+    const sliderWrap = row.querySelector('.slider-container');
+    const slider = row.querySelector('.intensity-slider');
+    const val = row.querySelector('.intensity-value');
+    [yes, maybe, no].forEach(b => b && b.classList.remove('active'));
+    if (status === 'yes' && yes) yes.classList.add('active');
+    if (status === 'maybe' && maybe) maybe.classList.add('active');
+    if (status === 'no' && no) no.classList.add('active');
+    if (sliderWrap) {
+      const disabled = !status || status === 'no';
+      sliderWrap.classList.toggle('disabled', disabled);
+    }
+    if (slider) slider.value = String(clamp(intensity, 0, 10));
+    if (val) val.textContent = `${clamp(intensity, 0, 10)}/10`;
+  });
 }
 
 /* Refinements */
@@ -863,7 +921,9 @@ function init(){
       mergeStateFromSaved(saved.plannerState);
     }
   }
+  restoreDynamicRowsFromState();
   applyStateToUi();
+  applyActivitiesStateToUi();
   setupRefinements();
   setupSummaryControls();
   setupTopActions();
