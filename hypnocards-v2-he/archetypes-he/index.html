@@ -192,6 +192,7 @@
     let CARDS = [];
     let IMAGE_MAP = {};
     let IMAGE_AVAILABLE = new Set();
+    let IMAGE_RESOLVED = {};
     let current = null;
     let spreadCards = [];
     let dragState = null;
@@ -247,7 +248,7 @@
       current = card;
       const host = document.getElementById('cardHost');
       if (!host || !card) return;
-      const art = IMAGE_MAP[card.id] || '';
+      const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
       const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
       host.innerHTML = `
         <div class="flip">
@@ -564,6 +565,7 @@
 <span class="status-chip">ממופה: ${available}</span>
 <span class="status-chip">חסר להשלמה: ${missing}</span>
 \nהמערכת כבר מחפשת תמונות לפי image-map. ברגע שמעלים קבצים בפורמט המצופה - הכרטיסים יציגו חזית ויזואלית אוטומטית.</div>
+              <div class="about-body">פורמטים נתמכים אוטומטית: <strong>.webp</strong>, <strong>.png</strong>, <strong>.jpg</strong>, <strong>.jpeg</strong></div>
               <div class="filter-row">
                 <button class="btn" onclick="copyMissingImageList()">העתק רשימת קבצים חסרים</button>
               </div>
@@ -587,6 +589,23 @@
       }
     }
 
+    function imageCandidates(src) {
+      const s = String(src || '').trim();
+      if (!s) return [];
+      const dot = s.lastIndexOf('.');
+      const base = dot > -1 ? s.slice(0, dot) : s;
+      return [`${base}.webp`, `${base}.png`, `${base}.jpg`, `${base}.jpeg`];
+    }
+
+    function loadImage(src) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = `${src}?v=${Date.now()}`;
+      });
+    }
+
     async function boot() {
       favorites = new Set(safeParse(FAVORITES_KEY, []));
       selectedRealms = new Set(safeParse(DECK_KEY, []));
@@ -608,7 +627,9 @@
       } catch {
         IMAGE_MAP = {};
       }
-      IMAGE_AVAILABLE = await probeImageCoverage();
+      const coverage = await probeImageCoverage();
+      IMAGE_AVAILABLE = coverage.available;
+      IMAGE_RESOLVED = coverage.resolved;
       current = CARDS[0] || null;
       setView('draw');
     }
@@ -616,13 +637,20 @@
     async function probeImageCoverage() {
       const entries = Object.entries(IMAGE_MAP);
       const available = new Set();
-      await Promise.all(entries.map(([id, src]) => new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => { available.add(id); resolve(); };
-        img.onerror = () => resolve();
-        img.src = `${src}?v=${Date.now()}`;
-      })));
-      return available;
+      const resolved = {};
+      await Promise.all(entries.map(async ([id, src]) => {
+        const candidates = imageCandidates(src);
+        for (const candidate of candidates) {
+          // Try common extensions so asset uploads can be staged gradually.
+          const ok = await loadImage(candidate);
+          if (ok) {
+            available.add(id);
+            resolved[id] = candidate;
+            break;
+          }
+        }
+      }));
+      return { available, resolved };
     }
 
     boot();
