@@ -1,10 +1,12 @@
-const CACHE = 'pleasure-he-v1';
+const CACHE = 'pleasure-he-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './archetypes_he_data.json',
+  './archetypes-he/index.html',
   './דפוסי שפה עברית/index.html',
   './מצפן התשוקות/index.html',
   './מצפן התשוקות/style.css',

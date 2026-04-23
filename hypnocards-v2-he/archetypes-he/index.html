@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ארכיטיפים של עונג</title>
+  <style>
+    :root {
+      --bg: #06050b;
+      --panel: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.16);
+      --text: #f4f2f8;
+      --muted: #ccc7db;
+      --accent: #b787ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: "Assistant", "Segoe UI", sans-serif; }
+    .app { height: 100%; display: flex; flex-direction: column; padding: 1rem; gap: 0.8rem; }
+    .top {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+      border: 1px solid var(--border); border-radius: 0.9rem; background: var(--panel); padding: 0.65rem 0.8rem;
+    }
+    .top h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+    .btn {
+      border: 1px solid var(--border); background: rgba(255,255,255,0.07); color: var(--text);
+      border-radius: 0.7rem; padding: 0.5rem 0.8rem; cursor: pointer; font-size: 0.95rem;
+    }
+    .btn:hover { background: rgba(255,255,255,0.14); }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .content {
+      flex: 1; min-height: 0; display: grid; gap: 0.8rem;
+      grid-template-columns: minmax(280px, 440px) 1fr;
+    }
+    @media (max-width: 980px) { .content { grid-template-columns: 1fr; } }
+    .card-wrap {
+      border: 1px solid var(--border); border-radius: 1rem; background: var(--panel);
+      padding: 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; min-height: 0;
+    }
+    .flip { perspective: 1000px; width: 100%; aspect-ratio: 2 / 3; max-height: 72vh; margin: 0 auto; }
+    .flip-inner {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.25,1,0.5,1);
+    }
+    .flip-inner.flipped { transform: rotateY(180deg); }
+    .face {
+      position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 0.9rem; border: 1px solid rgba(183,135,255,0.38); overflow: hidden;
+    }
+    .front {
+      background:
+        radial-gradient(circle at 35% 25%, rgba(183,135,255,0.35), transparent 35%),
+        radial-gradient(circle at 72% 74%, rgba(116,76,171,0.28), transparent 38%),
+        linear-gradient(170deg, #1a1129, #0d0a13 70%);
+      display: grid; place-items: center; text-align: center; padding: 1rem;
+    }
+    .front h2 { margin: 0; font-size: 1.55rem; line-height: 1.25; font-weight: 700; }
+    .front p { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.95rem; }
+    .back {
+      transform: rotateY(180deg);
+      background: linear-gradient(165deg, #0f0a16, #07050c 78%);
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .back-scroll { overflow: auto; padding: 0.9rem; }
+    .back h3 { margin: 0 0 0.5rem; font-size: 1.3rem; color: #eadbff; }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.7rem; }
+    .item { margin-bottom: 0.65rem; }
+    .label { color: #cfa8ff; font-weight: 700; font-size: 0.9rem; }
+    .value { color: #e8e5f0; font-size: 0.95rem; line-height: 1.55; white-space: pre-wrap; }
+    .list {
+      border: 1px solid var(--border); border-radius: 1rem; background: var(--panel);
+      min-height: 0; overflow: auto; padding: 0.6rem;
+    }
+    .group-title { color: #dcb9ff; font-weight: 700; font-size: 0.94rem; margin: 0.55rem 0 0.3rem; padding-right: 0.2rem; }
+    .row {
+      width: 100%; text-align: right; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+      color: var(--text); border-radius: 0.7rem; padding: 0.45rem 0.6rem; margin-bottom: 0.35rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .row small { color: var(--muted); font-size: 0.76rem; }
+    .row:hover { background: rgba(255,255,255,0.11); }
+    .empty {
+      border: 1px dashed var(--border); border-radius: 0.8rem; padding: 0.9rem; color: var(--muted); text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
+      <h1>ארכיטיפים של עונג</h1>
+      <div class="controls">
+        <button class="btn" onclick="drawRandom()">שליפה אקראית</button>
+        <button class="btn" onclick="toggleFlip()">היפוך</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card-wrap">
+        <div class="flip">
+          <div class="flip-inner" id="flipInner">
+            <article class="face front">
+              <div>
+                <h2 id="frontName">טוען נתונים...</h2>
+                <p id="frontRealm">ממלכה / תדר</p>
+              </div>
+            </article>
+            <article class="face back">
+              <div class="back-scroll" id="backContent"></div>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <aside class="list" id="listPanel"></aside>
+    </div>
+  </div>
+
+  <script>
+    let CARDS = [];
+    let current = null;
+    const flipInner = document.getElementById('flipInner');
+
+    function goBack() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'he_module_back_home' }, '*');
+      } else {
+        window.location.href = '../index.html';
+      }
+    }
+
+    function normalizeRealm(v) {
+      const t = String(v || '').trim();
+      return t || 'ללא ממלכה';
+    }
+
+    function renderCard(card) {
+      current = card;
+      document.getElementById('frontName').textContent = card.name || 'ללא שם';
+      document.getElementById('frontRealm').textContent = `${normalizeRealm(card.realm)} • ${card.frequency || 'ללא תדר'}`;
+      document.getElementById('backContent').innerHTML = `
+        <h3>${card.name || 'ללא שם'}</h3>
+        <div class="meta">${normalizeRealm(card.realm)} • ${card.frequency || 'ללא תדר'}</div>
+        ${renderItem('המהות', card.essence)}
+        ${renderItem('המתנה', card.gift)}
+        ${renderItem('הצל', card.shadow)}
+        ${renderItem('הפרקטיקה', card.practice)}
+        ${renderItem('השאלה', card.question)}
+      `;
+      flipInner.classList.remove('flipped');
+    }
+
+    function renderItem(label, value) {
+      const v = String(value || '').trim();
+      if (!v) return '';
+      return `<div class="item"><div class="label">${label}</div><div class="value">${escapeHtml(v)}</div></div>`;
+    }
+
+    function escapeHtml(s) {
+      return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function drawRandom() {
+      if (!CARDS.length) return;
+      const idx = Math.floor(Math.random() * CARDS.length);
+      renderCard(CARDS[idx]);
+    }
+
+    function toggleFlip() {
+      flipInner.classList.toggle('flipped');
+    }
+
+    function renderList() {
+      const panel = document.getElementById('listPanel');
+      if (!CARDS.length) {
+        panel.innerHTML = '<div class="empty">לא נמצאו קלפים</div>';
+        return;
+      }
+      const groups = new Map();
+      CARDS.forEach(card => {
+        const realm = normalizeRealm(card.realm);
+        if (!groups.has(realm)) groups.set(realm, []);
+        groups.get(realm).push(card);
+      });
+      const realms = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b, 'he'));
+      let html = '';
+      realms.forEach(realm => {
+        html += `<div class="group-title">${escapeHtml(realm)} (${groups.get(realm).length})</div>`;
+        groups.get(realm).forEach(card => {
+          html += `<button class="row" data-id="${escapeHtml(card.id)}"><span>${escapeHtml(card.name)}</span><small>${escapeHtml(card.frequency || '')}</small></button>`;
+        });
+      });
+      panel.innerHTML = html;
+      panel.querySelectorAll('.row').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card = CARDS.find(c => String(c.id) === String(btn.dataset.id));
+          if (card) renderCard(card);
+        });
+      });
+    }
+
+    async function boot() {
+      try {
+        const res = await fetch('../archetypes_he_data.json', { cache: 'no-store' });
+        const data = await res.json();
+        CARDS = Array.isArray(data.cards) ? data.cards : [];
+      } catch (e) {
+        CARDS = [];
+      }
+      renderList();
+      if (CARDS.length) renderCard(CARDS[0]);
+      else {
+        document.getElementById('frontName').textContent = 'לא נטען קובץ ארכיטיפים';
+        document.getElementById('frontRealm').textContent = 'בדוק נתיב וקובץ נתונים';
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

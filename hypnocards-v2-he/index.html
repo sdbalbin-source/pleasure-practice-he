@@ -192,15 +192,8 @@
             <button class="back-btn" onclick="renderHome()">←</button>
             <h2 class="screen-title">ארכיטיפים של עונג</h2>
           </div>
-          <div class="panel">
-            <p><strong>סטטוס הקמה:</strong> מודול זה הוכן תשתיתית לעברית, ויכול להשתמש בנתוני גב הקלפים מקובץ האקסל שהעלית.</p>
-            <p class="muted">מה חסר כרגע כדי להשלים אותו:</p>
-            <ul class="list">
-              <li>תמונות חזית לכל קלף ארכיטיפ (73 קלפים)</li>
-              <li>תמונת גב חפיסה עברית סופית (אם שונה מהקיימת)</li>
-              <li>החלטת עיצוב סופית למסך All Cards / Shuffle / Custom Deck בעברית</li>
-            </ul>
-            <p>ברגע שהתמונות יועלו, נחבר כאן אנימציית ערבוב/שליפה מלאה כמו בגרסה האנגלית.</p>
+          <div class="frame-wrap">
+            <iframe src="./archetypes-he/index.html" title="ארכיטיפים של עונג"></iframe>
           </div>
         </div>
       `,
@@ -264,6 +257,14 @@
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
+
+    window.addEventListener('message', (e) => {
+      const data = e && e.data ? e.data : null;
+      if (!data || typeof data !== 'object') return;
+      if (data.type === 'he_module_back_home') {
+        renderHome();
+      }
+    });
 
     renderHome();
   </script>
