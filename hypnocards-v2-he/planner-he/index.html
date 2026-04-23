@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>מצפן התשוקות — טופס הסכמות לסשן | BDSM Session Planner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="site-container">
+
+    <!-- Header (sticky) + Stepper -->
+    <header class="site-header">
+      <div class="header-controls">
+        <div class="language-switcher" aria-label="שפה">
+          <button class="lang-btn active" type="button">🇮🇱 עברית</button>
+          <span class="sep">|</span>
+          <button class="lang-btn" type="button" disabled>🇺🇸 English</button>
+        </div>
+        <button id="shareLinkBtn" class="header-btn" type="button" hidden>🔗 קישור לשיתוף</button>
+      </div>
+
+      <h1 class="app-title">מצפן התשוקות</h1>
+      <p class="subtitle">טופס הסכמות לסשן | BDSM Session Planner</p>
+
+      <nav class="stepper" aria-label="ניווט בין פרקים">
+        <button class="step-btn" data-target="chapter-1">1. הגדרת סשן</button>
+        <button class="step-btn" data-target="chapter-2">2. בטיחות</button>
+        <button class="step-btn" data-target="chapter-3">3. סוגי מגע</button>
+        <button class="step-btn" data-target="chapter-4">4. ריתוק/קשירות/תחושות</button>
+        <button class="step-btn" data-target="chapter-5">5. דינמיקות ושפה</button>
+        <button class="step-btn" data-target="chapter-6">6. מיניות ואינטימיות</button>
+        <button class="step-btn" data-target="chapter-7">7. אפטר־קר</button>
+        <button class="step-btn" data-target="chapter-8">8. סיכום</button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- Chapter 1 -->
+      <section id="chapter-1" class="chapter visible" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">📃 הגדרת סשן</span>
+          <span class="lang-en">Session Setup</span>
+        </h2>
+
+        <div class="form-group">
+          <label class="bilingual-label" for="sessionName">
+            <span class="lang-he"><strong>כינוי לסשן</strong></span>
+            <span class="lang-en">Session Name</span>
+          </label>
+          <input id="sessionName" class="text-input" type="text" placeholder="שם קצר לסשן שיופיע בסיכום..." />
+        </div>
+
+        <div class="form-group">
+          <label class="bilingual-label" for="nickname">
+            <span class="lang-he"><strong>שם/כינוי שלך לסשן</strong></span>
+            <span class="lang-en">Your Name/Nickname</span>
+          </label>
+          <input id="nickname" class="text-input" type="text" placeholder="כינוי/שם שיופיע בסיכום…" />
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>תפקיד</strong> | Role</span>
+              <span class="lang-en">Choose one</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="role" data-single="true">
+            <button type="button" class="chip" data-value="dom">דום</button>
+            <button type="button" class="chip" data-value="sub">סאב</button>
+            <button type="button" class="chip" data-value="switch">סוויץ׳</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="bilingual-label" for="duration">
+            <span class="lang-he"><strong>⏳ משך הסשן (בדקות)</strong></span>
+            <span class="lang-en">Session length (minutes)</span>
+          </label>
+          <input id="duration" class="text-input" type="number" min="1" step="5" value="90" />
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>😶‍🌫️ כינוי גוף מועדף</strong></span>
+              <span class="lang-en">Preferred Pronouns</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="pronouns" data-single="false">
+            <button type="button" class="chip" data-value="את">את</button>
+            <button type="button" class="chip" data-value="אתה">אתה</button>
+            <button type="button" class="chip" data-value="אתם">אתם</button>
+            <button type="button" class="chip" data-value="אתן">אתן</button>
+            <button type="button" class="chip chip-other" data-value="__other__">אחר</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev disabled>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 2: Safety -->
+      <section id="chapter-2" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">🛡 בטיחות</span>
+          <span class="lang-en">Safety</span>
+        </h2>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🛟 תקשורת בטיחות מועדפת עליי</strong></span>
+              <span class="lang-en">Preferred safety communication</span>
+            </h3>
+          </div>
+
+          <div class="info-block">
+            <label class="checkbox-line">
+              <input type="checkbox" id="trafficLightChk" />
+              <span class="check-label">🚦 רמזור</span>
+              <!-- ℹ️ מותר -->
+              <button type="button" class="info-btn" data-info-target="trafficLightInfo">ℹ️</button>
+            </label>
+            <div id="trafficLightInfo" class="info-text" hidden></div>
+          </div>
+
+          <div class="form-group nested">
+            <label class="bilingual-label" for="safeword">
+              <span class="lang-he"><strong>🗣️ מילת ביטחון</strong> (למשל: אבוקדו)</span>
+              <span class="lang-en">Safeword (e.g., Avocado)</span>
+            </label>
+            <div class="inline-with-info">
+              <input id="safeword" class="text-input" type="text" placeholder="מילת ביטחון שסוכמה מראש…" />
+              <!-- ℹ️ מותר -->
+              <button type="button" class="info-btn" data-info-target="safewordInfo">ℹ️</button>
+            </div>
+            <div id="safewordInfo" class="info-text" hidden></div>
+          </div>
+
+          <div class="form-group nested">
+            <label class="bilingual-label" for="safegesture">
+              <span class="lang-he"><strong>✋ מחווה פיזית לעצירה</strong> (למשל: 3 טפיחות)</span>
+              <span class="lang-en">Physical stop gesture (e.g., triple taps)</span>
+            </label>
+            <div class="inline-with-info">
+              <input id="safegesture" class="text-input" type="text" placeholder="מחווה מוסכמת כאשר לא ניתן לדבר…" />
+              <!-- ℹ️ מותר -->
+              <button type="button" class="info-btn" data-info-target="gestureInfo">ℹ️</button>
+            </div>
+            <div id="gestureInfo" class="info-text" hidden></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>📈 תיאום סף כאב רצוי ונסבל</strong></span>
+              <span class="lang-en">Pain thresholds (enjoyable & tolerable)</span>
+            </h3>
+            <!-- ℹ️ מותר -->
+            <button type="button" class="info-btn" data-info-target="painInfo">ℹ️</button>
+          </div>
+          <div id="painInfo" class="info-text" hidden></div>
+
+          <div class="slider-block plain">
+            <label for="painDesired"><span class="emoji">😍</span> סף כאב רצוי</label>
+            <div class="slider-line">
+              <input id="painDesired" type="range" min="0" max="10" value="0" class="intensity-slider" />
+              <span class="intensity-value" data-for="painDesired">0/10</span>
+            </div>
+          </div>
+
+          <div class="slider-block plain">
+            <label for="painTolerable"><span class="emoji">😫</span> סף כאב נסבל</label>
+            <div class="slider-line">
+              <input id="painTolerable" type="range" min="0" max="10" value="0" class="intensity-slider" />
+              <span class="intensity-value" data-for="painTolerable">0/10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="bilingual-label" for="hardLimits">
+            <span class="lang-he"><strong>⛔ גבולות קשיחים</strong> | Hard limits</span>
+            <span class="lang-en">Things that are a strict NO</span>
+          </label>
+          <textarea id="hardLimits" class="textarea-input" placeholder="לדוגמה: משחקי דם, השפלות הקשורות למשפחה, סימנים קבועים…"></textarea>
+          <!-- ℹ️ מותר -->
+          <button type="button" class="info-btn mt6" data-info-target="hardLimitsInfo">ℹ️</button>
+          <div id="hardLimitsInfo" class="info-text" hidden></div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🩺 בריאות פיזית ונפשית</strong></span>
+              <span class="lang-en">Physical & mental health notes</span>
+            </h3>
+          </div>
+          <label class="bilingual-label" for="healthPhysical">
+            <span class="lang-he"><strong>מצבים רפואיים רלוונטיים לסצנה</strong></span>
+            <span class="lang-en">Relevant physical conditions</span>
+          </label>
+          <textarea id="healthPhysical" class="textarea-input" placeholder="לדוגמה: אסתמה, אלרגיות (לטקס/שמנים), בעיות גב, מחלות לב…"></textarea>
+          <!-- ℹ️ מותר -->
+          <button type="button" class="info-btn mt6" data-info-target="healthInfo">ℹ️</button>
+          <div id="healthInfo" class="info-text" hidden></div>
+
+          <label class="bilingual-label" for="healthMental" style="margin-top:1rem;">
+            <span class="lang-he"><strong>מצבים נפשיים רלוונטיים לסצנה</strong></span>
+            <span class="lang-en">Relevant mental/psych conditions</span>
+          </label>
+          <textarea id="healthMental" class="textarea-input" placeholder="לדוגמה: התקפי חרדה, טריגרים הקשורים לטראומה, PTSD…"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 3: Type of touch -->
+      <section id="chapter-3" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">🤲 סוגי מגע</span>
+          <span class="lang-en">Type of touch</span>
+        </h2>
+
+        <div id="group-gentle" class="activity-group" data-group="gentle">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🫳🏼 מגע עדין</strong></span>
+              <span class="lang-en">Gentle touch (petting/massage)</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="gentle"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-gentle"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-gentle" class="textarea-input" data-refine="gentle"></textarea>
+          </div>
+        </div>
+
+        <div id="group-rough" class="activity-group" data-group="rough">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>💪🏼 מגע אינטנסיבי</strong></span>
+              <span class="lang-en">Rough handling</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="rough"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-rough"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-rough" class="textarea-input" data-refine="rough"></textarea>
+          </div>
+        </div>
+
+        <div id="group-kisses" class="activity-group" data-group="kisses">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>👄 נשיקות/ליקוקים/נשיכות</strong></span>
+              <span class="lang-en">Kisses/Licks/Bites</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="kisses"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-kisses"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-kisses" class="textarea-input" data-refine="kisses"></textarea>
+          </div>
+        </div>
+
+        <div id="group-impact" class="activity-group" data-group="impact">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🏓 אימפקט</strong></span>
+              <span class="lang-en">Impact</span>
+              <span class="perspective" data-perspective></span>
+              <!-- ℹ️ מותר -->
+              <button type="button" class="info-btn" data-info-target="impactInfo">ℹ️</button>
+            </h3>
+          </div>
+          <div id="impactInfo" class="info-text" hidden></div>
+          <div class="activity-list" data-rows="impact"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-impact"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-impact" class="textarea-input" data-refine="impact"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🎯 אזורים עם רגישות ספציפית</strong></span>
+              <span class="lang-en">Specific sensitivity areas</span>
+            </h3>
+          </div>
+          <textarea id="sensitivityAreas" class="textarea-input" placeholder="איזה אזורים בגוף רגישים במיוחד?"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 4 -->
+      <section id="chapter-4" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">⛓️ ריתוק/קשירות/תחושות</span>
+          <span class="lang-en">Restraints/Sensory/Edge</span>
+        </h2>
+
+        <div id="group-restraints" class="activity-group" data-group="restraints">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🪢 קשירות וריתוק</strong></span>
+              <span class="lang-en">Restraints</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="restraints"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-restraints"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-restraints" class="textarea-input" data-refine="restraints"></textarea>
+          </div>
+        </div>
+
+        <div id="group-sensory" class="activity-group" data-group="sensory">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🔥🧊 משחקי תחושות</strong></span>
+              <span class="lang-en">Sensory</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="sensory"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-sensory"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-sensory" class="textarea-input" data-refine="sensory"></textarea>
+          </div>
+        </div>
+
+        <div id="group-somatic" class="activity-group" data-group="somatic">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>⚠️ קצוות סומטיים</strong></span>
+              <span class="lang-en">Somatic edge</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="somatic"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-somatic"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-somatic" class="textarea-input" data-refine="somatic"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 5 -->
+      <section id="chapter-5" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">🎭 דינמיקות ושפה</span>
+          <span class="lang-en">Dynamics & language</span>
+        </h2>
+
+        <div id="group-objectification" class="activity-group" data-group="objectification">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🧸 החפצה</strong></span>
+              <span class="lang-en">Objectification</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="objectification"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-objectification"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-objectification" class="textarea-input" data-refine="objectification"></textarea>
+          </div>
+        </div>
+
+        <div id="group-esteem" class="activity-group" data-group="esteem">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🤯 ערך וזהות</strong></span>
+              <span class="lang-en">Esteem & Identity</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="esteem"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-esteem"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-esteem" class="textarea-input" data-refine="esteem"></textarea>
+          </div>
+        </div>
+
+        <div id="group-psych" class="activity-group" data-group="psych">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🧠 משחק פסיכולוגי</strong></span>
+              <span class="lang-en">Psych dynamics</span>
+              <span class="perspective" data-perspective></span>
+              <!-- ℹ️ מותר ל־CNC/קוקולדינג/משמעת/ענישה בתוך הרשומות -->
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="psych"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-psych"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-psych" class="textarea-input" data-refine="psych"></textarea>
+          </div>
+        </div>
+
+        <div id="group-groupScenes" class="activity-group" data-group="groupScenes">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>👥 ריבוי משתתפים</strong></span>
+              <span class="lang-en">Group scenes</span>
+              <span class="perspective" data-perspective></span>
+              <!-- ℹ️ מותר -->
+              <button type="button" class="info-btn" data-info-target="groupScenesInfo">ℹ️</button>
+            </h3>
+          </div>
+          <div id="groupScenesInfo" class="info-text" hidden></div>
+          <div class="activity-list" data-rows="groupScenes"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-groupScenes"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-groupScenes" class="textarea-input" data-refine="groupScenes"></textarea>
+          </div>
+        </div>
+
+        <!-- רב-בחירה: Roleplay + שאר שדות ללא ℹ️ -->
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🎬 משחקי תפקידים וסצנות</strong></span>
+              <span class="lang-en">Roleplay & Scenes</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="roleplayScenes" data-single="false" data-wrap="true">
+            <button class="chip" type="button" data-value="ילד/ה–הורה">ילד/ה–הורה</button>
+            <button class="chip" type="button" data-value="בוס/ית–מזכיר/ה">בוס/ית–מזכיר/ה</button>
+            <button class="chip" type="button" data-value="שוטר/ת–חשוד/ה">שוטר/ת–חשוד/ה</button>
+            <button class="chip" type="button" data-value="מורה–תלמיד/ה/סטודנט/ית">מורה–תלמיד/ה/סטודנט/ית</button>
+            <button class="chip" type="button" data-value="סוהר/ת–אסיר/ה">סוהר/ת–אסיר/ה</button>
+            <button class="chip" type="button" data-value="חוקר/ת–נחקר/ת">חוקר/ת–נחקר/ת</button>
+            <button class="chip" type="button" data-value="מושיע–קורבן">מושיע–קורבן</button>
+            <button class="chip" type="button" data-value="בובת סקס–בעל/ים">בובת סקס–בעל/ים</button>
+            <button class="chip" type="button" data-value="רובוט–בעל/ים">רובוט–בעל/ים</button>
+            <button class="chip" type="button" data-value="סלב–מעריצ/ה">סלב–מעריצ/ה</button>
+            <button class="chip" type="button" data-value="פט-פליי">פט-פליי</button>
+            <button class="chip chip-other" type="button" data-value="__other__">אחר</button>
+          </div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-roleplay"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-roleplay" class="textarea-input" data-refine="roleplay"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🗣️ סגנון שפה של הדום</strong></span>
+              <span class="lang-en">Dom's language style</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="domLanguage" data-single="false">
+            <button class="chip" type="button" data-value="עדינה">עדינה</button>
+            <button class="chip" type="button" data-value="ישירה/גסה">ישירה/גסה</button>
+            <button class="chip" type="button" data-value="אוהבת">אוהבת</button>
+            <button class="chip" type="button" data-value="מעצימה">מעצימה</button>
+            <button class="chip" type="button" data-value="משפילה">משפילה</button>
+            <button class="chip chip-other" type="button" data-value="__other__">אחר</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🏷️ כינויים רצויים לסאב</strong> | Nicknames — turn-ons</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="nicknamesSub" data-single="false" data-wrap="true">
+            <button class="chip" type="button" data-value="ילד/ה טוב/ה">ילד/ה טוב/ה</button>
+            <button class="chip" type="button" data-value="ילד/ה רע/ה">ילד/ה רע/ה</button>
+            <button class="chip" type="button" data-value="זונה">זונה</button>
+            <button class="chip" type="button" data-value="צעצוע">צעצוע</button>
+            <button class="chip" type="button" data-value="חור">חור</button>
+            <button class="chip" type="button" data-value="כלב/ה">כלב/ה</button>
+            <button class="chip" type="button" data-value="גור/ה">גור/ה</button>
+            <button class="chip" type="button" data-value="פרה">פרה</button>
+            <button class="chip" type="button" data-value="חזיר">חזיר</button>
+            <button class="chip" type="button" data-value="תולעת">תולעת</button>
+            <button class="chip" type="button" data-value="בייבי">בייבי</button>
+            <button class="chip" type="button" data-value="שרמוטה">שרמוטה</button>
+            <button class="chip chip-other" type="button" data-value="__other__">אחר</button>
+          </div>
+          <label class="bilingual-label" for="forbiddenSub" style="margin-top:1rem;">
+            <span class="lang-he"><strong>🚫 להימנע מכינויים לסאב</strong></span>
+            <span class="lang-en">Forbidden words</span>
+          </label>
+          <textarea id="forbiddenSub" class="textarea-input"></textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🗣️ סגנון שפה של הסאב</strong></span>
+              <span class="lang-en">Sub's language style</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="subLanguage" data-single="false" data-wrap="true">
+            <button class="chip" type="button" data-value="עדינה">עדינה</button>
+            <button class="chip" type="button" data-value="ישירה/גסה">ישירה/גסה</button>
+            <button class="chip" type="button" data-value="שובבה">שובבה</button>
+            <button class="chip" type="button" data-value="חצופה">חצופה</button>
+            <button class="chip" type="button" data-value="פתיינ/ית">פתיינ/ית</button>
+            <button class="chip" type="button" data-value="צייתנית">צייתנית</button>
+            <button class="chip" type="button" data-value="כנועה">כנועה</button>
+            <button class="chip" type="button" data-value="שתוקה">שתוקה</button>
+            <button class="chip chip-other" type="button" data-value="__other__">אחר</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🏷️ כינויים רצויים לדום</strong></span>
+              <span class="lang-en">Titles for Dom</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="titlesDom" data-single="false">
+            <button class="chip" type="button" data-value="אדוני">אדוני</button>
+            <button class="chip" type="button" data-value="גברתי">גברתי</button>
+            <button class="chip" type="button" data-value="מלכי/תי">מלכי/תי</button>
+            <button class="chip" type="button" data-value="מאסטר">מאסטר</button>
+            <button class="chip" type="button" data-value="דום">דום</button>
+            <button class="chip" type="button" data-value="סנסיי">סנסיי</button>
+            <button class="chip chip-other" type="button" data-value="__other__">אחר</button>
+          </div>
+          <label class="bilingual-label" for="forbiddenDom" style="margin-top:1rem;">
+            <span class="lang-he"><strong>🚫 להימנע מכינויים לדום</strong></span>
+            <span class="lang-en">Forbidden words</span>
+          </label>
+          <textarea id="forbiddenDom" class="textarea-input"></textarea>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 6 -->
+      <section id="chapter-6" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">❤️ מיניות ואינטימיות</span>
+          <span class="lang-en">Sex & intimacy</span>
+        </h2>
+
+        <div id="group-intimacy" class="activity-group" data-group="intimacy">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🤍 אינטימיות וחיבור רצוי</strong></span>
+              <span class="lang-en">Desired intimacy/connection</span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="intimacy"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-intimacy"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-intimacy" class="textarea-input" data-refine="intimacy"></textarea>
+          </div>
+        </div>
+
+        <div id="group-penetration" class="activity-group" data-group="penetration">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🍑 חדירות וגירוי מיני</strong></span>
+              <span class="lang-en">Penetration & sexual stimulation</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="penetration"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-penetration"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-penetration" class="textarea-input" data-refine="penetration"></textarea>
+          </div>
+        </div>
+
+        <div id="group-erotic" class="activity-group" data-group="erotic">
+          <div class="title-line">
+            <h3 class="section-title with-persp">
+              <span class="lang-he"><strong>🔥 דינמיקה מינית/ארוטית</strong></span>
+              <span class="lang-en">Sexual/erotic dynamics</span>
+              <span class="perspective" data-perspective></span>
+            </h3>
+          </div>
+          <div class="activity-list" data-rows="erotic"></div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-erotic"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-erotic" class="textarea-input" data-refine="erotic"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 7 -->
+      <section id="chapter-7" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">🫶 אפטר־קר</span>
+          <span class="lang-en">Aftercare</span>
+          <!-- ℹ️ מותר -->
+          <button type="button" class="info-btn" data-info-target="aftercareInfoTop">ℹ️</button>
+        </h2>
+        <div id="aftercareInfoTop" class="info-text" hidden></div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>🧴 צרכים מיידיים בסוף הסשן</strong></span>
+              <span class="lang-en">Immediate needs post-session</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="aftercareNeeds" data-single="false" data-wrap="true">
+            <button class="chip" data-value="חיבוק/מגע מרגיע">חיבוק/מגע מרגיע</button>
+            <button class="chip" data-value="מים/משקה חם">מים/משקה חם</button>
+            <button class="chip" data-value="שמיכה/בגד חם">שמיכה/בגד חם</button>
+            <button class="chip" data-value="זמן שקט לבד">זמן שקט לבד</button>
+            <button class="chip" data-value="שיחה קצרה לעיבוד">שיחה קצרה לעיבוד</button>
+            <button class="chip" data-value="מילות אישור/חיזוק">מילות אישור/חיזוק</button>
+            <button class="chip" data-value="מקלחת/רענון">מקלחת/רענון</button>
+            <button class="chip" data-value="כתיבה">כתיבה</button>
+            <button class="chip chip-other" data-value="__other__">אחר</button>
+          </div>
+          <div class="refinements">
+            <label class="bilingual-label" for="refine-aftercare"><span class="lang-he"><strong>הוספת דיוקים</strong></span><span class="lang-en">Add refinements</span></label>
+            <textarea id="refine-aftercare" class="textarea-input" data-refine="aftercare"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>⏳ משך אפטר־קר רצוי</strong></span>
+              <span class="lang-en">Desired aftercare duration</span>
+            </h3>
+          </div>
+          <div class="chip-group" data-field="aftercareDuration" data-single="false">
+            <button class="chip" data-value="5 דק׳">5 דק׳</button>
+            <button class="chip" data-value="10 דק׳">10 דק׳</button>
+            <button class="chip" data-value="15 דק׳">15 דק׳</button>
+            <button class="chip" data-value="20 דק׳">20 דק׳</button>
+            <button class="chip" data-value="30 דק׳">30 דק׳</button>
+            <button class="chip chip-other" data-value="__other__">אחר</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="title-line with-info">
+            <h3 class="section-title">
+              <span class="lang-he"><strong>📬 ציפיות אחרי המפגש</strong></span>
+              <span class="lang-en">Post-session expectations</span>
+            </h3>
+            <!-- ℹ️ מותר -->
+            <button type="button" class="info-btn" data-info-target="aftercareInfo">ℹ️</button>
+          </div>
+          <div id="aftercareInfo" class="info-text" hidden></div>
+          <div class="chip-group" data-field="postSession" data-single="false" data-wrap="true">
+            <button class="chip" data-value="הודעת צ׳ק-אין היום">הודעת צ׳ק-אין היום</button>
+            <button class="chip" data-value="הודעת צ׳ק-אין מחר">הודעת צ׳ק-אין מחר</button>
+            <button class="chip" data-value="שיחה מעמיקה בהמשך">שיחה מעמיקה בהמשך</button>
+            <button class="chip" data-value="בלי קשר נוסף">בלי קשר נוסף</button>
+            <button class="chip" data-value="פתוח/ה להמשך מפגשים">פתוח/ה להמשך מפגשים</button>
+            <button class="chip chip-other" data-value="__other__">אחר</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next>המשך</button>
+        </div>
+      </section>
+
+      <!-- Chapter 8: Summary -->
+      <section id="chapter-8" class="chapter" tabindex="-1">
+        <h2 class="chapter-title">
+          <span class="lang-he">📝 סיכום הסכמות לסשן</span>
+          <span class="lang-en">Session Agreements Summary</span>
+          <!-- ℹ️ מותר -->
+          <button type="button" class="info-btn" data-info-target="summaryInfo">ℹ️</button>
+        </h2>
+        <div id="summaryInfo" class="info-text" hidden></div>
+
+        <p class="summary-intro">
+          ℹ️ עמוד זה מרכז את כל הבחירות וההסכמות שלכם מהטופס. מומלץ לעבור עליו יחד לפני תחילת הסשן…
+        </p>
+
+        <!-- Top session box -->
+        <div class="session-box">
+          <div class="session-col">
+            <div class="row"><span class="lbl">שם סשן:</span> <span id="sumSessionName">—</span></div>
+            <div class="row"><span class="lbl">כינוי:</span> <span id="sumNickname">—</span></div>
+            <div class="row"><span class="lbl">תפקיד | Role:</span> <span id="sumRole">—</span></div>
+            <div class="row"><span class="lbl">⏳ משך הסשן:</span> <span id="sumDuration">—</span></div>
+            <div class="row"><span class="lbl">כינויי גוף מועדפים:</span> <span id="sumPronouns">—</span></div>
+          </div>
+          <div class="session-col">
+            <div class="row"><span class="lbl">⛔ גבולות קשיחים:</span> <span id="sumHardLimits">—</span></div>
+            <div class="row"><span class="lbl">🩺 מצבים רפואיים:</span> <span id="sumHealthPhysical">—</span></div>
+            <div class="row"><span class="lbl">🧠 מצבים נפשיים:</span> <span id="sumHealthMental">—</span></div>
+          </div>
+          <div class="session-col">
+            <div class="row"><span class="lbl">😍 סף כאב רצוי:</span> <span id="sumPainDesired">0/10</span></div>
+            <div class="row"><span class="lbl">😫 סף כאב נסבל:</span> <span id="sumPainTolerable">0/10</span></div>
+            <div class="row"><span class="lbl">🛟 תקשורת בטיחות:</span> <span id="sumSafetyComms">—</span></div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <div class="chip-group small" data-field="summaryFilter" data-single="true">
+            <button class="chip active" data-value="all">הכול</button>
+            <button class="chip" data-value="yes">כן</button>
+            <button class="chip" data-value="maybe">אולי</button>
+            <button class="chip" data-value="no">לא</button>
+            <button class="chip" data-value="unanswered">לא נענה</button>
+          </div>
+          <button id="sortToggle" class="header-btn" type="button" data-mode="alpha">מיין לפי עוצמה</button>
+        </div>
+
+        <!-- Summary grid -->
+        <div id="summaryContent" class="summary-grid"></div>
+
+        <!-- Consent -->
+        <div class="consent">
+          <h3 class="section-title">
+            <span class="lang-he"><strong>🖋️ כתב הסכמה | Consent</strong></span>
+          </h3>
+          <p class="consent-text">
+            אני מצהיר/ה כי אני נכנס/ת לפעילות BDSM מרצוני החופשי… הכלי הזה הוא כלי עזר לשיחה ואינו ייעוץ מקצועי או משפטי.
+          </p>
+
+          <div class="consent-fields">
+            <label>שם/כינוי <input id="consentName" class="text-input" type="text" /></label>
+            <label>תאריך <input id="consentDate" class="text-input" type="text" /></label>
+          </div>
+
+          <div class="signature-block">
+            <label class="sig-label">חתימה ✍️</label>
+            <!-- מזהים חדשים לפי הדרישה -->
+            <div class="sig-canvas-wrap">
+              <canvas id="signatureCanvas"></canvas>
+            </div>
+            <div class="sig-actions">
+              <button id="clearSignatureBtn" class="btn ghost" type="button">נקה חתימה</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button id="saveSession" class="btn ghost" type="button">שמירת Session</button>
+          <button id="printPdf" class="btn" type="button">הדפס ל-PDF</button>
+          <button id="shareWhatsApp" class="btn" type="button">שליחה ב-WhatsApp</button>
+          <button id="copyLink" class="btn ghost" type="button">העתקת קישור</button>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn ghost" data-prev>חזרה</button>
+          <button class="btn" data-next disabled>המשך</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

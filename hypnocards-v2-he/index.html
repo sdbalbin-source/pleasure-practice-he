@@ -310,7 +310,7 @@
       { id: 'archetypes', name: 'מודול ארכיטיפים', path: './archetypes-he/index.html' },
       { id: 'archetypesData', name: 'דאטה ארכיטיפים', path: './archetypes_he_data.json' },
       { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
-      { id: 'planner', name: 'מודול מצפן תשוקות', path: './מצפן התשוקות/index.html' }
+      { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
     const SW_BUILD = '2026-04-23-he-1';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -610,8 +610,20 @@
       }, 180);
     }
     function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
-      const plannerBase = './מצפן התשוקות/index.html';
-      const plannerSrc = `${plannerBase}?v=${encodeURIComponent(SW_BUILD)}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}`;
+      const plannerBases = [
+        './planner-he/index.html',
+        './%D7%9E%D7%A6%D7%A4%D7%9F%20%D7%94%D7%AA%D7%A9%D7%95%D7%A7%D7%95%D7%AA/index.html',
+        './מצפן התשוקות/index.html'
+      ];
+      const plannerSrcCandidates = plannerBases.map(base => {
+        const u = new URL(base, window.location.href);
+        u.searchParams.set('v', SW_BUILD);
+        if (sessionId) u.searchParams.set('sessionId', sessionId);
+        if (startChapter) u.searchParams.set('startChapter', startChapter);
+        if (autoShare) u.searchParams.set('autoShare', autoShare);
+        return `${u.pathname}${u.search}`;
+      });
+      const initialPlannerSrc = plannerSrcCandidates[0];
       const subtitle = mode === 'new' ? 'סשן הסכמות חדש' : 'מצפן התשוקות';
       document.getElementById('app').innerHTML = `
         <div class="screen">
@@ -620,12 +632,12 @@
             <h2 class="screen-title">${subtitle}</h2>
           </div>
           <div class="frame-wrap">
-            <iframe id="plannerEmbed" src="${plannerSrc}" title="מצפן התשוקות" allow="web-share"></iframe>
+            <iframe id="plannerEmbed" src="${initialPlannerSrc}" title="מצפן התשוקות" allow="web-share"></iframe>
             <div id="plannerEmbed-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
-      wireEmbedFrame('plannerEmbed', plannerSrc);
+      wireEmbedFrame('plannerEmbed', plannerSrcCandidates);
     }
 
     if ('serviceWorker' in navigator) {
@@ -764,17 +776,32 @@
       window.location.replace(next);
     }
 
-    function wireEmbedFrame(frameId, src) {
+    function wireEmbedFrame(frameId, srcOrCandidates) {
       const frame = document.getElementById(frameId);
       const status = document.getElementById(`${frameId}-status`);
       if (!frame || !status) return;
+      const srcCandidates = Array.isArray(srcOrCandidates) ? srcOrCandidates.filter(Boolean) : [srcOrCandidates].filter(Boolean);
+      if (!srcCandidates.length) return;
+      let currentIdx = 0;
       let settled = false;
       let timeout = 0;
+      const currentSrc = () => srcCandidates[Math.max(0, Math.min(currentIdx, srcCandidates.length - 1))];
       const srcWithBust = () => {
+        const src = currentSrc();
         const sep = src.includes('?') ? '&' : '?';
         return `${src}${sep}retryTs=${Date.now()}`;
       };
+      function tryNextCandidate() {
+        if (currentIdx >= srcCandidates.length - 1) return false;
+        currentIdx += 1;
+        frame.src = srcWithBust();
+        status.classList.remove('hidden');
+        status.textContent = 'טוען מודול...';
+        armWatchdog();
+        return true;
+      }
       function showFallback(reason) {
+        if (tryNextCandidate()) return;
         settled = false;
         const offlineHint = navigator.onLine ? '' : '<br><strong>נראה שהמכשיר אופליין כרגע.</strong>';
         const reasonText = reason === 'error'
@@ -787,7 +814,7 @@
             <button class="secondary-btn" type="button" id="${frameId}-retry">טעינה מחדש</button>
             <button class="secondary-btn" type="button" id="${frameId}-open">פתיחה בחלון נפרד</button>
           </div>
-          <small style="display:block; margin-top:0.55rem; direction:ltr;">${src}</small>
+          <small style="display:block; margin-top:0.55rem; direction:ltr;">${currentSrc()}</small>
         `;
         const retryBtn = document.getElementById(`${frameId}-retry`);
         const openBtn = document.getElementById(`${frameId}-open`);
@@ -797,7 +824,7 @@
           armWatchdog();
           frame.src = srcWithBust();
         });
-        if (openBtn) openBtn.addEventListener('click', () => { window.open(src, '_blank', 'noopener'); });
+        if (openBtn) openBtn.addEventListener('click', () => { window.open(currentSrc(), '_blank', 'noopener'); });
       }
       function armWatchdog() {
         clearTimeout(timeout);

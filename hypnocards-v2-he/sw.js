@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v7';
+const CACHE = 'pleasure-he-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,10 @@ const ASSETS = [
   './דפוסי שפה עברית/index.html',
   './מצפן התשוקות/index.html',
   './מצפן התשוקות/style.css',
-  './מצפן התשוקות/script.js'
+  './מצפן התשוקות/script.js',
+  './planner-he/index.html',
+  './planner-he/style.css',
+  './planner-he/script.js'
 ];
 
 self.addEventListener('install', event => {
