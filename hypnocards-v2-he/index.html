@@ -98,6 +98,18 @@
       cursor: pointer;
       font-size: 1.03rem;
     }
+    .update-banner {
+      margin-top: 0.45rem;
+      border: 1px solid rgba(183, 134, 255, 0.36);
+      background: rgba(183, 134, 255, 0.12);
+      border-radius: 0.9rem;
+      padding: 0.55rem 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
     .back-row {
       display: flex;
       align-items: center;
@@ -183,6 +195,7 @@
               <div class="card-note">טופס הסכמות, סיכום ושיתוף</div>
             </button>
             <button class="secondary-btn" onclick="openAbout()">אודות הסטודיו</button>
+            <div id="updateBannerHost"></div>
           </div>
         </div>
       `,
@@ -204,13 +217,16 @@
             <h2 class="screen-title">אודות Pleasure Practice Studio</h2>
           </div>
           <div class="panel">
-            <p>זוהי תשתית עברית מאוחדת לשלושה מודולים:</p>
+            <p><strong>למה הסטודיו קיים</strong><br>מרחב שקט לחקירה אירוטית מודעת: לגלות מה רצוי לך, למצוא לזה שפה, ולבנות חוויות שנשענות על הסכמה, בטיחות ונוכחות.</p>
+            <p><strong>שלושה כלים - סטודיו אחד</strong></p>
             <ul class="list">
-              <li>דפוסי שפה היפנוטיים</li>
-              <li>ארכיטיפים של עונג</li>
-              <li>מצפן התשוקות (תכנון והסכמות)</li>
+              <li><strong>דפוסי שפה היפנוטיים</strong> - חבילת תרגול לשפה, קצב וטון.</li>
+              <li><strong>ארכיטיפים של עונג</strong> - חקירה רגשית-סמלית דרך דימויים וקלפים.</li>
+              <li><strong>מצפן התשוקות</strong> - שיח מובנה להסכמות, גבולות, עצימות ואפטרקר.</li>
             </ul>
-            <p class="muted">העיצוב שומר על אותה שפה ויזואלית של גרסת האנגלית: רקע ספירלי, כרטיסים שקופים, טיפוגרפיה אלגנטית ומבנה מודולרי.</p>
+            <p><strong>על סשה</strong><br>סשה בלבין הוא מחנך לאמנויות אירוטיות ויוצר הסטודיו. העבודה שלו משלבת עומק, תשוקה והסכמה דרך כלים מעשיים לשימוש אישי או זוגי.</p>
+            <p><strong>פרטיות</strong><br>הנתונים נשמרים מקומית בדפדפן/מכשיר שלך כברירת מחדל. אם משתמשים במכשיר משותף - מומלץ למחוק מידע מקומי אחרי שימוש.</p>
+            <p class="muted">השפה העיצובית נשמרת זהה לגרסה האנגלית: רקע ספירלי, זכוכית רכה, טיפוגרפיה אלגנטית ומבנה מודולרי.</p>
           </div>
         </div>
       `
@@ -218,6 +234,7 @@
 
     function renderHome() {
       document.getElementById('app').innerHTML = screens.home;
+      renderUpdateBanner();
     }
     function openAbout() {
       document.getElementById('app').innerHTML = screens.about;
@@ -254,17 +271,68 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          function markUpdateReady() {
+            sessionStorage.setItem('he_update_ready', '1');
+            renderUpdateBanner();
+          }
+          if (reg.waiting) markUpdateReady();
+          reg.addEventListener('updatefound', () => {
+            const installing = reg.installing;
+            if (!installing) return;
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                markUpdateReady();
+              }
+            });
+          });
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (sessionStorage.getItem('he_reload_after_update') === '1') {
+              sessionStorage.removeItem('he_reload_after_update');
+              sessionStorage.removeItem('he_update_ready');
+              window.location.reload();
+            }
+          });
+        }).catch(() => {});
       });
     }
 
     window.addEventListener('message', (e) => {
+      if (e.origin !== window.location.origin) return;
       const data = e && e.data ? e.data : null;
       if (!data || typeof data !== 'object') return;
       if (data.type === 'he_module_back_home') {
         renderHome();
       }
     });
+
+    function renderUpdateBanner() {
+      const host = document.getElementById('updateBannerHost');
+      if (!host) return;
+      if (sessionStorage.getItem('he_update_ready') !== '1') {
+        host.innerHTML = '';
+        return;
+      }
+      host.innerHTML = `
+        <div class="update-banner">
+          <span>יש עדכון מוכן לאפליקציה</span>
+          <button class="secondary-btn" style="padding:0.42rem 0.7rem;" onclick="applyAppUpdate()">עדכן עכשיו</button>
+        </div>
+      `;
+    }
+
+    function applyAppUpdate() {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (!reg) return;
+        sessionStorage.setItem('he_reload_after_update', '1');
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+          reg.update();
+          alert('מתבצעת בדיקת עדכון. אם יש גרסה חדשה, לחצו שוב על "עדכן עכשיו".');
+        }
+      });
+    }
 
     renderHome();
   </script>

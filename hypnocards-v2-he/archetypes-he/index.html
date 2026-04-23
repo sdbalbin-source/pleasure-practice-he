@@ -189,6 +189,7 @@
   <script>
     const FAVORITES_KEY = 'archetype_he_favorites_v1';
     const DECK_KEY = 'archetype_he_deck_realms_v1';
+    const PREFS_KEY = 'archetype_he_prefs_v1';
     let CARDS = [];
     let IMAGE_MAP = {};
     let IMAGE_AVAILABLE = new Set();
@@ -200,6 +201,7 @@
     let selectedRealms = new Set();
     let favoritesOnly = false;
     let favorites = new Set();
+    const TAP_DRIFT = 10;
     const spreadOverlay = document.getElementById('spreadOverlay');
     const spreadStage = document.getElementById('spreadStage');
 
@@ -226,6 +228,7 @@
     function saveState() {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
       localStorage.setItem(DECK_KEY, JSON.stringify(Array.from(selectedRealms)));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ favoritesOnly, currentView }));
     }
 
     function getDeckCards() {
@@ -394,6 +397,7 @@
       else if (view === 'all') renderAllCardsView(host);
       else if (view === 'custom') renderCustomDeckView(host);
       else renderAboutView(host);
+      saveState();
     }
 
     function renderDrawView(host) {
@@ -464,8 +468,22 @@
       html += '</div>';
       host.innerHTML = html;
       host.querySelectorAll('[data-open]').forEach(row => {
+        let sx = 0;
+        let sy = 0;
+        let moved = false;
+        row.addEventListener('pointerdown', ev => {
+          sx = ev.clientX;
+          sy = ev.clientY;
+          moved = false;
+        });
+        row.addEventListener('pointermove', ev => {
+          if (Math.abs(ev.clientX - sx) > TAP_DRIFT || Math.abs(ev.clientY - sy) > TAP_DRIFT) {
+            moved = true;
+          }
+        });
         row.addEventListener('click', (ev) => {
           if (ev.target && ev.target.matches('[data-fav]')) return;
+          if (moved) return;
           const card = CARDS.find(c => c.id === row.dataset.open);
           if (!card) return;
           current = card;
@@ -483,15 +501,19 @@
     function renderCustomDeckView(host) {
       const realms = Array.from(new Set(CARDS.map(card => normalizeRealm(card.realm)))).sort((a, b) => a.localeCompare(b, 'he'));
       const counts = realms.reduce((acc, realm) => ({ ...acc, [realm]: CARDS.filter(c => normalizeRealm(c.realm) === realm).length }), {});
+      const activeDeckCount = getDeckCards().length;
       host.innerHTML = `
         <div class="panel">
           <div class="filter-row">
             <button class="btn" onclick="selectAllRealms()">בחר הכל</button>
             <button class="btn" onclick="clearRealms()">נקה הכל</button>
-            <button class="btn" onclick="favoritesOnly = !favoritesOnly; setView('custom')">${favoritesOnly ? 'מועדפים בלבד: פעיל' : 'מועדפים בלבד: כבוי'}</button>
+            <button class="btn" onclick="setFavoritesSet(true)">סט מועדפים בלבד</button>
+            <button class="btn" onclick="setFavoritesSet(false)">כל הדק הפעיל</button>
+            <button class="btn" onclick="favoritesOnly = !favoritesOnly; setView('custom')">${favoritesOnly ? 'סינון מועדפים: פעיל' : 'סינון מועדפים: כבוי'}</button>
             <button class="btn" onclick="setView('draw')">החל ועבור לשליפה</button>
           </div>
           <div class="meta">סמן ממלכות לדק מותאם אישית. אם לא מסומן כלום - כל הקלפים בדק.</div>
+          <div class="meta">כמות קלפים בדק הנוכחי: ${activeDeckCount}</div>
           <div class="list" id="realmList"></div>
         </div>
       `;
@@ -525,6 +547,18 @@
 
     function clearRealms() {
       selectedRealms = new Set();
+      saveState();
+      setView('custom');
+    }
+
+    function setFavoritesSet(enableOnlyFavorites) {
+      favoritesOnly = enableOnlyFavorites;
+      if (favoritesOnly) {
+        const favRealms = new Set(
+          CARDS.filter(card => favorites.has(card.id)).map(card => normalizeRealm(card.realm))
+        );
+        selectedRealms = favRealms;
+      }
       saveState();
       setView('custom');
     }
@@ -568,6 +602,7 @@
               <div class="about-body">פורמטים נתמכים אוטומטית: <strong>.webp</strong>, <strong>.png</strong>, <strong>.jpg</strong>, <strong>.jpeg</strong></div>
               <div class="filter-row">
                 <button class="btn" onclick="copyMissingImageList()">העתק רשימת קבצים חסרים</button>
+                <button class="btn" onclick="rescanAssets()">Re-scan assets</button>
               </div>
               <div class="mono-box" id="missingImageList">${escapeHtml(missingList || 'אין כרגע פריטים חסרים לפי המיפוי.')}</div>
             </details>
@@ -587,6 +622,14 @@
       } else {
         alert(payload);
       }
+    }
+
+    async function rescanAssets() {
+      const coverage = await probeImageCoverage();
+      IMAGE_AVAILABLE = coverage.available;
+      IMAGE_RESOLVED = coverage.resolved;
+      if (currentView === 'about') setView('about');
+      else alert(`Re-scan completed: ${IMAGE_AVAILABLE.size} assets detected.`);
     }
 
     function imageCandidates(src) {
@@ -609,6 +652,8 @@
     async function boot() {
       favorites = new Set(safeParse(FAVORITES_KEY, []));
       selectedRealms = new Set(safeParse(DECK_KEY, []));
+      const prefs = safeParse(PREFS_KEY, {});
+      favoritesOnly = Boolean(prefs && prefs.favoritesOnly);
       try {
         const res = await fetch('../archetypes_he_data.json', { cache: 'no-store' });
         const data = await res.json();
@@ -631,7 +676,8 @@
       IMAGE_AVAILABLE = coverage.available;
       IMAGE_RESOLVED = coverage.resolved;
       current = CARDS[0] || null;
-      setView('draw');
+      const initialView = ['draw', 'custom', 'all', 'about'].includes(prefs.currentView) ? prefs.currentView : 'draw';
+      setView(initialView);
     }
 
     async function probeImageCoverage() {
