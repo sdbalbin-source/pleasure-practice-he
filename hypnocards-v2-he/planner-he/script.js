@@ -787,6 +787,12 @@ function createActivityRow(groupKey, item){
   slider.addEventListener('pointerdown', ()=>{
     applyStatusFromSliderValue();
   });
+  slider.addEventListener('mousedown', ()=>{
+    applyStatusFromSliderValue();
+  });
+  slider.addEventListener('touchstart', ()=>{
+    applyStatusFromSliderValue();
+  }, { passive: true });
   slider.addEventListener('input', ()=>{
     sval.textContent = `${slider.value}/10`;
     const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.he});
@@ -1127,6 +1133,10 @@ function initializeSignaturePad() {
     }
   }
   function startDrawing(event) {
+    event.preventDefault();
+    if (typeof canvas.setPointerCapture === 'function' && event.pointerId != null) {
+      try { canvas.setPointerCapture(event.pointerId); } catch {}
+    }
     isDrawing = true;
     const p = getPoint(event);
     ctx.beginPath();
@@ -1150,6 +1160,7 @@ function initializeSignaturePad() {
   canvas.addEventListener('pointerdown', startDrawing);
   canvas.addEventListener('pointermove', draw);
   canvas.addEventListener('pointerup', stopDrawing);
+  canvas.addEventListener('pointercancel', stopDrawing);
   canvas.addEventListener('pointerleave', stopDrawing);
   clearButton?.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
