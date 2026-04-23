@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050408">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pleasure HE">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <title>Pleasure Practice Studio - Hebrew</title>
+  <style>
+    :root {
+      --bg: #050408;
+      --panel: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.18);
+      --text: #f3f2f7;
+      --muted: #c6c2d5;
+      --accent: #b786ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: "Assistant", "Segoe UI", sans-serif; }
+    .hypno-container {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000;
+    }
+    .hypno-spiral {
+      position: absolute; top: 50%; left: 50%;
+      width: 150vmax; height: 150vmax;
+      transform-origin: center;
+      transform: translate(-50%, -50%);
+      animation: spin 13s linear infinite;
+      opacity: 0.72;
+    }
+    .vignette {
+      position: fixed; inset: 0; z-index: 1;
+      background: radial-gradient(circle, transparent 25%, #000 90%);
+      pointer-events: none;
+    }
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(-360deg); }
+    }
+    .app {
+      position: relative; z-index: 2; width: 100%; height: 100%;
+      max-width: 1240px; margin: 0 auto;
+      display: flex; flex-direction: column;
+    }
+    .screen {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      padding: 1.25rem;
+      gap: 1rem;
+      overflow: hidden;
+    }
+    .title-wrap {
+      text-align: center; margin-top: 0.5rem;
+    }
+    .title-main { margin: 0; font-size: 2.5rem; line-height: 1.04; font-family: "Frank Ruhl Libre", Georgia, serif; letter-spacing: 0.01em; }
+    .title-sub { margin: 0.2rem 0 0; font-size: 2.1rem; color: var(--accent); font-family: "Frank Ruhl Libre", Georgia, serif; }
+    .subtitle { margin: 0.8rem 0 0; font-size: 0.78rem; letter-spacing: 0.23em; color: var(--muted); text-transform: uppercase; }
+    .actions {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 0.75rem;
+    }
+    .card-btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 1rem;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-size: 1.32rem;
+      font-weight: 700;
+      font-family: "Frank Ruhl Libre", Georgia, serif;
+    }
+    .card-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+    .card-note {
+      margin-top: -0.2rem;
+      font-size: 0.93rem;
+      color: var(--muted);
+      font-weight: 400;
+      font-family: "Assistant", "Segoe UI", sans-serif;
+    }
+    .secondary-btn {
+      border: 1px solid rgba(183, 134, 255, 0.35);
+      background: transparent;
+      color: #d8b8ff;
+      border-radius: 0.9rem;
+      padding: 0.72rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1.03rem;
+    }
+    .back-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .back-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 999px;
+      width: 42px; height: 42px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .screen-title {
+      margin: 0;
+      font-size: 1.35rem;
+      font-family: "Frank Ruhl Libre", Georgia, serif;
+    }
+    .frame-wrap {
+      flex: 1; min-height: 0;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #000;
+    }
+    iframe {
+      width: 100%; height: 100%;
+      border: 0; background: #000;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 1rem;
+      padding: 1rem;
+      overflow: auto;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #ddd8eb;
+    }
+    .list { margin: 0.2rem 0 0; padding-right: 1rem; }
+    .list li { margin-bottom: 0.3rem; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="hypno-container">
+    <svg class="hypno-spiral" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path fill="none" stroke="#2e1065" stroke-width="8" stroke-linecap="round"
+            d="M100,100 m0,0 a4,4 0 0 1 4,4 a8,8 0 0 1 -8,8 a12,12 0 0 1 -12,-12 a16,16 0 0 1 16,-16
+               a20,20 0 0 1 20,20 a24,24 0 0 1 -24,24 a28,28 0 0 1 -28,-28 a32,32 0 0 1 32,-32
+               a36,36 0 0 1 36,36 a40,40 0 0 1 -40,40 a44,44 0 0 1 -44,-44 a48,48 0 0 1 48,-48
+               a52,52 0 0 1 52,52 a56,56 0 0 1 -56,56 a60,60 0 0 1 -60,-60 a64,64 0 0 1 64,-64
+               a68,68 0 0 1 68,68 a72,72 0 0 1 -72,72 a76,76 0 0 1 -76,-76 a80,80 0 0 1 80,-80
+               a84,84 0 0 1 84,84 a88,88 0 0 1 -88,88 a92,92 0 0 1 -92,-92 a96,96 0 0 1 96,-96
+               a100,100 0 0 1 100,100"/>
+    </svg>
+  </div>
+  <div class="vignette"></div>
+
+  <div class="app" id="app"></div>
+
+  <script>
+    const screens = {
+      home: `
+        <div class="screen">
+          <div class="title-wrap">
+            <h1 class="title-main">Pleasure Practice</h1>
+            <h1 class="title-sub">Studio - עברית</h1>
+            <p class="subtitle">שלושה כלים משולבים לתרגול</p>
+          </div>
+          <div class="actions">
+            <button class="card-btn" onclick="openHypno()">
+              דפוסי שפה היפנוטיים
+              <div class="card-note">קלפים, תרגול תמות, מועדפים והקלטות</div>
+            </button>
+            <button class="card-btn" onclick="openArchetypes()">
+              ארכיטיפים של עונג
+              <div class="card-note">תשתית הוקמה • בהמתנה לחבילת הקלפים הוויזואליים</div>
+            </button>
+            <button class="card-btn" onclick="openPlanner()">
+              מצפן התשוקות
+              <div class="card-note">טופס הסכמות, סיכום ושיתוף</div>
+            </button>
+            <button class="secondary-btn" onclick="openAbout()">אודות הסטודיו</button>
+          </div>
+        </div>
+      `,
+      archetypes: `
+        <div class="screen">
+          <div class="back-row">
+            <button class="back-btn" onclick="renderHome()">←</button>
+            <h2 class="screen-title">ארכיטיפים של עונג</h2>
+          </div>
+          <div class="panel">
+            <p><strong>סטטוס הקמה:</strong> מודול זה הוכן תשתיתית לעברית, ויכול להשתמש בנתוני גב הקלפים מקובץ האקסל שהעלית.</p>
+            <p class="muted">מה חסר כרגע כדי להשלים אותו:</p>
+            <ul class="list">
+              <li>תמונות חזית לכל קלף ארכיטיפ (73 קלפים)</li>
+              <li>תמונת גב חפיסה עברית סופית (אם שונה מהקיימת)</li>
+              <li>החלטת עיצוב סופית למסך All Cards / Shuffle / Custom Deck בעברית</li>
+            </ul>
+            <p>ברגע שהתמונות יועלו, נחבר כאן אנימציית ערבוב/שליפה מלאה כמו בגרסה האנגלית.</p>
+          </div>
+        </div>
+      `,
+      about: `
+        <div class="screen">
+          <div class="back-row">
+            <button class="back-btn" onclick="renderHome()">←</button>
+            <h2 class="screen-title">אודות Pleasure Practice Studio</h2>
+          </div>
+          <div class="panel">
+            <p>זוהי תשתית עברית מאוחדת לשלושה מודולים:</p>
+            <ul class="list">
+              <li>דפוסי שפה היפנוטיים</li>
+              <li>ארכיטיפים של עונג</li>
+              <li>מצפן התשוקות (תכנון והסכמות)</li>
+            </ul>
+            <p class="muted">העיצוב שומר על אותה שפה ויזואלית של גרסת האנגלית: רקע ספירלי, כרטיסים שקופים, טיפוגרפיה אלגנטית ומבנה מודולרי.</p>
+          </div>
+        </div>
+      `
+    };
+
+    function renderHome() {
+      document.getElementById('app').innerHTML = screens.home;
+    }
+    function openAbout() {
+      document.getElementById('app').innerHTML = screens.about;
+    }
+    function openArchetypes() {
+      document.getElementById('app').innerHTML = screens.archetypes;
+    }
+    function openHypno() {
+      document.getElementById('app').innerHTML = `
+        <div class="screen">
+          <div class="back-row">
+            <button class="back-btn" onclick="renderHome()">←</button>
+            <h2 class="screen-title">דפוסי שפה היפנוטיים</h2>
+          </div>
+          <div class="frame-wrap">
+            <iframe src="./דפוסי שפה עברית/index.html" title="דפוסי שפה עברית"></iframe>
+          </div>
+        </div>
+      `;
+    }
+    function openPlanner() {
+      document.getElementById('app').innerHTML = `
+        <div class="screen">
+          <div class="back-row">
+            <button class="back-btn" onclick="renderHome()">←</button>
+            <h2 class="screen-title">מצפן התשוקות</h2>
+          </div>
+          <div class="frame-wrap">
+            <iframe src="./מצפן התשוקות/index.html" title="מצפן התשוקות" allow="web-share"></iframe>
+          </div>
+        </div>
+      `;
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    renderHome();
+  </script>
+</body>
+</html>
