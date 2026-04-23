@@ -204,16 +204,37 @@ function bindBasicInputs(){
 }
 
 function setupPainSliders(){
-  ['painDesired','painTolerable'].forEach(id=>{
-    const input = document.getElementById(id);
-    const out = document.querySelector(`.intensity-value[data-for="${id}"]`);
-    const update = ()=>{
-      const val = parseInt(input.value,10);
-      out.textContent = `${val}/10`;
-      state.safety[id==='painDesired'?'painDesired':'painTolerable'] = val;
-    };
-    input.addEventListener('input', update); update();
+  const desired = document.getElementById('painDesired');
+  const tolerable = document.getElementById('painTolerable');
+  const desiredOut = document.querySelector('.intensity-value[data-for="painDesired"]');
+  const tolerableOut = document.querySelector('.intensity-value[data-for="painTolerable"]');
+  if (!desired || !tolerable || !desiredOut || !tolerableOut) return;
+
+  function updateOutputs(){
+    const d = parseInt(desired.value || '0', 10);
+    const t = parseInt(tolerable.value || '0', 10);
+    desiredOut.textContent = `${d}/10`;
+    tolerableOut.textContent = `${t}/10`;
+    state.safety.painDesired = d;
+    state.safety.painTolerable = t;
+  }
+
+  desired.addEventListener('input', () => {
+    const d = parseInt(desired.value || '0', 10);
+    if (parseInt(tolerable.value || '0', 10) < d) {
+      tolerable.value = String(d);
+    }
+    tolerable.min = String(d);
+    updateOutputs();
   });
+  tolerable.addEventListener('input', () => {
+    const d = parseInt(desired.value || '0', 10);
+    const t = parseInt(tolerable.value || '0', 10);
+    if (t < d) tolerable.value = String(d);
+    updateOutputs();
+  });
+  tolerable.min = String(parseInt(desired.value || '0', 10));
+  updateOutputs();
 }
 
 /* ========== CHIPS (incl. Other -> active) ========== */
@@ -619,16 +640,22 @@ function renderSummary(){
   // collect with status grouping (yes -> maybe -> no)
   function collect(groupKey){
     const group = state.activities[groupKey] || {};
-    let rows = Object.values(group).map(e=> ({name:e.name, status:e.status, intensity:e.intensity||0}))
-                 .filter(r => r.status); // include yes/maybe/no, exclude null
+    let rows = Object.values(group).map(e=> ({
+      name:e.name,
+      status:e.status || 'unanswered',
+      intensity:e.intensity||0
+    }));
     if (filter==='yes') rows = rows.filter(r => r.status==='yes');
     if (filter==='maybe') rows = rows.filter(r => r.status==='maybe');
+    if (filter==='no') rows = rows.filter(r => r.status==='no');
+    if (filter==='unanswered') rows = rows.filter(r => r.status==='unanswered');
 
     if (filter==='all'){
       const ys = sortRows(rows.filter(r=>r.status==='yes'));
       const ms = sortRows(rows.filter(r=>r.status==='maybe'));
       const ns = sortRows(rows.filter(r=>r.status==='no'));
-      return [...ys, ...ms, ...ns];
+      const us = sortRows(rows.filter(r=>r.status==='unanswered'));
+      return [...ys, ...ms, ...ns, ...us];
     }
     return sortRows(rows);
   }
@@ -651,7 +678,7 @@ function renderSummary(){
         const list = document.createElement('div'); list.className='summary-tags';
         data.forEach(it=>{
           const tag = document.createElement('div');
-          tag.className = `summary-tag summary-tag-${it.status}`;
+          tag.className = `summary-tag ${it.status==='unanswered' ? '' : `summary-tag-${it.status}`}`.trim();
           tag.textContent = it.intensity>0 ? `${it.name} (${it.intensity}/10)` : it.name;
           list.appendChild(tag);
         });
