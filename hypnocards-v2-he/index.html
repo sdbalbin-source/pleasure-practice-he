@@ -316,6 +316,7 @@
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
     let deferredInstallPrompt = null;
     let diagnosticsCache = null;
+    let plannerBackTarget = null;
 
     function renderHome() {
       document.getElementById('app').innerHTML = screens.home;
@@ -385,7 +386,7 @@
               duration: Number.isFinite(Number(s.duration)) ? Number(s.duration) : Number(session.duration || 0) || null
             };
           })
-          .filter(s => s && typeof s === 'object' && typeof s.id === 'string')
+          .filter(s => s && typeof s === 'object' && typeof s.id === 'string' && s.plannerState && typeof s.plannerState === 'object')
           .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
       } catch {
         return [];
@@ -424,9 +425,9 @@
           </div>
           <div class="panel">
             <div class="utility-row" style="justify-content:flex-start; margin:0;">
-              <button class="secondary-btn" onclick="openPlannerNewSession()">New Consent & Desires Session</button>
-              <button class="secondary-btn" onclick="renderPlannerSessions()">My Sessions (${savedSessionsCount})</button>
-              <button class="secondary-btn" onclick="renderPlannerAbout()">About Kinky Scene Planner</button>
+              <button class="secondary-btn" onclick="openPlannerNewSession()">סשן הסכמות חדש</button>
+              <button class="secondary-btn" onclick="renderPlannerSessions()">הסשנים שלי (${savedSessionsCount})</button>
+              <button class="secondary-btn" onclick="renderPlannerAbout()">אודות מצפן התשוקות</button>
             </div>
             <p class="muted" style="margin-top:0.8rem;">בחרי מסלול עבודה: התחלה חדשה, פתיחת סשן שמור, או סקירה עקרונית לפני התחלה.</p>
           </div>
@@ -458,12 +459,12 @@
     }
     function renderPlannerSessions() {
       const sessions = listPlannerSessions();
-      const sessionsTitle = `My Sessions (${sessions.length})`;
+      const sessionsTitle = `הסשנים שלי (${sessions.length})`;
       const emptyHtml = `
         <div class="panel">
-          <p>טרם נמצאו Sessions שמורים.</p>
+          <p>עדיין אין סשנים שמורים.</p>
           <div class="utility-row" style="justify-content:flex-start; margin:0.7rem 0 0;">
-            <button class="secondary-btn" onclick="openPlannerNewSession()">התחל Session חדש</button>
+            <button class="secondary-btn" onclick="openPlannerNewSession()">התחלת סשן חדש</button>
             <button class="secondary-btn" onclick="renderPlannerHome()">חזרה</button>
           </div>
         </div>
@@ -486,9 +487,11 @@
           <div class="muted" style="font-size:0.84rem; margin-top:0.25rem;">${escapeHtml(plannerSessionDate(s))}</div>
           <div class="muted" style="font-size:0.84rem; margin-top:0.2rem;">${escapeHtml(plannerSessionMeta(s))}</div>
           <div class="session-actions">
-            <button class="secondary-btn" onclick="openPlannerSummary('${escapeHtml(String(s.id))}')">Open</button>
-            <button class="secondary-btn" onclick="openPlannerSession('${escapeHtml(String(s.id))}')">Edit</button>
-            <button class="secondary-btn" onclick="sharePlannerSessionPdf('${escapeHtml(String(s.id))}')">Share PDF</button>
+            <button class="secondary-btn" onclick="openPlannerSummary('${escapeHtml(String(s.id))}')">פתיחה</button>
+            <button class="secondary-btn" onclick="openPlannerSession('${escapeHtml(String(s.id))}')">עריכה</button>
+            <button class="secondary-btn" onclick="renamePlannerSession('${escapeHtml(String(s.id))}')">שינוי שם</button>
+            <button class="secondary-btn" onclick="deletePlannerSession('${escapeHtml(String(s.id))}')">מחיקה</button>
+            <button class="secondary-btn" onclick="sharePlannerSessionPdf('${escapeHtml(String(s.id))}')">שיתוף PDF</button>
           </div>
         </div>
       `).join('');
@@ -502,22 +505,83 @@
         </div>
       `;
     }
+    function getPlannerSessionById(sessionId) {
+      return listPlannerSessions().find(s => s && String(s.id) === String(sessionId)) || null;
+    }
     function openPlannerSession(sessionId) {
+      if (!getPlannerSessionById(sessionId)) {
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        renderPlannerSessions();
+        return;
+      }
       renderPlannerEmbed(sessionId, null, null, 'sessions');
     }
     function openPlannerSummary(sessionId) {
+      if (!getPlannerSessionById(sessionId)) {
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        renderPlannerSessions();
+        return;
+      }
       renderPlannerEmbed(sessionId, 'chapter-8', null, 'sessions');
     }
     function sharePlannerSessionPdf(sessionId) {
+      if (!getPlannerSessionById(sessionId)) {
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        renderPlannerSessions();
+        return;
+      }
       renderPlannerEmbed(sessionId, 'chapter-8', 'pdf', 'sessions');
+    }
+    function renamePlannerSession(sessionId) {
+      const rows = listPlannerSessions();
+      const ix = rows.findIndex(s => s && String(s.id) === String(sessionId));
+      if (ix < 0) {
+        alert('הסשן לא נמצא.');
+        return renderPlannerSessions();
+      }
+      const current = plannerSessionTitle(rows[ix]);
+      const next = prompt('שם חדש לסשן:', current);
+      if (next === null) return;
+      const clean = String(next || '').trim();
+      if (!clean) return;
+      rows[ix].sessionName = clean;
+      if (!rows[ix].plannerState || typeof rows[ix].plannerState !== 'object') rows[ix].plannerState = {};
+      if (!rows[ix].plannerState.session || typeof rows[ix].plannerState.session !== 'object') rows[ix].plannerState.session = {};
+      rows[ix].plannerState.session.sessionName = clean;
+      rows[ix].updatedAt = new Date().toISOString();
+      localStorage.setItem(PLANNER_SESSIONS_KEY, JSON.stringify(rows));
+      renderPlannerSessions();
+    }
+    function deletePlannerSession(sessionId) {
+      const rows = listPlannerSessions();
+      const target = rows.find(s => s && String(s.id) === String(sessionId));
+      if (!target) {
+        alert('הסשן לא נמצא.');
+        return renderPlannerSessions();
+      }
+      if (!confirm(`למחוק את הסשן "${plannerSessionTitle(target)}"?`)) return;
+      const next = rows.filter(s => String((s && s.id) || '') !== String(sessionId));
+      localStorage.setItem(PLANNER_SESSIONS_KEY, JSON.stringify(next));
+      renderPlannerSessions();
+    }
+    function backFromPlanner(returnTo) {
+      plannerBackTarget = returnTo === 'sessions' ? 'sessions' : 'home';
+      const frame = document.getElementById('plannerEmbed');
+      try {
+        frame?.contentWindow?.postMessage?.({ type: 'planner_request_save' }, window.location.origin);
+      } catch {}
+      setTimeout(() => {
+        if (plannerBackTarget === 'sessions') renderPlannerSessions();
+        else renderPlannerHome();
+        plannerBackTarget = null;
+      }, 180);
     }
     function renderPlannerEmbed(sessionId, startChapter, autoShare, returnTo) {
       const plannerSrc = `./מצפן התשוקות/index.html${sessionId || startChapter || autoShare ? '?' : ''}${sessionId ? `sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `${sessionId ? '&' : ''}startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `${sessionId || startChapter ? '&' : ''}autoShare=${encodeURIComponent(autoShare)}` : ''}`;
-      const backAction = returnTo === 'sessions' ? 'renderPlannerSessions()' : 'renderPlannerHome()';
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="${backAction}">←</button>
+            <button class="back-btn" onclick="backFromPlanner('${returnTo === 'sessions' ? 'sessions' : 'home'}')">←</button>
             <h2 class="screen-title">מצפן התשוקות</h2>
           </div>
           <div class="frame-wrap">
@@ -577,7 +641,21 @@
         return;
       }
       if (data.type === 'planner_session_finished') {
+        if (plannerBackTarget === 'home') {
+          renderPlannerHome();
+          plannerBackTarget = null;
+          return;
+        }
         renderPlannerSessions();
+        plannerBackTarget = null;
+        return;
+      }
+      if (data.type === 'planner_open_sessions') {
+        renderPlannerSessions();
+        return;
+      }
+      if (data.type === 'planner_open_new') {
+        openPlannerNewSession();
       }
     });
 
@@ -651,21 +729,52 @@
       const status = document.getElementById(`${frameId}-status`);
       if (!frame || !status) return;
       let settled = false;
-      const timeout = setTimeout(() => {
-        if (settled) return;
+      let timeout = 0;
+      const srcWithBust = () => {
+        const sep = src.includes('?') ? '&' : '?';
+        return `${src}${sep}retryTs=${Date.now()}`;
+      };
+      function showFallback(reason) {
+        settled = false;
         const offlineHint = navigator.onLine ? '' : '<br><strong>נראה שהמכשיר אופליין כרגע.</strong>';
-        status.innerHTML = `המודול נטען יותר מהרגיל.<br>אם המסך נשאר ריק, חזרו למסך הבית ונסו שוב.${offlineHint}<br><small>${src}</small>`;
-      }, 5000);
+        const reasonText = reason === 'error'
+          ? 'אירעה שגיאה בטעינת המודול.'
+          : 'המודול נטען יותר מהרגיל.';
+        status.innerHTML = `
+          ${reasonText}<br>
+          אם המסך נשאר ריק, נסו טעינה מחדש.${offlineHint}
+          <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+            <button class="secondary-btn" type="button" id="${frameId}-retry">טעינה מחדש</button>
+            <button class="secondary-btn" type="button" id="${frameId}-open">פתיחה בחלון נפרד</button>
+          </div>
+          <small style="display:block; margin-top:0.55rem; direction:ltr;">${src}</small>
+        `;
+        const retryBtn = document.getElementById(`${frameId}-retry`);
+        const openBtn = document.getElementById(`${frameId}-open`);
+        if (retryBtn) retryBtn.addEventListener('click', () => {
+          status.classList.remove('hidden');
+          status.textContent = 'טוען מודול...';
+          armWatchdog();
+          frame.src = srcWithBust();
+        });
+        if (openBtn) openBtn.addEventListener('click', () => { window.open(src, '_blank', 'noopener'); });
+      }
+      function armWatchdog() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          if (settled) return;
+          showFallback('timeout');
+        }, 5000);
+      }
+      armWatchdog();
       frame.addEventListener('load', () => {
         settled = true;
         clearTimeout(timeout);
         status.classList.add('hidden');
       });
       frame.addEventListener('error', () => {
-        settled = true;
         clearTimeout(timeout);
-        const offlineHint = navigator.onLine ? 'ייתכן שקובץ חסר או נתיב שגוי.' : 'נראה שהמכשיר ללא חיבור.';
-        status.innerHTML = `לא ניתן לטעון את המודול כרגע.<br>${offlineHint}<br><small>${src}</small>`;
+        showFallback('error');
       });
     }
 

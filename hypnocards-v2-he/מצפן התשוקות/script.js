@@ -64,12 +64,48 @@ function setupPrevNext(){
     if (nextBtn) nextBtn.addEventListener('click', ()=> showChapter(arr[clamp(idx+1,0,arr.length-1)].id));
   });
 }
+function setupCollapsibleSubsections(){
+  $$('.activity-group').forEach(group => {
+    const titleLine = group.querySelector('.title-line');
+    if (!titleLine) return;
+    if (titleLine.dataset.collapsibleBound === 'true') return;
+    titleLine.dataset.collapsibleBound = 'true';
+    titleLine.setAttribute('role', 'button');
+    titleLine.setAttribute('tabindex', '0');
+    titleLine.setAttribute('aria-expanded', 'false');
+    const sectionText = titleLine.textContent.replace(/\s+/g, ' ').trim();
+    titleLine.setAttribute('aria-label', `פתיחה או סגירה של מקטע: ${sectionText}`);
+    const controlledIds = [];
+    Array.from(group.children).forEach((child, idx) => {
+      if (child === titleLine) return;
+      if (!child.id) child.id = `${group.id || group.dataset.group || 'group'}-content-${idx}`;
+      controlledIds.push(child.id);
+    });
+    if (controlledIds.length) titleLine.setAttribute('aria-controls', controlledIds.join(' '));
+    group.classList.add('is-collapsed');
+    const toggle = () => {
+      const willOpen = group.classList.contains('is-collapsed');
+      group.classList.toggle('is-collapsed', !willOpen);
+      titleLine.setAttribute('aria-expanded', String(willOpen));
+    };
+    titleLine.addEventListener('click', toggle);
+    titleLine.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+}
 
 function listSessions(){
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map(validateSessionRecord)
+      .filter(Boolean);
   } catch {
     return [];
   }
@@ -80,6 +116,36 @@ function saveSessions(rows){
 function loadSessionById(id){
   if (!id) return null;
   return listSessions().find(s => s && s.id === id) || null;
+}
+function validateSessionRecord(input){
+  if (!input || typeof input !== 'object') return null;
+  const migrated = migrateLegacySessionRecord(input);
+  if (!migrated || typeof migrated !== 'object') return null;
+  if (typeof migrated.id !== 'string' || !migrated.id.trim()) return null;
+  if (!migrated.plannerState || typeof migrated.plannerState !== 'object') return null;
+  const rawVersion = migrated.schemaVersion == null ? 1 : Number(migrated.schemaVersion);
+  if (Number.isFinite(rawVersion) && rawVersion > SESSION_SCHEMA_VERSION) return null;
+  const now = new Date().toISOString();
+  return {
+    ...migrated,
+    id: String(migrated.id),
+    schemaVersion: Number.isFinite(rawVersion) ? rawVersion : 1,
+    createdAt: typeof migrated.createdAt === 'string' ? migrated.createdAt : now,
+    updatedAt: typeof migrated.updatedAt === 'string' ? migrated.updatedAt : (typeof migrated.createdAt === 'string' ? migrated.createdAt : now)
+  };
+}
+function migrateLegacySessionRecord(saved){
+  if (!saved || typeof saved !== 'object') return saved;
+  if (!saved.plannerState || typeof saved.plannerState !== 'object') return saved;
+  const out = { ...saved };
+  const nestedSession = out.plannerState.session && typeof out.plannerState.session === 'object'
+    ? out.plannerState.session
+    : {};
+  if (!out.sessionName && nestedSession.sessionName) out.sessionName = String(nestedSession.sessionName).trim();
+  if (!out.nickname && nestedSession.nickname) out.nickname = String(nestedSession.nickname).trim();
+  if (!out.role && nestedSession.role) out.role = nestedSession.role;
+  if (!Number.isFinite(Number(out.duration)) && Number.isFinite(Number(nestedSession.duration))) out.duration = Number(nestedSession.duration);
+  return out;
 }
 function mergeStateFromSaved(saved){
   if (!saved || typeof saved !== 'object') return;
@@ -120,7 +186,40 @@ function applyStateToUi(){
     if (input) input.value = String(Number.isFinite(val) ? val : 0);
     if (out) out.textContent = `${Number.isFinite(val) ? val : 0}/10`;
   });
+  hydrateChipGroupsFromState();
   updatePerspectiveBadges();
+}
+function selectedValuesForField(field){
+  if (field === 'role') return state.session.role ? [state.session.role] : [];
+  if (Array.isArray(state.session[field])) return state.session[field];
+  if (Array.isArray(state.safety[field])) return state.safety[field];
+  if (Array.isArray(state.sets[field])) return state.sets[field];
+  return [];
+}
+function ensureChipExists(group, value){
+  const existing = Array.from(group.querySelectorAll('.chip')).find(ch => ch.dataset.value === value);
+  if (existing) return existing;
+  const otherBtn = group.querySelector('.chip[data-value="__other__"]');
+  if (!otherBtn) return null;
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'chip';
+  chip.dataset.value = value;
+  chip.textContent = value;
+  otherBtn.insertAdjacentElement('beforebegin', chip);
+  return chip;
+}
+function hydrateChipGroupsFromState(){
+  $$('.chip-group').forEach(group => {
+    const field = group.dataset.field;
+    if (!field || field === 'summaryFilter') return;
+    const selected = selectedValuesForField(field).map(v => String(v)).filter(Boolean);
+    group.querySelectorAll('.chip.active').forEach(ch => ch.classList.remove('active'));
+    selected.forEach(value => {
+      const chip = ensureChipExists(group, value);
+      if (chip) chip.classList.add('active');
+    });
+  });
 }
 function saveActiveSession(){
   const sessions = listSessions();
@@ -129,7 +228,10 @@ function saveActiveSession(){
   const payload = {
     id: activeSessionId,
     schemaVersion: SESSION_SCHEMA_VERSION,
+    sessionName: (state.session.sessionName || '').trim(),
     nickname: (state.session.nickname || '').trim(),
+    role: state.session.role || null,
+    duration: Number.isFinite(state.session.duration) ? state.session.duration : 90,
     createdAt: ix >= 0 ? sessions[ix].createdAt : now,
     updatedAt: now,
     plannerState: {
@@ -161,7 +263,7 @@ const infoTexts = {
   pinwheel: 'גלגל עם מחטים קטנות היוצר תחושה "חשמלית" ודוקרנית על העור, אך אינו מיועד לחדור אותו.',
   eStim: 'שימוש במכשירי גירוי חשמלי ייעודיים. פרקטיקה בסיכון גבוה: יש להשתמש רק בציוד תקני ולעולם לא מעל קו המותניים.',
   needles: 'פרקטיקה מתקדמת של החדרת מחטים סטריליות לשכבת העור העליונה. דורשת ידע והקפדה מוחלטת על היגיינה.',
-  breath: 'פרקטיקה בסיכון גבוה ביותר העלולה לגרום לנזק מוחי או מוות. דורשת ניסיון רב, אמון מוחלט ופרוטוקול בטיחות صارם.',
+  breath: 'פרקטיקה בסיכון גבוה ביותר העלולה לגרום לנזק מוחי או מוות. דורשת ניסיון רב, אמון מוחלט ופרוטוקול בטיחות נוקשה.',
   choking: 'פרקטיקה בסיכון גבוה הכוללת לחץ על הצוואר ואינה מומלצת למתחילים כלל.',
   cnc: 'משחק תפקידים מתקדם בו "לא" הוא חלק מהסצנה, אך מילת הביטחון האמיתית תמיד עוצרת הכל. דורש אמון ותיאום ציפיות מוחלט.',
   cuck: 'פנטזיה או פרקטיקה של עוררות מינית מצפייה בפרטנר/ית עם אדם אחר, לרוב בהקשר של השפלה.',
@@ -174,6 +276,19 @@ const infoTexts = {
 };
 
 function setupInfoButtons(){
+  const infoAriaLabels = {
+    trafficLightInfo: 'מידע על תקשורת רמזור',
+    safewordInfo: 'מידע על מילת ביטחון',
+    gestureInfo: 'מידע על מחווה לעצירה',
+    painInfo: 'מידע על ספי כאב',
+    hardLimitsInfo: 'מידע על גבולות קשיחים',
+    healthInfo: 'מידע על בריאות פיזית ונפשית',
+    impactInfo: 'מידע על אימפקט',
+    groupScenesInfo: 'מידע על סצנות מרובות משתתפים',
+    aftercareInfoTop: 'מידע כללי על אפטר-קר',
+    aftercareInfo: 'מידע על ציפיות אחרי מפגש',
+    summaryInfo: 'מידע על מסך הסיכום'
+  };
   const infoById = {
     trafficLightInfo: 'trafficLight',
     safewordInfo: 'safeword',
@@ -199,8 +314,15 @@ function setupInfoButtons(){
       panel.textContent = 'מידע נוסף יתווסף בהמשך.';
       console.warn('[planner-he] missing info text for target:', id);
     }
+    if (id) btn.setAttribute('aria-controls', id);
+    btn.setAttribute('aria-label', infoAriaLabels[id] || 'מידע נוסף');
     btn.setAttribute('aria-expanded', panel && !panel.hidden ? 'true' : 'false');
-    btn.addEventListener('click', ()=>{
+    if (panel) {
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-live', 'polite');
+    }
+    btn.addEventListener('click', (event)=>{
+      event.stopPropagation();
       if (!panel) return;
       panel.hidden = !panel.hidden;
       btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
@@ -267,6 +389,11 @@ function setupChipGroups(){
     const single = group.dataset.single === 'true';
 
     function deselectAll(){ group.querySelectorAll('.chip.active').forEach(c=> c.classList.remove('active')); }
+    function syncPressed(){
+      group.querySelectorAll('.chip').forEach(ch => {
+        ch.setAttribute('aria-pressed', ch.classList.contains('active') ? 'true' : 'false');
+      });
+    }
 
     function writeSelection(){
       const selected = Array.from(group.querySelectorAll('.chip.active'))
@@ -301,6 +428,7 @@ function setupChipGroups(){
           if (single){ deselectAll(); chip.classList.add('active'); }
           else { chip.classList.add('active'); }
           writeSelection();
+          syncPressed();
         };
         input.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); commit(); } });
         input.addEventListener('blur', commit);
@@ -314,12 +442,14 @@ function setupChipGroups(){
         btn.classList.toggle('active');
       }
       writeSelection();
+      syncPressed();
     }
 
     group.addEventListener('click', e=>{
       const btn = e.target.closest('.chip'); if (!btn) return;
       handleChip(btn);
     });
+    syncPressed();
   });
 }
 
@@ -537,12 +667,23 @@ function createActivityRow(groupKey, item){
 
   const label = document.createElement('div');
   label.className = 'activity-label';
+  label.id = `label-${groupKey}-${item.id}`;
   label.innerHTML = `<span class="lang-he"><strong>${item.he}</strong></span>` + (item.en?`<span class="lang-en">${item.en}</span>`:'');
   if (item.info){
     const infoBtn = document.createElement('button');
     infoBtn.className='info-btn'; infoBtn.type='button'; infoBtn.textContent='ℹ️';
     const info = document.createElement('div'); info.className='info-text'; info.hidden=true; info.textContent=item.info;
-    infoBtn.addEventListener('click', ()=> info.hidden=!info.hidden);
+    info.id = `info-${groupKey}-${item.id}`;
+    info.setAttribute('role', 'region');
+    info.setAttribute('aria-live', 'polite');
+    infoBtn.setAttribute('aria-controls', info.id);
+    infoBtn.setAttribute('aria-expanded', 'false');
+    infoBtn.setAttribute('aria-label', `מידע נוסף: ${item.he}`);
+    infoBtn.addEventListener('click', (event)=> {
+      event.stopPropagation();
+      info.hidden = !info.hidden;
+      infoBtn.setAttribute('aria-expanded', info.hidden ? 'false' : 'true');
+    });
     label.append(infoBtn, info);
   }
 
@@ -554,12 +695,16 @@ function createActivityRow(groupKey, item){
   const bYes = document.createElement('button'); bYes.type='button'; bYes.className='choice-btn yes'; bYes.textContent='כן'; bYes.dataset.choice='yes';
   const bMaybe = document.createElement('button'); bMaybe.type='button'; bMaybe.className='choice-btn maybe'; bMaybe.textContent='אולי'; bMaybe.dataset.choice='maybe';
   const bNo = document.createElement('button'); bNo.type='button'; bNo.className='choice-btn no'; bNo.textContent='לא'; bNo.dataset.choice='no';
+  [bYes, bMaybe, bNo].forEach(btn => btn.setAttribute('aria-pressed', 'false'));
   choice.append(bYes,bMaybe,bNo);
 
   const sliderWrap = document.createElement('div');
   sliderWrap.className = 'slider-container disabled';
   const slider = document.createElement('input');
   slider.type='range'; slider.min='0'; slider.max='10'; slider.value='0'; slider.className='intensity-slider'; slider.dataset.slider='intensity';
+  slider.id = `slider-${groupKey}-${item.id}`;
+  slider.setAttribute('aria-labelledby', label.id);
+  slider.setAttribute('aria-label', `עצימות עבור ${item.he}`);
   const sval = document.createElement('span'); sval.className='intensity-value'; sval.textContent='0/10';
   sliderWrap.append(slider,sval);
 
@@ -568,6 +713,7 @@ function createActivityRow(groupKey, item){
   function setActive(btn){
     [bYes,bMaybe,bNo].forEach(b=> b.classList.remove('active'));
     btn.classList.add('active');
+    [bYes,bMaybe,bNo].forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
   }
   function setStatus(stat){
     const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.he});
@@ -890,25 +1036,64 @@ function initializeSignaturePad() {
 
 /* ========== TOP ACTIONS ========== */
 function setupTopActions(){
+  function runWithBusyState(button, busyText, errorText, work){
+    if (!button) return Promise.resolve();
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = busyText;
+    return Promise.resolve()
+      .then(work)
+      .catch((err) => {
+        console.error('[planner-he] action failed', err);
+        alert(errorText || 'הפעולה נכשלה. נסו שוב.');
+        return null;
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.textContent = original;
+      });
+  }
   const shareLinkBtn = $('#shareLinkBtn');
   if (shareLinkBtn) shareLinkBtn.addEventListener('click', async ()=>{
     const url = location.href;
     try{
       if (navigator.share){ await navigator.share({title:document.title, url}); }
       else { await navigator.clipboard.writeText(url); alert('קישור הועתק!'); }
-    }catch(e){}
+    }catch(e){
+      console.error('[planner-he] share link failed', e);
+      alert('לא ניתן היה לשתף קישור כרגע.');
+    }
   });
-  $('#copyLink').addEventListener('click', async ()=>{ saveActiveSession(); await navigator.clipboard.writeText(location.href); alert('קישור הועתק!'); });
-  $('#shareWhatsApp').addEventListener('click', ()=>{
-    saveActiveSession();
-    const url = encodeURIComponent(location.href);
-    window.open(`https://wa.me/?text=${url}`, '_blank');
+  const copyBtn = $('#copyLink');
+  if (copyBtn) copyBtn.addEventListener('click', async ()=>{
+    await runWithBusyState(copyBtn, 'מעתיק...', 'לא ניתן היה להעתיק קישור כרגע.', async () => {
+      saveActiveSession();
+      await navigator.clipboard.writeText(location.href);
+      alert('קישור הועתק!');
+    });
   });
-  $('#printPdf').addEventListener('click', ()=> { saveActiveSession(); window.print(); });
-  $('#saveSession').addEventListener('click', ()=> {
-    saveActiveSession();
-    window.parent?.postMessage?.({ type: 'planner_session_finished' }, window.location.origin);
-    alert('ה-Session נשמר.');
+  const whatsappBtn = $('#shareWhatsApp');
+  if (whatsappBtn) whatsappBtn.addEventListener('click', ()=>{
+    runWithBusyState(whatsappBtn, 'פותח שיתוף...', 'לא ניתן היה לפתוח שיתוף ל-WhatsApp.', () => {
+      saveActiveSession();
+      const url = encodeURIComponent(location.href);
+      window.open(`https://wa.me/?text=${url}`, '_blank');
+    });
+  });
+  const printBtn = $('#printPdf');
+  if (printBtn) printBtn.addEventListener('click', ()=> {
+    runWithBusyState(printBtn, 'מכין PDF...', 'לא ניתן היה להכין הדפסה כרגע.', () => {
+      saveActiveSession();
+      window.print();
+    });
+  });
+  const saveBtn = $('#saveSession');
+  if (saveBtn) saveBtn.addEventListener('click', ()=> {
+    runWithBusyState(saveBtn, 'שומר...', 'השמירה נכשלה. נסו שוב.', () => {
+      saveActiveSession();
+      window.parent?.postMessage?.({ type: 'planner_session_finished' }, window.location.origin);
+      alert('הסשן נשמר.');
+    });
   });
 }
 
@@ -929,11 +1114,40 @@ function init(){
   setupPainSliders();
   setupChipGroups();
   buildActivities();
+  setupCollapsibleSubsections();
   if (sessionIdFromUrl) {
     const saved = loadSessionById(sessionIdFromUrl);
-    if (saved && saved.plannerState && (!saved.schemaVersion || Number(saved.schemaVersion) <= SESSION_SCHEMA_VERSION)) {
+    if (saved && saved.plannerState) {
       activeSessionId = saved.id;
       mergeStateFromSaved(saved.plannerState);
+    } else {
+      console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl);
+      const host = document.querySelector('.site-header');
+      if (host) {
+        const warn = document.createElement('div');
+        warn.className = 'info-text';
+        warn.style.marginTop = '0.6rem';
+        warn.style.padding = '0.55rem 0.7rem';
+        warn.style.border = '1px solid var(--border)';
+        warn.style.borderRadius = '10px';
+        warn.style.background = 'rgba(255,255,255,0.06)';
+        warn.innerHTML = `
+          לא ניתן היה לטעון את הסשן המבוקש. ייתכן שנמחק מהמכשיר.
+          <div style="margin-top:0.5rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button type="button" class="btn ghost" id="goSessionsBtn">חזרה לסשנים</button>
+            <button type="button" class="btn" id="startNewBtn">סשן חדש</button>
+          </div>
+        `;
+        host.appendChild(warn);
+        const goSessionsBtn = document.getElementById('goSessionsBtn');
+        const startNewBtn = document.getElementById('startNewBtn');
+        if (goSessionsBtn) goSessionsBtn.addEventListener('click', () => {
+          window.parent?.postMessage?.({ type: 'planner_open_sessions' }, window.location.origin);
+        });
+        if (startNewBtn) startNewBtn.addEventListener('click', () => {
+          window.parent?.postMessage?.({ type: 'planner_open_new' }, window.location.origin);
+        });
+      }
     }
   }
   restoreDynamicRowsFromState();
@@ -958,5 +1172,14 @@ function init(){
     }, 200);
   }
   window.addEventListener('beforeunload', saveActiveSession);
+  window.addEventListener('message', (e) => {
+    if (e.origin !== window.location.origin) return;
+    const data = e && e.data ? e.data : null;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === 'planner_request_save') {
+      saveActiveSession();
+      window.parent?.postMessage?.({ type: 'planner_session_finished' }, window.location.origin);
+    }
+  });
 }
 document.addEventListener('DOMContentLoaded', init);
