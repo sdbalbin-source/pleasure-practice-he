@@ -143,11 +143,26 @@
       border: 1px solid var(--border);
       overflow: hidden;
       background: #000;
+      position: relative;
     }
     iframe {
       width: 100%; height: 100%;
       border: 0; background: #000;
     }
+    .embed-status {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      background: rgba(6, 5, 12, 0.88);
+      color: #ddd8eb;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .embed-status.hidden { display: none; }
     .panel {
       border: 1px solid var(--border);
       background: var(--panel);
@@ -239,6 +254,8 @@
             <p><strong>פרטיות</strong><br>הנתונים נשמרים מקומית בדפדפן/מכשיר שלך כברירת מחדל. אם משתמשים במכשיר משותף - מומלץ למחוק מידע מקומי אחרי שימוש.</p>
             <div class="utility-row" style="justify-content:flex-start; margin:0.8rem 0 0;">
               <button class="secondary-btn" onclick="clearHebrewLocalData()">ניקוי מידע מקומי</button>
+              <button class="secondary-btn" onclick="clearPlannerLocalData()">ניקוי נתוני מצפן</button>
+              <button class="secondary-btn" onclick="clearHypnoLocalData()">ניקוי נתוני היפנו</button>
             </div>
             <p class="muted">השפה העיצובית נשמרת זהה לגרסה האנגלית: רקע ספירלי, זכוכית רכה, טיפוגרפיה אלגנטית ומבנה מודולרי.</p>
           </div>
@@ -259,6 +276,7 @@
       document.getElementById('app').innerHTML = screens.archetypes;
     }
     function renderEmbeddedModule(title, src, iframeTitle, extraAttrs = '') {
+      const frameId = `frame-${Math.random().toString(36).slice(2, 8)}`;
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
@@ -266,10 +284,12 @@
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
-            <iframe src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
+            <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
+            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
+      wireEmbedFrame(frameId, src);
     }
     function openHypno() {
       renderEmbeddedModule('דפוסי שפה היפנוטיים', './דפוסי שפה עברית/index.html', 'דפוסי שפה עברית');
@@ -377,6 +397,39 @@
       ];
       keys.forEach(k => localStorage.removeItem(k));
       alert('המידע המקומי של המודול העברי נוקה.');
+    }
+
+    function clearPlannerLocalData() {
+      const keys = ['planner_sessions_v1', 'scene_planner_sessions_v1'];
+      keys.forEach(k => localStorage.removeItem(k));
+      alert('נתוני מצפן התשוקות נוקו.');
+    }
+
+    function clearHypnoLocalData() {
+      const keys = ['he_favorites_v4', 'he_recordings_v4'];
+      keys.forEach(k => localStorage.removeItem(k));
+      alert('נתוני דפוסי השפה נוקו.');
+    }
+
+    function wireEmbedFrame(frameId, src) {
+      const frame = document.getElementById(frameId);
+      const status = document.getElementById(`${frameId}-status`);
+      if (!frame || !status) return;
+      let settled = false;
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        status.innerHTML = `המודול נטען יותר מהרגיל.<br>אם המסך נשאר ריק, חזרו למסך הבית ונסו שוב.<br><small>${src}</small>`;
+      }, 5000);
+      frame.addEventListener('load', () => {
+        settled = true;
+        clearTimeout(timeout);
+        status.classList.add('hidden');
+      });
+      frame.addEventListener('error', () => {
+        settled = true;
+        clearTimeout(timeout);
+        status.innerHTML = `לא ניתן לטעון את המודול כרגע.<br><small>${src}</small>`;
+      });
     }
 
     renderHome();
