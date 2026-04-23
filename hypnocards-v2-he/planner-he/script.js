@@ -723,14 +723,24 @@ function createActivityRow(groupKey, item){
   bMaybe.addEventListener('click', ()=>{ setActive(bMaybe); setStatus('maybe'); sliderWrap.classList.remove('disabled'); });
   bNo.addEventListener('click', ()=>{ setActive(bNo); setStatus('no'); sliderWrap.classList.add('disabled'); slider.value='0'; sval.textContent='0/10'; (state.activities[groupKey][item.id]||{}).intensity=0; });
 
+  function applyStatusFromSliderValue(){
+    const numeric = parseInt(slider.value, 10) || 0;
+    sliderWrap.classList.remove('disabled');
+    if (numeric <= 4) {
+      setActive(bMaybe);
+      setStatus('maybe');
+    } else {
+      setActive(bYes);
+      setStatus('yes');
+    }
+  }
+  slider.addEventListener('pointerdown', ()=>{
+    applyStatusFromSliderValue();
+  });
   slider.addEventListener('input', ()=>{
     sval.textContent = `${slider.value}/10`;
     const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.he});
-    if (!entry.status || entry.status === 'no') {
-      setActive(bYes);
-      setStatus('yes');
-      sliderWrap.classList.remove('disabled');
-    }
+    applyStatusFromSliderValue();
     entry.intensity = parseInt(slider.value,10);
   });
 
