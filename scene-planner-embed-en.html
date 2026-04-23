@@ -2253,21 +2253,24 @@ label,
         (state.activities[groupKey][item.id]||{}).intensity=0;
       });
 
-      slider.addEventListener('pointerdown', ()=>{
+      function applyStatusFromSliderValue() {
+        const numeric = parseInt(slider.value, 10) || 0;
         if (sliderWrap.classList.contains('disabled')) {
           sliderWrap.classList.remove('disabled');
+        }
+        if (numeric <= 4) {
+          setActive(bMaybe);
+          setStatus('maybe');
+        } else {
           setActive(bYes);
           setStatus('yes');
         }
+      }
+      slider.addEventListener('pointerdown', ()=>{
+        applyStatusFromSliderValue();
       });
       slider.addEventListener('input', ()=>{
-        if (sliderWrap.classList.contains('disabled')) {
-          sliderWrap.classList.remove('disabled');
-        }
-        if (!bYes.classList.contains('active')) {
-          setActive(bYes);
-          setStatus('yes');
-        }
+        applyStatusFromSliderValue();
         sval.textContent = `${slider.value}/10`;
         const entry = state.activities[groupKey][item.id] || (state.activities[groupKey][item.id]={status:null,intensity:0,name:item.en});
         entry.intensity = parseInt(slider.value,10);
