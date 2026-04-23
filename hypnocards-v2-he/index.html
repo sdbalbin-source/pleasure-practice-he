@@ -347,6 +347,7 @@
       await runDiagnostics(false);
     }
     function renderEmbeddedModule(title, src, iframeTitle, extraAttrs = '') {
+      const resolvedSrc = resolveModulePath(src);
       const frameId = `frame-${Math.random().toString(36).slice(2, 8)}`;
       document.getElementById('app').innerHTML = `
         <div class="screen">
@@ -355,12 +356,24 @@
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
-            <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
+            <iframe id="${frameId}" src="${resolvedSrc}" title="${iframeTitle}" ${extraAttrs}></iframe>
             <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
-      wireEmbedFrame(frameId, src);
+      wireEmbedFrame(frameId, resolvedSrc);
+    }
+    function resolveModulePath(relativePath) {
+      const raw = String(relativePath || '').trim();
+      if (!raw) return raw;
+      if (/^(https?:)?\/\//.test(raw) || raw.startsWith('/')) return raw;
+      const normalized = raw.replace(/^\.?\//, '');
+      const marker = '/hypnocards-v2-he/';
+      const path = window.location.pathname || '/';
+      const base = path.includes(marker)
+        ? path.slice(0, path.indexOf(marker) + marker.length)
+        : marker;
+      return `${base}${normalized}`;
     }
     function openHypno() {
       renderEmbeddedModule('דפוסי שפה היפנוטיים', './דפוסי שפה עברית/index.html', 'דפוסי שפה עברית');
@@ -607,7 +620,7 @@
       }, 180);
     }
     function renderPlannerEmbed(sessionId, startChapter, autoShare, returnTo) {
-      const plannerBase = './%D7%9E%D7%A6%D7%A4%D7%9F%20%D7%94%D7%AA%D7%A9%D7%95%D7%A7%D7%95%D7%AA/index.html';
+      const plannerBase = resolveModulePath('%D7%9E%D7%A6%D7%A4%D7%9F%20%D7%94%D7%AA%D7%A9%D7%95%D7%A7%D7%95%D7%AA/index.html');
       const plannerSrc = `${plannerBase}${sessionId || startChapter || autoShare ? '?' : ''}${sessionId ? `sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `${sessionId ? '&' : ''}startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `${sessionId || startChapter ? '&' : ''}autoShare=${encodeURIComponent(autoShare)}` : ''}`;
       document.getElementById('app').innerHTML = `
         <div class="screen">
