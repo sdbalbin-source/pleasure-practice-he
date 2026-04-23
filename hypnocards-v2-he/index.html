@@ -487,7 +487,8 @@
       `;
     }
     function openPlannerNewSession() {
-      renderPlannerEmbed(null, null, null, 'home');
+      const sid = `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      renderPlannerEmbed('new', sid, null, null, 'home');
     }
     function renderPlannerSessions() {
       const sessions = listPlannerSessions();
@@ -546,7 +547,7 @@
         renderPlannerSessions();
         return;
       }
-      renderPlannerEmbed(sessionId, null, null, 'sessions');
+      renderPlannerEmbed('existing', sessionId, null, null, 'sessions');
     }
     function openPlannerSummary(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
@@ -554,7 +555,7 @@
         renderPlannerSessions();
         return;
       }
-      renderPlannerEmbed(sessionId, 'chapter-8', null, 'sessions');
+      renderPlannerEmbed('existing', sessionId, 'chapter-8', null, 'sessions');
     }
     function sharePlannerSessionPdf(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
@@ -562,7 +563,7 @@
         renderPlannerSessions();
         return;
       }
-      renderPlannerEmbed(sessionId, 'chapter-8', 'pdf', 'sessions');
+      renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
     }
     function renamePlannerSession(sessionId) {
       const rows = listPlannerSessions();
@@ -608,14 +609,15 @@
         plannerBackTarget = null;
       }, 180);
     }
-    function renderPlannerEmbed(sessionId, startChapter, autoShare, returnTo) {
+    function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
       const plannerBase = './מצפן התשוקות/index.html';
       const plannerSrc = `${plannerBase}?v=${encodeURIComponent(SW_BUILD)}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}`;
+      const subtitle = mode === 'new' ? 'סשן הסכמות חדש' : 'מצפן התשוקות';
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
             <button class="back-btn" onclick="backFromPlanner('${returnTo === 'sessions' ? 'sessions' : 'home'}')">←</button>
-            <h2 class="screen-title">מצפן התשוקות</h2>
+            <h2 class="screen-title">${subtitle}</h2>
           </div>
           <div class="frame-wrap">
             <iframe id="plannerEmbed" src="${plannerSrc}" title="מצפן התשוקות" allow="web-share"></iframe>
