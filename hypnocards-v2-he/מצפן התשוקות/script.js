@@ -18,6 +18,7 @@ const state = {
   activities:{}
 };
 const STORAGE_KEY = 'planner_sessions_v1';
+const SESSION_SCHEMA_VERSION = 1;
 const urlParams = new URLSearchParams(window.location.search);
 const sessionIdFromUrl = urlParams.get('sessionId') || '';
 const startChapterFromUrl = urlParams.get('startChapter') || '';
@@ -88,6 +89,16 @@ function mergeStateFromSaved(saved){
   if (saved.text && typeof saved.text === 'object') Object.assign(state.text, saved.text);
   if (saved.sets && typeof saved.sets === 'object') Object.assign(state.sets, saved.sets);
   if (saved.activities && typeof saved.activities === 'object') state.activities = saved.activities;
+  // Defensive normalization for older/partial session payloads.
+  if (!Array.isArray(state.session.pronouns)) state.session.pronouns = [];
+  if (!Number.isFinite(state.session.duration)) state.session.duration = 90;
+  ['nuditySelf','nudityPartner','marksPolicy','photoPolicy'].forEach(k => {
+    if (!Array.isArray(state.safety[k])) state.safety[k] = [];
+  });
+  ['roleplayScenes','domLanguage','nicknamesSub','subLanguage','titlesDom','aftercareNeeds','aftercareDuration','postSession'].forEach(k => {
+    if (!Array.isArray(state.sets[k])) state.sets[k] = [];
+  });
+  if (!state.activities || typeof state.activities !== 'object') state.activities = {};
 }
 function applyStateToUi(){
   $('#sessionName').value = state.session.sessionName || '';
@@ -117,6 +128,7 @@ function saveActiveSession(){
   const now = new Date().toISOString();
   const payload = {
     id: activeSessionId,
+    schemaVersion: SESSION_SCHEMA_VERSION,
     nickname: (state.session.nickname || '').trim(),
     createdAt: ix >= 0 ? sessions[ix].createdAt : now,
     updatedAt: now,
@@ -919,7 +931,7 @@ function init(){
   buildActivities();
   if (sessionIdFromUrl) {
     const saved = loadSessionById(sessionIdFromUrl);
-    if (saved && saved.plannerState) {
+    if (saved && saved.plannerState && (!saved.schemaVersion || Number(saved.schemaVersion) <= SESSION_SCHEMA_VERSION)) {
       activeSessionId = saved.id;
       mergeStateFromSaved(saved.plannerState);
     }
