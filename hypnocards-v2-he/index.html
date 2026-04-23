@@ -423,13 +423,19 @@
             <button class="back-btn" onclick="renderHome()">←</button>
             <h2 class="screen-title">מצפן התשוקות</h2>
           </div>
-          <div class="panel">
-            <div class="utility-row" style="justify-content:flex-start; margin:0;">
-              <button class="secondary-btn" onclick="openPlannerNewSession()">סשן הסכמות חדש</button>
-              <button class="secondary-btn" onclick="renderPlannerSessions()">הסשנים שלי (${savedSessionsCount})</button>
-              <button class="secondary-btn" onclick="renderPlannerAbout()">אודות מצפן התשוקות</button>
-            </div>
-            <p class="muted" style="margin-top:0.8rem;">בחרי מסלול עבודה: התחלה חדשה, פתיחת סשן שמור, או סקירה עקרונית לפני התחלה.</p>
+          <div class="actions" style="width:min(920px,100%);">
+            <button class="card-btn" onclick="openPlannerNewSession()">
+              סשן הסכמות חדש
+              <div class="card-note">פתיחת תהליך חדש לבירור גבולות, רצונות והסכמות לפני מפגש.</div>
+            </button>
+            <button class="card-btn" onclick="renderPlannerSessions()">
+              הסשנים שלי
+              <div class="card-note">צפייה, המשך עריכה ושיתוף של סשנים שנשמרו (${savedSessionsCount}).</div>
+            </button>
+            <button class="card-btn" onclick="renderPlannerAbout()">
+              אודות מצפן התשוקות
+              <div class="card-note">רקע מלא, עקרונות בטיחות והנחיות שימוש נכונות.</div>
+            </button>
           </div>
         </div>
       `;
@@ -439,23 +445,49 @@
         <div class="screen">
           <div class="back-row">
             <button class="back-btn" onclick="renderPlannerHome()">←</button>
-            <h2 class="screen-title">About Kinky Scene Planner</h2>
+            <h2 class="screen-title">אודות מצפן התשוקות</h2>
           </div>
           <div class="panel">
-            <p>המודול נועד לשיח מובנה על הסכמה, גבולות, עצימות ו־aftercare לפני סשן.</p>
-            <ul class="list">
-              <li>מגדירים כוונה, העדפות וגבולות לכל מפגש מחדש.</li>
-              <li>מסכמים בפורמט קריא לשיתוף עם פרטנר/ית.</li>
-              <li>פועלים בגישת consent-first עם אפשרות עצירה בכל רגע.</li>
-            </ul>
-            <p class="muted">שמרו על מילת ביטחון, תקשורת רציפה ועיבוד קצר אחרי תרגול.</p>
+            <p><strong>מצפן התשוקות</strong> הוא כלי עבודה לשיחה מינית־רגשית לפני סשן, ולא תחליף לשיקול דעת, תקשורת בזמן אמת או אחריות הדדית.</p>
+            <details open>
+              <summary><strong>למה להשתמש במצפן?</strong></summary>
+              <ul class="list">
+                <li>לייצר שיחה ברורה על גבולות, רצונות, עצימות ואפטר־קר לפני שמתחילים.</li>
+                <li>להפוך הסכמות לאסופה כתובה שאפשר לחזור אליה לפני/אחרי הסשן.</li>
+                <li>לזהות מראש נקודות רגישות, טריגרים, ומסלולי עצירה בטוחים.</li>
+              </ul>
+            </details>
+            <details>
+              <summary><strong>מסגרות הסכמה מומלצות</strong></summary>
+              <ul class="list">
+                <li><strong>SSC</strong> - בטוח, שפוי ובהסכמה.</li>
+                <li><strong>RACK</strong> - מודעות לסיכון והסכמה מודעת.</li>
+                <li><strong>FRIES</strong> - הסכמה חופשית, הפיכה, מודעת, נלהבת וספציפית.</li>
+              </ul>
+            </details>
+            <details>
+              <summary><strong>תקשורת ובטיחות בזמן סשן</strong></summary>
+              <ul class="list">
+                <li>הגדירו מילת ביטחון ומחוות עצירה לפני כל משחק.</li>
+                <li>תקשרו תוך כדי - גם כש״הכול נראה בסדר״.</li>
+                <li>אפשר לשנות, לעצור או למשוך הסכמה בכל שלב.</li>
+              </ul>
+            </details>
+            <details>
+              <summary><strong>מה חשוב לזכור לגבי נתונים ופרטיות</strong></summary>
+              <ul class="list">
+                <li>הנתונים נשמרים מקומית בדפדפן של המכשיר הנוכחי.</li>
+                <li>במכשיר משותף מומלץ למחוק נתונים בסיום.</li>
+                <li>שיתוף PDF/קישור הוא באחריות המשתמש/ת בלבד.</li>
+              </ul>
+            </details>
+            <p class="muted">הסכמה היא תהליך מתמשך - לא אירוע חד־פעמי. מומלץ לבצע צ׳ק־אין גם במהלך הסשן וגם אחריו.</p>
           </div>
         </div>
       `;
     }
     function openPlannerNewSession() {
-      const sid = `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      renderPlannerEmbed(sid, null, null, 'home');
+      renderPlannerEmbed(null, null, null, 'home');
     }
     function renderPlannerSessions() {
       const sessions = listPlannerSessions();
