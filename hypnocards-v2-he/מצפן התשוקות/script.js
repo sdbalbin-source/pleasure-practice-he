@@ -1,6 +1,6 @@
 /* ========== STATE ========== */
 const state = {
-  session: { nickname:"", role:null, duration:90, pronouns:[] },
+  session: { sessionName:"", nickname:"", role:null, duration:90, pronouns:[] },
   safety: {
     trafficLight:false, safeword:"", gesture:"",
     nuditySelf:[], nudityPartner:[],
@@ -90,6 +90,7 @@ function mergeStateFromSaved(saved){
   if (saved.activities && typeof saved.activities === 'object') state.activities = saved.activities;
 }
 function applyStateToUi(){
+  $('#sessionName').value = state.session.sessionName || '';
   $('#nickname').value = state.session.nickname || '';
   $('#duration').value = Number.isFinite(state.session.duration) ? state.session.duration : 90;
   $('#trafficLightChk').checked = !!state.safety.trafficLight;
@@ -197,6 +198,7 @@ function setupInfoButtons(){
 
 /* ========== BASIC INPUTS & SLIDERS ========== */
 function bindBasicInputs(){
+  $('#sessionName').addEventListener('input', e => state.session.sessionName = e.target.value.trim());
   $('#nickname').addEventListener('input', e => state.session.nickname = e.target.value.trim());
   $('#duration').addEventListener('input', e => state.session.duration = parseInt(e.target.value||'0',10));
 
@@ -631,6 +633,7 @@ function setupRefinements(){
 let sortMode = 'alpha';
 function renderSummary(){
   // Top session box
+  $('#sumSessionName').textContent  = state.session.sessionName || '—';
   $('#sumNickname').textContent     = state.session.nickname || '—';
   $('#sumRole').textContent         = state.session.role ? ({dom:'דום',sub:'סאב','switch':'סוויץ׳'}[state.session.role]) : '—';
   $('#sumDuration').textContent     = state.session.duration ? `${state.session.duration} דק׳` : '—';

@@ -44,6 +44,14 @@
         </h2>
 
         <div class="form-group">
+          <label class="bilingual-label" for="sessionName">
+            <span class="lang-he"><strong>כינוי לסשן</strong></span>
+            <span class="lang-en">Session Name</span>
+          </label>
+          <input id="sessionName" class="text-input" type="text" placeholder="שם קצר לסשן שיופיע בסיכום..." />
+        </div>
+
+        <div class="form-group">
           <label class="bilingual-label" for="nickname">
             <span class="lang-he"><strong>שם/כינוי שלך לסשן</strong></span>
             <span class="lang-en">Your Name/Nickname</span>
@@ -703,6 +711,7 @@
         <!-- Top session box -->
         <div class="session-box">
           <div class="session-col">
+            <div class="row"><span class="lbl">שם סשן:</span> <span id="sumSessionName">—</span></div>
             <div class="row"><span class="lbl">כינוי:</span> <span id="sumNickname">—</span></div>
             <div class="row"><span class="lbl">תפקיד | Role:</span> <span id="sumRole">—</span></div>
             <div class="row"><span class="lbl">⏳ משך הסשן:</span> <span id="sumDuration">—</span></div>
