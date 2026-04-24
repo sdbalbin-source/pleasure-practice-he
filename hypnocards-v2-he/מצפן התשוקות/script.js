@@ -1089,94 +1089,92 @@ function setupSummaryControls(){
 }
 
 /* ========== SIGNATURE PAD ========== */
-function initializeSignaturePad() {
+function initializeSignaturePad(forceResize = false) {
   const canvas = document.getElementById('signatureCanvas');
   if (!canvas) return;
-  const clearButton = document.getElementById('clearSignatureBtn');
   const ctx = canvas.getContext('2d');
-  let isDrawing = false;
+  canvas.style.touchAction = 'none';
+  const statePad = (canvas.__padState ||= { drawing:false, bound:false });
 
-  function paintConfig() {
-    ctx.strokeStyle = 'var(--primary)';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }
-  function redrawSavedSignature() {
-    const dataUrl = (state.consent && state.consent.signatureDataUrl) || '';
-    if (!dataUrl) return;
+  const drawSignatureFromState = () => {
+    const src = String(state.consent.signatureDataUrl || '').trim();
+    if (!src) return;
     const img = new Image();
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      paintConfig();
+      ctx.drawImage(img, 0, 0, canvas.clientWidth || canvas.width, canvas.clientHeight || canvas.height);
     };
-    img.src = dataUrl;
-  }
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    paintConfig();
-    redrawSavedSignature();
-  }
-  function getPoint(event) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = (event.touches && event.touches[0]) || (event.changedTouches && event.changedTouches[0]) || null;
-    const clientX = touch ? touch.clientX : event.clientX;
-    const clientY = touch ? touch.clientY : event.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-  function persistSignature() {
+    img.src = src;
+  };
+  const persistSignatureToState = () => {
     try {
       state.consent.signatureDataUrl = canvas.toDataURL('image/png');
-    } catch {
-      state.consent.signatureDataUrl = '';
-    }
-  }
-  function startDrawing(event) {
-    event.preventDefault();
-    if (typeof canvas.setPointerCapture === 'function' && event.pointerId != null) {
-      try { canvas.setPointerCapture(event.pointerId); } catch {}
-    }
-    isDrawing = true;
-    const p = getPoint(event);
+    } catch (_) {}
+  };
+  const resize = (force = false) => {
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    const w = canvas.clientWidth || canvas.parentElement.clientWidth || 600;
+    const h = canvas.clientHeight || 180;
+    if (!force && canvas.width === Math.floor(w*dpr) && canvas.height === Math.floor(h*dpr)) return;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#ffffff';
+    drawSignatureFromState();
+  };
+  resize(forceResize);
+
+  const pos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+    const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? 0;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+  const start = (e) => {
+    e.preventDefault();
+    const p = pos(e);
+    statePad.drawing = true;
     ctx.beginPath();
     ctx.moveTo(p.x, p.y);
-  }
-  function stopDrawing() {
-    if (!isDrawing) return;
-    isDrawing = false;
-    ctx.beginPath();
-    persistSignature();
-  }
-  function draw(event) {
-    if (!isDrawing) return;
-    event.preventDefault();
-    const p = getPoint(event);
+    canvas.setPointerCapture?.(e.pointerId || 0);
+  };
+  const move = (e) => {
+    if (!statePad.drawing) return;
+    e.preventDefault();
+    const p = pos(e);
     ctx.lineTo(p.x, p.y);
     ctx.stroke();
+  };
+  const end = (e) => {
+    statePad.drawing = false;
+    canvas.releasePointerCapture?.(e.pointerId || 0);
+    persistSignatureToState();
+  };
+
+  if (!statePad.bound) {
+    canvas.addEventListener('pointerdown', start);
+    canvas.addEventListener('pointermove', move);
+    canvas.addEventListener('pointerup', end);
+    canvas.addEventListener('pointerleave', end);
+    statePad.bound = true;
   }
 
-  window.addEventListener('resize', resizeCanvas);
-  canvas.addEventListener('pointerdown', startDrawing);
-  canvas.addEventListener('pointermove', draw);
-  canvas.addEventListener('pointerup', stopDrawing);
-  canvas.addEventListener('pointercancel', stopDrawing);
-  canvas.addEventListener('pointerleave', stopDrawing);
-  canvas.addEventListener('mousedown', startDrawing);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', stopDrawing);
-  canvas.addEventListener('touchstart', startDrawing, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', stopDrawing);
-  clearButton?.addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    state.consent.signatureDataUrl = '';
-  });
-  resizeCanvas();
+  const clearBtn = document.getElementById('clearSignatureBtn');
+  if (clearBtn && !clearBtn.__bound) {
+    clearBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      state.consent.signatureDataUrl = '';
+    });
+    clearBtn.__bound = true;
+  }
+
+  if (!canvas.__resizeBound) {
+    window.addEventListener('resize', () => initializeSignaturePad(true));
+    canvas.__resizeBound = true;
+  }
 }
 // Call the function to set up the signature pad
 // initializeSignaturePad(); -> נקרא מתוך init()
@@ -1213,6 +1211,13 @@ function setupTopActions(){
       saveActiveSession();
       const url = encodeURIComponent(buildSummaryShareUrl());
       window.open(`https://wa.me/?text=${url}`, '_blank');
+    });
+  });
+  const downloadPdfBtn = $('#downloadPdf');
+  if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', ()=> {
+    runWithBusyState(downloadPdfBtn, 'מכין PDF...', 'לא ניתן היה להכין הדפסה כרגע.', () => {
+      saveActiveSession();
+      window.print();
     });
   });
   const finishBtn = $('#finishSessionBottom');
