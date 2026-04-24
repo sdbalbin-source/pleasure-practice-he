@@ -662,10 +662,9 @@
             </div>
             <div class="grid grid-cols-2 gap-2">
               <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">פתיחה</button>
-              <button onclick="openPlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition">עריכה</button>
               <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">שינוי שם</button>
-              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition">מחיקה</button>
-              <button onclick="sharePlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">שיתוף PDF</button>
+              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">הורדה PDF</button>
+              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition">שיתוף</button>
             </div>
           </div>
         `).join('')
@@ -686,14 +685,6 @@
     function getPlannerSessionById(sessionId) {
       return listPlannerSessions().find(s => s && s.id === sessionId) || null;
     }
-    function openPlannerSession(sessionId) {
-      if (!getPlannerSessionById(sessionId)) {
-        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
-        renderPlannerSessions();
-        return;
-      }
-      renderPlannerEmbed('existing', sessionId, null, null, 'sessions');
-    }
     function openPlannerSummary(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
         alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
@@ -702,13 +693,23 @@
       }
       renderPlannerEmbed('existing', sessionId, 'chapter-8', null, 'sessions');
     }
-    function sharePlannerSessionPdf(sessionId) {
+    function downloadPlannerSessionPdf(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
         alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
         renderPlannerSessions();
         return;
       }
       renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
+    }
+    function sharePlannerSessionSummary(sessionId) {
+      if (!getPlannerSessionById(sessionId)) {
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        renderPlannerSessions();
+        return;
+      }
+      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing`;
+      const encoded = encodeURIComponent(summaryUrl);
+      window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
     }
     function renamePlannerSession(sessionId) {
       const rows = listPlannerSessions();
@@ -762,7 +763,7 @@
     }
     function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
       const app = document.getElementById('app');
-      const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}`;
+      const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}${mode ? `&mode=${encodeURIComponent(mode)}` : ''}`;
       const subtitle = mode === 'new' ? 'סשן הסכמות חדש' : 'מצפן התשוקות';
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">

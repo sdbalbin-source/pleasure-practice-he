@@ -24,6 +24,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const sessionIdFromUrl = urlParams.get('sessionId') || '';
 const startChapterFromUrl = urlParams.get('startChapter') || '';
 const autoShareFromUrl = urlParams.get('autoShare') || '';
+const modeFromUrl = urlParams.get('mode') || '';
 let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /* ========== HELPERS ========== */
@@ -1162,6 +1163,12 @@ function initializeSignaturePad() {
   canvas.addEventListener('pointerup', stopDrawing);
   canvas.addEventListener('pointercancel', stopDrawing);
   canvas.addEventListener('pointerleave', stopDrawing);
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDrawing);
+  canvas.addEventListener('touchstart', startDrawing, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDrawing);
   clearButton?.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     state.consent.signatureDataUrl = '';
@@ -1177,6 +1184,7 @@ function setupTopActions(){
     const base = new URL('scene-planner-embed-he.html', window.location.href);
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
+    base.searchParams.set('mode', 'existing');
     return base.toString();
   }
   function runWithBusyState(button, busyText, errorText, work){
@@ -1196,25 +1204,6 @@ function setupTopActions(){
         button.textContent = original;
       });
   }
-  const shareLinkBtn = $('#shareLinkBtn');
-  if (shareLinkBtn) shareLinkBtn.addEventListener('click', async ()=>{
-    const url = location.href;
-    try{
-      if (navigator.share){ await navigator.share({title:document.title, url}); }
-      else { await navigator.clipboard.writeText(url); alert('קישור הועתק!'); }
-    }catch(e){
-      console.error('[planner-he] share link failed', e);
-      alert('לא ניתן היה לשתף קישור כרגע.');
-    }
-  });
-  const copyBtn = $('#copyLink');
-  if (copyBtn) copyBtn.addEventListener('click', async ()=>{
-    await runWithBusyState(copyBtn, 'מעתיק...', 'לא ניתן היה להעתיק קישור כרגע.', async () => {
-      saveActiveSession();
-      await navigator.clipboard.writeText(buildSummaryShareUrl());
-      alert('קישור הועתק!');
-    });
-  });
   const whatsappBtn = $('#shareWhatsApp');
   if (whatsappBtn) whatsappBtn.addEventListener('click', ()=>{
     runWithBusyState(whatsappBtn, 'פותח שיתוף...', 'לא ניתן היה לפתוח שיתוף ל-WhatsApp.', () => {
@@ -1223,19 +1212,11 @@ function setupTopActions(){
       window.open(`https://wa.me/?text=${url}`, '_blank');
     });
   });
-  const printBtn = $('#printPdf');
-  if (printBtn) printBtn.addEventListener('click', ()=> {
-    runWithBusyState(printBtn, 'מכין PDF...', 'לא ניתן היה להכין הדפסה כרגע.', () => {
-      saveActiveSession();
-      window.print();
-    });
-  });
-  const saveBtn = $('#saveSession');
-  if (saveBtn) saveBtn.addEventListener('click', ()=> {
-    runWithBusyState(saveBtn, 'שומר...', 'השמירה נכשלה. נסו שוב.', () => {
+  const finishBtn = $('#finishSessionBottom');
+  if (finishBtn) finishBtn.addEventListener('click', ()=> {
+    runWithBusyState(finishBtn, 'שומר ומסיים...', 'השמירה נכשלה. נסו שוב.', () => {
       saveActiveSession();
       window.parent?.postMessage?.({ type: 'planner_session_finished', sessionId: activeSessionId }, window.location.origin);
-      alert('הסשן נשמר.');
     });
   });
 }
@@ -1264,32 +1245,35 @@ function init(){
       activeSessionId = saved.id;
       mergeStateFromSaved(saved.plannerState);
     } else {
-      console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl);
-      const host = document.querySelector('.site-header');
-      if (host) {
-        const warn = document.createElement('div');
-        warn.className = 'info-text';
-        warn.style.marginTop = '0.6rem';
-        warn.style.padding = '0.55rem 0.7rem';
-        warn.style.border = '1px solid var(--border)';
-        warn.style.borderRadius = '10px';
-        warn.style.background = 'rgba(255,255,255,0.06)';
-        warn.innerHTML = `
-          לא ניתן היה לטעון את הסשן המבוקש. ייתכן שנמחק מהמכשיר.
-          <div style="margin-top:0.5rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <button type="button" class="btn ghost" id="goSessionsBtn">חזרה לסשנים</button>
-            <button type="button" class="btn" id="startNewBtn">סשן חדש</button>
-          </div>
-        `;
-        host.appendChild(warn);
-        const goSessionsBtn = document.getElementById('goSessionsBtn');
-        const startNewBtn = document.getElementById('startNewBtn');
-        if (goSessionsBtn) goSessionsBtn.addEventListener('click', () => {
-          window.parent?.postMessage?.({ type: 'planner_open_sessions' }, window.location.origin);
-        });
-        if (startNewBtn) startNewBtn.addEventListener('click', () => {
-          window.parent?.postMessage?.({ type: 'planner_open_new' }, window.location.origin);
-        });
+      const isExistingSessionFlow = modeFromUrl === 'existing';
+      if (isExistingSessionFlow) {
+        console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl);
+        const host = document.querySelector('.site-header');
+        if (host) {
+          const warn = document.createElement('div');
+          warn.className = 'info-text';
+          warn.style.marginTop = '0.6rem';
+          warn.style.padding = '0.55rem 0.7rem';
+          warn.style.border = '1px solid var(--border)';
+          warn.style.borderRadius = '10px';
+          warn.style.background = 'rgba(255,255,255,0.06)';
+          warn.innerHTML = `
+            לא ניתן היה לטעון את הסשן המבוקש. ייתכן שנמחק מהמכשיר.
+            <div style="margin-top:0.5rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button type="button" class="btn ghost" id="goSessionsBtn">חזרה לסשנים</button>
+              <button type="button" class="btn" id="startNewBtn">סשן חדש</button>
+            </div>
+          `;
+          host.appendChild(warn);
+          const goSessionsBtn = document.getElementById('goSessionsBtn');
+          const startNewBtn = document.getElementById('startNewBtn');
+          if (goSessionsBtn) goSessionsBtn.addEventListener('click', () => {
+            window.parent?.postMessage?.({ type: 'planner_open_sessions' }, window.location.origin);
+          });
+          if (startNewBtn) startNewBtn.addEventListener('click', () => {
+            window.parent?.postMessage?.({ type: 'planner_open_new' }, window.location.origin);
+          });
+        }
       }
     }
   }
@@ -1308,10 +1292,7 @@ function init(){
   if (autoShareFromUrl === 'pdf') {
     setTimeout(() => {
       showChapter('chapter-8');
-      setTimeout(() => {
-        const btn = document.getElementById('printPdf');
-        if (btn) btn.click();
-      }, 350);
+      setTimeout(() => window.print(), 350);
     }, 200);
   }
   window.addEventListener('beforeunload', saveActiveSession);

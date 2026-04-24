@@ -2269,6 +2269,12 @@ label,
       slider.addEventListener('pointerdown', ()=>{
         applyStatusFromSliderValue();
       });
+      slider.addEventListener('mousedown', ()=>{
+        applyStatusFromSliderValue();
+      });
+      slider.addEventListener('touchstart', ()=>{
+        applyStatusFromSliderValue();
+      }, { passive: true });
       slider.addEventListener('input', ()=>{
         applyStatusFromSliderValue();
         sval.textContent = `${slider.value}/10`;

@@ -14,6 +14,11 @@
 - [x] Confirm shell back uses `planner_request_save` handshake before exit.
 - [x] Fix direct slider drag behavior from initial state.
 - [x] Fix signature drawing reliability on mobile and desktop.
+- [x] Prevent false missing-session warning in new-session flow.
+- [x] Simplify summary-end actions to requested set.
+- [x] Move "Save & Finish Session" to chapter-8 bottom nav position.
+- [x] Update "My Sessions" actions to Open/Rename/Download PDF/Share link.
+- [x] Verify slider threshold behavior parity in English planner.
 - [ ] Re-validate live deploy behavior on user device after push.
 
 ## Root Causes Found
