@@ -49,20 +49,7 @@
   </style>
 </head>
 <body>
-  <div class="app" id="app">
-    <div class="top">
-      <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
-      <h1>ארכיטיפים של עונג</h1>
-      <button class="btn" onclick="setView('draw')">למסך שליפה</button>
-    </div>
-    <div class="menu">
-      <button class="btn active" id="nav-draw" onclick="openShuffleDrawFromNav()">ערבוב ושליפה</button>
-      <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
-      <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
-      <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
-    </div>
-    <div class="view" id="view"></div>
-  </div>
+  <div class="app" id="app"></div>
   <div class="toast" id="toast"></div>
   <script>
     const SHUFFLE_MS = 1780;
@@ -81,6 +68,22 @@
     let pendingPoolIds = [];
     let currentView = 'draw';
     let activeCardId = '';
+    const SHELL_HTML = `
+      <div class="top">
+        <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
+        <h1>ארכיטיפים של עונג</h1>
+        <button class="btn" onclick="startRandomDraw()">למסך שליפה</button>
+      </div>
+      <div class="menu">
+        <button class="btn active" id="nav-draw" onclick="startRandomDraw()">ערבוב ושליפה</button>
+        <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
+        <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
+        <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
+      </div>
+      <div class="view" id="view"></div>
+    `;
+    function renderShellFrame(){ document.getElementById('app').innerHTML = SHELL_HTML; }
+    function ensureShell(){ if (!document.getElementById('view')) renderShellFrame(); }
     function setChromeVisible(visible){
       const top = document.querySelector('.top');
       const menu = document.querySelector('.menu');
@@ -117,6 +120,9 @@
       playShuffleThen(openSpread);
     }
     function openShuffleDrawFromNav(){
+      startRandomDraw();
+    }
+    function startRandomDraw(){
       startSpreadDraw(randomPool(), 'random');
     }
 
@@ -211,22 +217,23 @@
     }
 
     function renderDraw(){
+      ensureShell();
       setChromeVisible(true);
-      document.getElementById('view').innerHTML = `<div class="panel"><div class="meta">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div><button class="btn" onclick="startSpreadDraw(randomPool(),'random')">ערבוב ושליפה</button><div class="meta" style="margin-top:.6rem;">גודל חפיסה פעילה: ${randomPool().length} קלפים</div></div>`;
+      document.getElementById('view').innerHTML = `<div class="panel"><div class="meta">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div><button class="btn" onclick="startRandomDraw()">ערבוב ושליפה</button><div class="meta" style="margin-top:.6rem;">גודל חפיסה פעילה: ${randomPool().length} קלפים</div></div>`;
     }
     function renderCardView(cardId, fromView){
       const card = CARDS.find(c => String(c.id) === String(cardId));
       if (!card) { setView('draw'); return; }
       activeCardId = cardId;
-      setChromeVisible(false);
       const fav = favorites.has(cardId);
       const imgPath = IMAGE_MAP[cardId] ? String(IMAGE_MAP[cardId]).replace('./','') : '';
       const imageUrl = imgPath ? `./${imgPath}` : '';
-      const host = document.getElementById('view');
-      host.innerHTML = `
-        <div style="height:100%; overflow:auto; border:1px solid var(--border); border-radius:1rem; background:var(--panel); padding:.8rem;">
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div style="height:100%; overflow:auto; padding:1rem;">
+          <div style="max-width:960px; margin:0 auto; border:1px solid var(--border); border-radius:1rem; background:var(--panel); padding:.8rem;">
           <div style="display:flex; justify-content:space-between; gap:.5rem; margin-bottom:.6rem;">
-            <button class="btn" onclick="activeCardId=''; setView('${escapeHtml(fromView === 'custom' ? 'custom' : 'draw')}')">חזרה</button>
+            <button class="btn" onclick="activeCardId=''; renderShellFrame(); setView('${escapeHtml(fromView === 'custom' ? 'custom' : (fromView === 'all' ? 'all' : 'draw'))}')">חזרה</button>
             <button class="btn" onclick="toggleFavorite('${escapeHtml(cardId)}')">${fav ? '★ במועדפים' : '☆ הוספה למועדפים'}</button>
           </div>
           <div style="border:1px solid rgba(255,255,255,.14); border-radius:.9rem; overflow:hidden; margin-bottom:.7rem; background:rgba(255,255,255,.03);">
@@ -238,9 +245,11 @@
             </div>
           </div>
           <button class="btn" style="width:100%;" onclick="startSpreadDraw(${fromView === 'custom' ? 'customPool()' : 'randomPool()'}, '${escapeHtml(fromView || 'random')}')">שליפה נוספת</button>
+          </div>
         </div>`;
     }
     function renderCustom(){
+      ensureShell();
       setChromeVisible(true);
       const rs = realms();
       const row = (k,l,s) => { const active = selectedDeckKeys.includes(k); return `<button class="row" onclick="toggleDeckKey('${escapeHtml(k)}')"><span><strong>${escapeHtml(l)}</strong><br><small>${escapeHtml(s)}</small></span><small>${active ? '✓' : '□'}</small></button>`; };
@@ -248,16 +257,27 @@
     }
     function toggleDeckKey(k){ if (selectedDeckKeys.includes(k)) selectedDeckKeys = selectedDeckKeys.filter(x => x !== k); else selectedDeckKeys.push(k); saveState(); renderCustom(); }
     function renderAll(){
+      ensureShell();
       setChromeVisible(true);
       const grouped = {}; CARDS.forEach(c => { const r = String(c.realm||'ללא ממלכה'); (grouped[r] ||= []).push(c); });
       const html = Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'he')).map(r => `<div class="meta" style="margin:.6rem 0 .2rem;">${escapeHtml(r)}</div>${grouped[r].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'he')).map(c=>`<div class="row"><button style="background:transparent;border:0;color:inherit;flex:1;text-align:right;" onclick="renderCardView('${escapeHtml(c.id)}','all')">${escapeHtml(c.name||'')}</button><button class="btn" onclick="toggleFavorite('${escapeHtml(c.id)}')">${favorites.has(c.id)?'★':'☆'}</button></div>`).join('')}`).join('');
       document.getElementById('view').innerHTML = `<div class="panel">${html}</div>`;
     }
     function renderAbout(){
+      ensureShell();
       setChromeVisible(true);
       document.getElementById('view').innerHTML = `<div class="panel"><details class="about-acc" open><summary>אודות ארכיטיפים של עונג</summary><div class="about-body">${escapeHtml(ABOUT_COPY.notDisguise || 'הקלפים הם הזמנה לתרגול וחקירה.')}</div></details><details class="about-acc"><summary>איך להשתמש</summary><div class="about-body">${escapeHtml(ABOUT_COPY.howToUse || 'שליפה אקראית, חפיסה מותאמת או עיון בכל הקלפים.')}</div></details><details class="about-acc"><summary>הזמנה לתרגול</summary><div class="about-body">${escapeHtml(ABOUT_COPY.invitation || '')}</div></details></div>`;
     }
-    function setView(v){ currentView = v; ['draw','custom','all','about'].forEach(x => document.getElementById('nav-'+x).classList.toggle('active', x === v)); if (v==='draw') renderDraw(); else if (v==='custom') renderCustom(); else if (v==='all') renderAll(); else renderAbout(); saveState(); }
+    function setView(v){
+      ensureShell();
+      currentView = v;
+      ['draw','custom','all','about'].forEach(x => {
+        const btn = document.getElementById('nav-'+x);
+        if (btn) btn.classList.toggle('active', x === v);
+      });
+      if (v==='draw') renderDraw(); else if (v==='custom') renderCustom(); else if (v==='all') renderAll(); else renderAbout();
+      saveState();
+    }
 
     async function boot(){
       favorites = new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'));
@@ -273,6 +293,7 @@
       if (mapResp && mapResp.ok) { const m = await mapResp.json(); const rows = Array.isArray(m.images) ? m.images : []; IMAGE_MAP = rows.reduce((a,r) => { if (r && r.id && r.image) a[r.id] = r.image; return a; }, {}); }
       if (aboutResp && aboutResp.ok) ABOUT_COPY = await aboutResp.json();
       await resolveBack();
+      renderShellFrame();
       const initialView = autoplayShuffle
         ? 'draw'
         : (['draw','custom','all','about'].includes(requestedView)
