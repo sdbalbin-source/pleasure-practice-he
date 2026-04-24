@@ -24,10 +24,10 @@
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: "Assistant", "Segoe UI", sans-serif; }
-    .hypno-container {
+    .studio-bg-layer {
       position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000;
     }
-    .hypno-spiral {
+    .studio-spiral {
       position: absolute; top: 50%; left: 50%;
       width: 120vmax; height: 120vmax;
       transform-origin: center;
@@ -246,8 +246,8 @@
   </style>
 </head>
 <body>
-  <div class="hypno-container">
-    <svg class="hypno-spiral" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <div class="studio-bg-layer">
+    <svg class="studio-spiral" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
       <path fill="none" stroke="#2e1065" stroke-width="8" stroke-linecap="round"
             d="M100,100 m0,0 a4,4 0 0 1 4,4 a8,8 0 0 1 -8,8 a12,12 0 0 1 -12,-12 a16,16 0 0 1 16,-16
                a20,20 0 0 1 20,20 a24,24 0 0 1 -24,24 a28,28 0 0 1 -28,-28 a32,32 0 0 1 32,-32
@@ -275,16 +275,16 @@
               <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio הוא מרחב שקט לחקירה אירוטית מכוונת - מקום לגלות מה את/ה רוצה, למצוא לזה מילים מדויקות, ולעצב חוויות שמרגישות בטוחות, חיות ובאמת שלך.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">שלושה כלים, סטודיו אחד</h3>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">כלים בסטודיו</h3>
               <div class="space-y-4 text-gray-300 serif-font text-base leading-relaxed">
-                <p><span class="text-white font-bold">דפוסי שפה היפנוטיים</span><br>חבילת תרגול לטון, קצב וניסוח היפנוטי-אירוטי. למי שרוצה להרחיב את טווח השפה, להעמיק דמיון אירוטי, או לחקור מצבים מודרכים דרך מילים.</p>
-                <p><span class="text-white font-bold">ארכיטיפים של עונג</span><br>חבילת קלפים חזותית-סמלית לחקירה רגשית ואנרגטית. לזהות איזה ארכיטיפ של מצב רוח רצוי לך לגלם, להזמין או להבין - בעצמך או בדינמיקה עם פרטנר/ית.</p>
+                <p><span class="text-white font-bold">דפוסי שפה היפנוטיים</span><br>מודול בבנייה מחדש — התכנים נשמרים, המסלול במעטפת יחזור בהמשך.</p>
+                <p><span class="text-white font-bold">ארכיטיפים של עונג</span><br>מודול בבנייה מחדש — התכנים נשמרים, המסלול במעטפת יחזור בהמשך.</p>
                 <p><span class="text-white font-bold">מצפן התשוקות</span><br>מרחב מובנה להסכמות ותקשורת בין פרטנרים. לדייק רצונות, גבולות, עוצמה ואפטרקר לפני סשן, כדי להיכנס אליו בביטחון, בהירות ודאגה הדדית.</p>
               </div>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
               <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">על סשה</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">סשה בלבין הוא מחנך לאמנויות אירוטיות ויוצר Pleasure Practice Studio. העבודה שלו מחברת בין תשוקה, עומק והסכמה דרך כלים מעשיים שאפשר ליישם בחיים עצמם - לבד או יחד. הגישה משלבת שפה היפנוטית, דמיון ארכיטיפי ועיצוב תקשורת כדי לתמוך בחוויות אינטימיות מדויקות, בטוחות ומשמעותיות יותר.</p>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">סשה בלבין הוא מחנך לאמנויות אירוטיות ויוצר Pleasure Practice Studio. העבודה שלו מחברת בין תשוקה, עומק והסכמה דרך כלים מעשיים שאפשר ליישם בחיים עצמם - לבד או יחד. הגישה משלבת דמיון מודרך, ארכיטיפים ועיצוב תקשורת כדי לתמוך בחוויות אינטימיות מדויקות, בטוחות ומשמעותיות יותר.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
               <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">חיבור</h3>
@@ -309,72 +309,28 @@
       { id: 'shell', name: 'מעטפת עברית', path: './index.html' },
       { id: 'manifest', name: 'Manifest', path: './manifest.json' },
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
-      { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-utf8-mojibake-fix';
+    const SW_BUILD = '2026-04-25-he-strip-hypno-shell';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
-    const THEME_ORDER = ['Direct Suggestions', 'Invitations', 'Identity', 'Future Pace'];
-    const DEFAULT_CATEGORY_INFO = {};
-    const AppState = { cards: [], categories: [], themes: [], plannerSessions: [] };
-    let CATEGORY_INFO = DEFAULT_CATEGORY_INFO;
+    const AppState = { plannerSessions: [] };
     let deferredInstallPrompt = null;
     let currentSwReg = null;
     let diagnosticsCache = null;
     let plannerPendingReturnTo = null;
 
-    function mergeCategoryInfoMaps(defaults, incoming) {
-      return { ...(defaults || {}), ...(incoming || {}) };
-    }
-    function attachCategoryInfoToCards(cards) {
-      return Array.isArray(cards) ? cards.slice() : [];
-    }
-    function loadFromStorage() {
-      try {
-        const cachedCards = JSON.parse(localStorage.getItem('en_cards_data_v1') || '[]');
-        AppState.cards = Array.isArray(cachedCards) ? cachedCards : [];
-      } catch {
-        AppState.cards = [];
-      }
-      try {
-        const cachedCategoryInfo = JSON.parse(localStorage.getItem('en_category_info_v1') || '{}');
-        CATEGORY_INFO = cachedCategoryInfo && typeof cachedCategoryInfo === 'object' ? cachedCategoryInfo : DEFAULT_CATEGORY_INFO;
-      } catch {
-        CATEGORY_INFO = DEFAULT_CATEGORY_INFO;
-      }
-      AppState.themes = THEME_ORDER.slice();
-    }
     function renderWelcome(pushHistory = true) {
-      if (AppState.cards.length === 0) {
-        fetch('cards_data.json')
-          .then(r => r.json())
-          .then(data => {
-            AppState.cards = data.cards;
-            AppState.categories = data.categories;
-            CATEGORY_INFO = mergeCategoryInfoMaps(DEFAULT_CATEGORY_INFO, data.category_info || {});
-            AppState.cards = attachCategoryInfoToCards(AppState.cards, CATEGORY_INFO);
-            try { localStorage.setItem('en_category_info_v1', JSON.stringify(CATEGORY_INFO)); } catch (e) {}
-            try { localStorage.setItem('en_cards_data_v1', JSON.stringify(AppState.cards)); } catch (e) {}
-            AppState.themes = THEME_ORDER.slice();
-          })
-          .catch(() => {
-            loadFromStorage();
-          });
-      }
       document.getElementById('app').innerHTML = `
         <div class="flex flex-col items-center justify-center h-full p-6 text-center relative z-10">
           <div class="mb-8 relative">
             <div class="absolute inset-0 bg-purple-500 blur-3xl opacity-20 rounded-full animate-pulse"></div>
             <h1 class="text-5xl font-bold serif-font text-white mb-2 tracking-tight relative z-10">Pleasure Practice</h1>
             <h1 class="text-5xl font-bold serif-font text-purple-400 mb-4 tracking-tight relative z-10">Studio</h1>
-            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">שלושה כלים משולבים לתרגול</p>
+            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">מצפן התשוקות פעיל · מודולים נוספים בבנייה מחדש</p>
           </div>
 
-          <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            דפוסי שפה היפנוטיים
-          </button>
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             מצפן התשוקות
           </button>
@@ -409,7 +365,7 @@
             <h2 class="screen-title">מצב מערכת</h2>
           </div>
           <div class="panel">
-            <p>בדיקות זמינות מודולים וקבצי תשתית בריצה מקומית.</p>
+            <p>בדיקות זמינות לקבצי תשתית ולמצפן התשוקות בריצה מקומית.</p>
             <div class="utility-row" style="justify-content:flex-start;">
               <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
             </div>
@@ -419,87 +375,6 @@
         </div>
       `;
       await runDiagnostics(false);
-    }
-    function renderEmbeddedModule(title, src, iframeTitle, extraAttrs = '') {
-      const frameId = `frame-${Math.random().toString(36).slice(2, 8)}`;
-      document.getElementById('app').innerHTML = `
-        <div class="screen">
-          <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
-            <h2 class="screen-title">${title}</h2>
-          </div>
-          <div class="frame-wrap">
-            <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
-          </div>
-        </div>
-      `;
-      wireEmbedFrame(frameId, src);
-    }
-    function openHypno() {
-      renderEmbeddedModule('דפוסי שפה היפנוטיים', './דפוסי שפה עברית/index.html', 'דפוסי שפה עברית');
-      heShellSyncModuleQuery('hypno');
-    }
-    function listHypnoRecordings() {
-      try {
-        const raw = localStorage.getItem('he_recordings_v4');
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-    function renderModeSelect() {
-      const app = document.getElementById('app');
-      const recordingsCount = listHypnoRecordings().length;
-      app.innerHTML = `
-        <div class="flex flex-col h-full p-5 bg-black/10">
-          <div class="flex items-center justify-between mb-6 pt-3 gap-3">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font text-center">דפוסי שפה היפנוטיים</h2>
-            <div class="w-10"></div>
-          </div>
-          <div class="flex-1 min-h-0 flex flex-col justify-between">
-            <div class="grid gap-4">
-              <button onclick="startSession('all')" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה בסיסית</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">
-                  חבילה מאוזנת בלי נושאים מתקדמים, לתרגול שוטף.
-                </p>
-              </button>
-              <button onclick="renderCategorySelect()" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה מותאמת</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">בחירה לפי קטגוריות ממוקדות.</p>
-              </button>
-              <button onclick="renderRecordings()" class="glass-panel module-home-card p-4 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <div class="flex items-center justify-center gap-4">
-                  <div>
-                    <h3 class="text-lg font-bold text-white serif-font">ההקלטות שלי</h3>
-                    <p class="text-gray-400 text-xs text-center">${recordingsCount} סשנים שמורים</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div class="pt-3">
-              <button onclick="showHypnoAbout()" class="w-full py-3 rounded-2xl border border-purple-500/35 bg-black/40 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-                אודות דפוסי שפה היפנוטיים
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    function startSession(mode) {
-      openHypno();
-    }
-    function renderCategorySelect() {
-      openHypno();
-    }
-    function renderRecordings() {
-      openHypno();
-    }
-    function showHypnoAbout() {
-      openHypno();
     }
     function drawRandomArchetype() {}
     function renderArchetypeDeckBuilder() {}
@@ -973,82 +848,13 @@
       renderWelcome();
     }
 
-    function wireEmbedFrame(frameId, srcOrCandidates) {
-      const frame = document.getElementById(frameId);
-      const status = document.getElementById(`${frameId}-status`);
-      if (!frame || !status) return;
-      const srcCandidates = Array.isArray(srcOrCandidates) ? srcOrCandidates.filter(Boolean) : [srcOrCandidates].filter(Boolean);
-      if (!srcCandidates.length) return;
-      let currentIdx = 0;
-      let settled = false;
-      let timeout = 0;
-      const currentSrc = () => srcCandidates[Math.max(0, Math.min(currentIdx, srcCandidates.length - 1))];
-      const srcWithBust = () => {
-        const src = currentSrc();
-        const sep = src.includes('?') ? '&' : '?';
-        return `${src}${sep}retryTs=${Date.now()}`;
-      };
-      function tryNextCandidate() {
-        if (currentIdx >= srcCandidates.length - 1) return false;
-        currentIdx += 1;
-        frame.src = srcWithBust();
-        status.classList.remove('hidden');
-        status.textContent = 'טוען מודול...';
-        armWatchdog();
-        return true;
-      }
-      function showFallback(reason) {
-        if (tryNextCandidate()) return;
-        settled = false;
-        const offlineHint = navigator.onLine ? '' : '<br><strong>נראה שהמכשיר אופליין כרגע.</strong>';
-        const reasonText = reason === 'error'
-          ? 'אירעה שגיאה בטעינת המודול.'
-          : 'המודול נטען יותר מהרגיל.';
-        status.innerHTML = `
-          ${reasonText}<br>
-          אם המסך נשאר ריק, נסו טעינה מחדש.${offlineHint}
-          <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
-            <button class="secondary-btn" type="button" id="${frameId}-retry">טעינה מחדש</button>
-            <button class="secondary-btn" type="button" id="${frameId}-open">פתיחה בחלון נפרד</button>
-          </div>
-          <small style="display:block; margin-top:0.55rem; direction:ltr;">${currentSrc()}</small>
-        `;
-        const retryBtn = document.getElementById(`${frameId}-retry`);
-        const openBtn = document.getElementById(`${frameId}-open`);
-        if (retryBtn) retryBtn.addEventListener('click', () => {
-          status.classList.remove('hidden');
-          status.textContent = 'טוען מודול...';
-          armWatchdog();
-          frame.src = srcWithBust();
-        });
-        if (openBtn) openBtn.addEventListener('click', () => { window.open(currentSrc(), '_blank', 'noopener'); });
-      }
-      function armWatchdog() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          if (settled) return;
-          showFallback('timeout');
-        }, 5000);
-      }
-      armWatchdog();
-      frame.addEventListener('load', () => {
-        settled = true;
-        clearTimeout(timeout);
-        status.classList.add('hidden');
-      });
-      frame.addEventListener('error', () => {
-        clearTimeout(timeout);
-        showFallback('error');
-      });
-    }
-
     async function runDiagnostics(forceRefresh) {
       if (diagnosticsCache && !forceRefresh) {
         renderDiagnosticsResult(diagnosticsCache);
         return;
       }
       const scopedChecks = MODULE_HEALTH_CHECKS.filter(item =>
-        item.id === 'shell' || item.id === 'manifest' || item.id === 'sw'
+        item.id === 'shell' || item.id === 'manifest' || item.id === 'sw' || item.id === 'planner'
       );
       const checks = await Promise.all(scopedChecks.map(async item => {
         try {
@@ -1105,10 +911,10 @@
       return escapeHtml(s);
     }
     async function preloadShellEssentials() {
-      const paths = ['./דפוסי שפה עברית/index.html'];
-      await Promise.all(paths.map(path =>
-        fetch(path, { cache: 'no-store' }).catch(() => null)
-      ));
+      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html'];
+      await Promise.allSettled(
+        paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
+      );
     }
 
     window.addEventListener('online', () => {
@@ -1136,8 +942,10 @@
         return;
       }
       if (moduleName === 'hypno') {
-        openHypno();
-        history.replaceState({ screen: 'hypno' }, '', window.location.href);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('module');
+        history.replaceState({ screen: 'welcome' }, '', url.toString());
+        renderWelcome(false);
         return;
       }
       renderWelcome(false);
@@ -1154,7 +962,7 @@
         return;
       }
       if (moduleName === 'hypno') {
-        openHypno();
+        renderWelcome(false);
         return;
       }
       renderWelcome(false);

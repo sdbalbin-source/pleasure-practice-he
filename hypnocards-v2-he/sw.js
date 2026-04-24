@@ -1,10 +1,9 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v22';
+const CACHE = 'pleasure-he-v23';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './דפוסי שפה עברית/index.html',
   './מצפן התשוקות/index.html',
   './מצפן התשוקות/style.css',
   './מצפן התשוקות/script.js',
