@@ -1066,9 +1066,16 @@
       } catch {
         ABOUT_COPY = { ...ABOUT_COPY_FALLBACK };
       }
-      const coverage = await probeImageCoverage();
-      IMAGE_AVAILABLE = coverage.available;
-      IMAGE_RESOLVED = coverage.resolved;
+      // Do not block first paint on image probing; load UI immediately.
+      probeImageCoverage()
+        .then(coverage => {
+          IMAGE_AVAILABLE = coverage.available;
+          IMAGE_RESOLVED = coverage.resolved;
+        })
+        .catch(() => {
+          IMAGE_AVAILABLE = new Set();
+          IMAGE_RESOLVED = {};
+        });
       current = null;
       const qp = new URLSearchParams(window.location.search);
       const requestedView = qp.get('initialView');
