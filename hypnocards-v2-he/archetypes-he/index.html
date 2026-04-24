@@ -577,6 +577,31 @@
       window.setTimeout(() => {
         stage.classList.remove('is-dealing');
       }, 980);
+      // Safety fallback: if arc cards end up off-screen on specific devices/webviews,
+      // re-layout them into a guaranteed visible fan so draw can proceed.
+      window.setTimeout(() => {
+        const viewportW = window.innerWidth || 360;
+        const viewportH = window.innerHeight || 640;
+        const visibleCount = cards.reduce((acc, el) => {
+          const rect = el.getBoundingClientRect();
+          const hasSize = rect.width > 6 && rect.height > 6;
+          const intersects =
+            rect.right > 0 &&
+            rect.bottom > 0 &&
+            rect.left < viewportW &&
+            rect.top < viewportH;
+          return acc + (hasSize && intersects ? 1 : 0);
+        }, 0);
+        if (visibleCount >= Math.min(4, cards.length)) return;
+        const mid = (cards.length - 1) / 2;
+        cards.forEach((el, i) => {
+          const dx = (i - mid) * (viewportW <= 640 ? 14 : 16);
+          const dy = Math.abs(i - mid) * (viewportW <= 640 ? 2.2 : 2.6);
+          const rot = (i - mid) * 3.4;
+          el.style.transform = `translate3d(${dx.toFixed(2)}px, ${(72 + dy).toFixed(2)}px, 0) rotate(${rot.toFixed(2)}deg)`;
+          el.classList.remove('is-not-ready');
+        });
+      }, 1150);
       cards.forEach((el) => {
         const baseX = Number(el.dataset.x || 0);
         const baseY = Number(el.dataset.y || 0);
@@ -1066,16 +1091,9 @@
       } catch {
         ABOUT_COPY = { ...ABOUT_COPY_FALLBACK };
       }
-      // Do not block first paint on image probing; load UI immediately.
-      probeImageCoverage()
-        .then(coverage => {
-          IMAGE_AVAILABLE = coverage.available;
-          IMAGE_RESOLVED = coverage.resolved;
-        })
-        .catch(() => {
-          IMAGE_AVAILABLE = new Set();
-          IMAGE_RESOLVED = {};
-        });
+      // Keep startup fast: avoid heavy image probing before interaction.
+      IMAGE_AVAILABLE = new Set(Object.keys(IMAGE_MAP));
+      IMAGE_RESOLVED = { ...IMAGE_MAP };
       current = null;
       const qp = new URLSearchParams(window.location.search);
       const requestedView = qp.get('initialView');
