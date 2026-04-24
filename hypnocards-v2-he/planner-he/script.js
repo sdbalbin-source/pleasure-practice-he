@@ -1124,7 +1124,10 @@ function initializeSignaturePad() {
   }
   function getPoint(event) {
     const rect = canvas.getBoundingClientRect();
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    const touch = (event.touches && event.touches[0]) || (event.changedTouches && event.changedTouches[0]) || null;
+    const clientX = touch ? touch.clientX : event.clientX;
+    const clientY = touch ? touch.clientY : event.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
   }
   function persistSignature() {
     try {
