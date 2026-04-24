@@ -754,7 +754,7 @@
       } catch (_) {
         shared = '';
       }
-      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&v=2026-04-24-sharefix2${shared ? `&shared=${shared}` : ''}`;
+      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&v=2026-04-24-sharefix2${shared ? `#shared=${shared}` : ''}`;
       if (navigator.share) {
         navigator.share({ title: 'סיכום מצפן התשוקות', url: summaryUrl }).catch(() => {});
         return;

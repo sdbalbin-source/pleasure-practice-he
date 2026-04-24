@@ -14,6 +14,11 @@
   <script>
     const frame = document.getElementById('plannerFrame');
     const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    const sharedFromHash = hashParams.get('shared') || '';
+    if (sharedFromHash && !params.get('shared')) {
+      params.set('shared', sharedFromHash);
+    }
     const src = `./planner-he/index.html?${params.toString()}`;
     frame.src = src;
 

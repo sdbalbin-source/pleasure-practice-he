@@ -25,7 +25,8 @@ const sessionIdFromUrl = urlParams.get('sessionId') || '';
 const startChapterFromUrl = urlParams.get('startChapter') || '';
 const autoShareFromUrl = urlParams.get('autoShare') || '';
 const modeFromUrl = urlParams.get('mode') || '';
-const sharedPayloadFromUrl = urlParams.get('shared') || '';
+const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+const sharedPayloadFromUrl = urlParams.get('shared') || hashParams.get('shared') || '';
 let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /* ========== HELPERS ========== */
@@ -1266,7 +1267,7 @@ function setupTopActions(){
     base.searchParams.set('mode', 'existing');
     base.searchParams.set('v', '2026-04-24-sharefix2');
     const shared = encodeSharePayload(buildSharePayload());
-    if (shared) base.searchParams.set('shared', shared);
+    if (shared) base.hash = `shared=${shared}`;
     return base.toString();
   }
   function runWithBusyState(button, busyText, errorText, work){
