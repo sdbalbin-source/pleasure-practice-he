@@ -1,5 +1,5 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v18';
+const CACHE = 'pleasure-he-v19';
 const ASSETS = [
   './',
   './index.html',
@@ -19,7 +19,16 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
+  event.waitUntil(
+    caches.open(CACHE).then(async cache => {
+      // Avoid all-or-nothing install failures when one optional path is missing.
+      await Promise.allSettled(
+        ASSETS.map(path =>
+          cache.add(path).catch(() => null)
+        )
+      );
+    })
+  );
 });
 
 self.addEventListener('message', event => {
