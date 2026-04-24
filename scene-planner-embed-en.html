@@ -3031,6 +3031,7 @@ label,
         }
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({ type: 'planner_session_finished', sessionId: activeSessionId }, '*');
+          window.parent.postMessage({ type: 'planner_open_sessions', sessionId: activeSessionId }, '*');
         } else {
           alert('Session saved.');
         }

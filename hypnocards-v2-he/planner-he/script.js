@@ -1233,7 +1233,6 @@ function setupTopActions(){
     runWithBusyState(finishBtn, 'שומר ומסיים...', 'השמירה נכשלה. נסו שוב.', () => {
       saveActiveSession();
       if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'planner_session_finished', sessionId: activeSessionId }, window.location.origin);
         window.parent.postMessage({ type: 'planner_open_sessions', sessionId: activeSessionId }, window.location.origin);
       } else {
         window.location.href = '../index.html';
