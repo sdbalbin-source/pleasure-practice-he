@@ -1,15 +1,13 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v16';
+const CACHE = 'pleasure-he-v17';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
   './archetypes_he_data.json',
   './archetypes-he/index.html',
   './archetypes-he/image-map.json',
-  './archetypes-he/backside.png',
+  './archetypes-he/archetype-card-back.webp',
   './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html',
   './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/index.html',
   './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/style.css',
@@ -43,7 +41,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  const isArchetypeAsset = url.pathname.includes('/archetypes-he/images/') || url.pathname.endsWith('/archetypes-he/backside.png');
+  const isArchetypeAsset = url.pathname.includes('/archetypes-he/images/') || url.pathname.endsWith('/archetypes-he/archetype-card-back.webp');
   event.respondWith(
     (isArchetypeAsset
       ? caches.match(event.request).then(cached => {

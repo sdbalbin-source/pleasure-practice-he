@@ -81,16 +81,6 @@
     .row.is-current { border-color: rgba(183,135,255,0.65); background: rgba(183,135,255,0.14); }
     .star-btn { min-width: 2rem; padding: 0.25rem 0.4rem; }
     .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
-    .realm-option { display: flex; align-items: center; gap: 0.35rem; border: 1px solid var(--border); border-radius: 0.6rem; padding: 0.35rem 0.5rem; background: rgba(255,255,255,0.04); }
-    .search-input {
-      width: min(420px, 100%);
-      border: 1px solid var(--border);
-      border-radius: 0.65rem;
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      padding: 0.42rem 0.55rem;
-      font-size: 0.92rem;
-    }
     .about-stack { display: grid; gap: 0.65rem; }
     .about-note { color: var(--muted); margin: 0 0 0.35rem; }
     .about-acc {
@@ -117,31 +107,6 @@
       padding: 0 0.8rem 0.8rem;
       color: #e8e5f0;
       line-height: 1.65;
-      white-space: pre-wrap;
-    }
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid rgba(183,135,255,0.35);
-      border-radius: 999px;
-      padding: 0.2rem 0.6rem;
-      margin-left: 0.35rem;
-      background: rgba(183,135,255,0.12);
-      font-size: 0.82rem;
-      color: #eadbff;
-    }
-    .mono-box {
-      margin-top: 0.6rem;
-      border: 1px dashed rgba(183,135,255,0.35);
-      border-radius: 0.65rem;
-      padding: 0.55rem;
-      background: rgba(13, 10, 22, 0.65);
-      max-height: 180px;
-      overflow: auto;
-      font-family: Consolas, "Courier New", monospace;
-      font-size: 0.8rem;
-      line-height: 1.45;
-      color: #dfd2f6;
       white-space: pre-wrap;
     }
     .archetype-shuffle-overlay {
@@ -173,7 +138,7 @@
     .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(5) { --slot: 2; z-index: 11; animation: archetypeRightCard5 1.75s ease-in-out forwards; }
     .archetype-shuffle-shine { position: absolute; width: min(70vw, 240px); height: min(70vw, 240px); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(212, 175, 125, 0.35) 0%, transparent 65%); opacity: 0; animation: archetypeShuffleShine 1.75s ease-out forwards; filter: blur(16px); }
     .archetype-shuffle-caption { margin-top: 1.75rem; font-family: "Cormorant Garamond", serif; font-size: 1.15rem; letter-spacing: 0.08em; color: rgba(245, 230, 210, 0.88); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8); }
-    .archetype-spread-overlay { position: fixed; inset: 0; z-index: 320; background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 0.99), rgba(5, 4, 8, 1) 58%, #020103 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
+    .archetype-spread-overlay { position: fixed; inset: 0; z-index: 320; background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 1), rgba(5, 4, 8, 1) 58%, #020103 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
     .archetype-spread-stage { position: relative; width: min(100%, 440px); height: min(88vh, 720px); }
     .archetype-spread-stage.is-dealing .archetype-spread-card { transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; }
     .archetype-spread-card { position: absolute; left: 50%; top: 56%; width: min(20vw, 92px); aspect-ratio: 2 / 3; transform-style: preserve-3d; touch-action: none; cursor: grab; transition: transform 0.18s ease-out, filter 0.18s ease-out; z-index: var(--z, 1); will-change: transform; }
@@ -340,11 +305,7 @@
     const FAVORITES_KEY = 'archetype_he_favorites_v1';
     const DECK_KEY = 'archetype_he_deck_realms_v1';
     const PREFS_KEY = 'archetype_he_prefs_v1';
-    const MODULE_VERSION = '2026-04-24-archetypes-draw-2';
-    const EN_VISUAL_BASELINE_FILES_FALLBACK = 148;
-    let enVisualBaselineFiles = EN_VISUAL_BASELINE_FILES_FALLBACK;
-    let enVisualBaselineCards = 73;
-    let baselineLoadedFromFile = false;
+    const MODULE_VERSION = '2026-04-24-archetypes-draw-3';
     const ABOUT_COPY_FALLBACK = {
       notDisguise: 'אחת הדאגות הנפוצות סביב משחקי תפקידים היא: אם אני נכנס/ת לדמות אחרת, אולי אני לא אותנטי/ת.\nמחקר פסיכולוגי מצביע פעמים רבות על ההפך: זו לא התחפשות, אלא התגלמות של חלקים אמיתיים שלא תמיד מקבלים מקום ביום־יום.\nמי שמחזיק/ה שליטה כל היום יכול/ה לגלות מנוחה עמוקה בארכיטיפ שמרפה. מי שבדרך כלל שקט/ה יכול/ה לגלות עוצמה בארכיטיפ פראי. אלה לא סתירות - אלה השלמות.\nאנחנו לא נעשים מישהו/י אחר/ת; אנחנו מרשים/ות לעוד חלקים שלנו להיחשף.',
       howToUse: 'הקלפים אינם הוראות ביצוע - הם הזמנה.\nיש קלפים שימשכו אותך מיד, כאילו חיכו לך תמיד. ויש קלפים שיעוררו רתיעה, פחד או מבוכה - ולעיתים דווקא שם מסתתר שער לחקירה עמוקה.\n• לבד: לבחור קלף ולשאול מי אני כשאני הדמות הזו. אילו ארכיטיפים חיים בי, ואילו מפחידים אותי?\n• בזוג: לבחור ארכיטיפ ולגלם אותו יחד, או שכל צד יבחר קלף ולראות מה נוצר במפגש ביניהם.\n• כשיחה: להשתמש בקלף כדי לפתוח שיחה על רצונות, גבולות ופנטזיות בצורה נגישה יותר.',
@@ -360,11 +321,9 @@
     let pendingSpreadSourceView = 'random';
     let archetypeView = { cardId: null, fromView: 'random', flipped: false };
     let currentView = 'draw';
-    let allCardsQuery = '';
     let selectedRealms = new Set();
     let favoritesOnly = false;
     let favorites = new Set();
-    const TAP_DRIFT = 10;
     const ARCHETYPE_CARD_BACK = './archetype-card-back.webp';
     const toastEl = document.getElementById('toast');
     let toastTimer = null;
@@ -420,7 +379,7 @@
     function saveState() {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
       localStorage.setItem(DECK_KEY, JSON.stringify(Array.from(selectedRealms)));
-      localStorage.setItem(PREFS_KEY, JSON.stringify({ favoritesOnly, currentView, allCardsQuery }));
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ favoritesOnly, currentView }));
     }
 
     function getDeckCards() {
@@ -507,28 +466,14 @@
       if (flipInner) flipInner.classList.toggle('flipped');
     }
 
-    function drawRandom() {
-      const deck = getDeckCards();
-      if (!deck.length) return;
-      renderCard(deck[Math.floor(Math.random() * deck.length)]);
-    }
-
-    function shuffleArray(list) {
-      const a = [...list];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
     function startShuffleAndDraw(poolOverride = null, fromView = 'random') {
+      setChromeVisible(false);
       const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
       if (!deck.length) {
+        setChromeVisible(true);
         notify('אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.');
         return;
       }
-      setChromeVisible(false);
       pendingSpreadPoolIds = deck.map(card => card.id);
       pendingSpreadSourceView = fromView;
       playArchetypeShuffleThen(openArchetypeTarotSpread);
@@ -570,6 +515,7 @@
     }
 
     function openArchetypeTarotSpread() {
+      setChromeVisible(false);
       const spreadCards = pickArchetypeSpreadCards(15);
       if (!spreadCards.length) return;
       const app = document.getElementById('app');
@@ -608,7 +554,9 @@
         return `
           <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${escapeHtml(card.id)}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
             <div class="archetype-spread-inner">
-              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
+              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}'); background-color:#120b1d;">
+                <div style="position:absolute; inset:6px; border:1px solid rgba(245, 220, 170, 0.42); border-radius:4px;"></div>
+              </div>
               <div class="archetype-spread-face front"></div>
             </div>
           </div>
@@ -938,6 +886,8 @@
               <div class="row" style="display:block; margin-bottom:0.45rem;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem;">
                   <button
+                    onclick="renderArchetypeCard('${escapeHtml(card.id)}', 'all')"
+                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();renderArchetypeCard('${escapeHtml(card.id)}', 'all');}"
                     onpointerdown="startArchetypeListTap('${escapeHtml(card.id)}', event)"
                     onpointerup="finishArchetypeListTap('${escapeHtml(card.id)}', event)"
                     onpointercancel="cancelArchetypeListTap()"
@@ -1066,30 +1016,6 @@
       }
     }
 
-    function selectAllRealms() {
-      selectedRealms = new Set(CARDS.map(card => normalizeRealm(card.realm)));
-      saveState();
-      setView('custom');
-    }
-
-    function clearRealms() {
-      selectedRealms = new Set();
-      saveState();
-      setView('custom');
-    }
-
-    function setFavoritesSet(enableOnlyFavorites) {
-      favoritesOnly = enableOnlyFavorites;
-      if (favoritesOnly) {
-        const favRealms = new Set(
-          CARDS.filter(card => favorites.has(card.id)).map(card => normalizeRealm(card.realm))
-        );
-        selectedRealms = favRealms;
-      }
-      saveState();
-      setView('custom');
-    }
-
     function renderAboutView(host) {
       host.innerHTML = `
         <div class="panel">
@@ -1133,51 +1059,6 @@
       `;
     }
 
-    function copyMissingImageList() {
-      const text = CARDS
-        .filter(card => IMAGE_MAP[card.id] && !IMAGE_AVAILABLE.has(card.id))
-        .map(card => IMAGE_MAP[card.id])
-        .join('\n');
-      const payload = text || 'אין כרגע קבצים חסרים לפי המיפוי.';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(payload).then(() => notify('רשימת הקבצים הועתקה.')).catch(() => notify(payload));
-      } else {
-        notify(payload);
-      }
-    }
-
-    async function rescanAssets() {
-      const host = document.getElementById('missingImageList');
-      if (host) host.textContent = 'סורק קבצים...';
-      const coverage = await probeImageCoverage();
-      IMAGE_AVAILABLE = coverage.available;
-      IMAGE_RESOLVED = coverage.resolved;
-      if (currentView === 'about') setView('about');
-      else notify(`הסריקה הושלמה: זוהו ${IMAGE_AVAILABLE.size} נכסים.`);
-    }
-
-    function downloadMissingAssetsCsv() {
-      const rows = [['id', 'name', 'expected_path', 'status']];
-      CARDS.forEach(card => {
-        const expected = IMAGE_MAP[card.id] || '';
-        const status = expected && IMAGE_AVAILABLE.has(card.id) ? 'present' : 'missing';
-        if (status === 'missing') {
-          rows.push([card.id || '', card.name || '', expected, status]);
-        }
-      });
-      const csv = rows.map(cols => cols.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'archetypes-he-missing-assets.csv';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      notify('דוח CSV ירד בהצלחה.');
-    }
-
     function notify(message) {
       if (!toastEl) return;
       toastEl.textContent = String(message || '');
@@ -1211,7 +1092,6 @@
       selectedRealms = new Set(safeParse(DECK_KEY, []));
       const prefs = safeParse(PREFS_KEY, {});
       favoritesOnly = Boolean(prefs && prefs.favoritesOnly);
-      allCardsQuery = String((prefs && prefs.allCardsQuery) || '');
       try {
         const res = await fetch(`../archetypes_he_data.json?v=${encodeURIComponent(MODULE_VERSION)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(`cards HTTP ${res.status}`);
@@ -1243,20 +1123,6 @@
         }
       } catch {
         ABOUT_COPY = { ...ABOUT_COPY_FALLBACK };
-      }
-      try {
-        const res = await fetch(`./parity-baseline.json?v=${encodeURIComponent(MODULE_VERSION)}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`baseline HTTP ${res.status}`);
-        const payload = await res.json();
-        const filesN = Number(payload && payload.enVisualBaselineFiles);
-        const cardsN = Number(payload && payload.enVisualBaselineCards);
-        if (Number.isFinite(filesN) && filesN > 0) enVisualBaselineFiles = filesN;
-        if (Number.isFinite(cardsN) && cardsN > 0) enVisualBaselineCards = cardsN;
-        baselineLoadedFromFile = true;
-      } catch {
-        enVisualBaselineFiles = EN_VISUAL_BASELINE_FILES_FALLBACK;
-        enVisualBaselineCards = 73;
-        baselineLoadedFromFile = false;
       }
       const coverage = await probeImageCoverage();
       IMAGE_AVAILABLE = coverage.available;
