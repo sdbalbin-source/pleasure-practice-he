@@ -291,10 +291,13 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'archetypes', name: 'מודול ארכיטיפים', path: './archetypes-he/index.html' },
       { id: 'archetypesData', name: 'דאטה ארכיטיפים', path: './archetypes_he_data.json' },
+      { id: 'archetypesImageMap', name: 'מיפוי תמונות ארכיטיפים', path: './archetypes-he/image-map.json' },
+      { id: 'archetypesAboutCopy', name: 'טקסט About ארכיטיפים', path: './archetypes-he/about-copy-he.json' },
+      { id: 'archetypesParityBaseline', name: 'Archetypes parity baseline', path: './archetypes-he/parity-baseline.json' },
       { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-23-he-2';
+    const SW_BUILD = '2026-04-24-he-3';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -328,7 +331,7 @@
       }
       AppState.themes = THEME_ORDER.slice();
     }
-    function renderWelcome() {
+    function renderWelcome(pushHistory = true) {
       if (AppState.cards.length === 0) {
         fetch('cards_data.json')
           .then(r => r.json())
@@ -357,7 +360,7 @@
           <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             דפוסי שפה היפנוטיים
           </button>
-          <button onclick="renderArchetypesHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
+          <button onclick="renderArchetypesHome(true)" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             ארכיטיפים של עונג
           </button>
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
@@ -374,44 +377,71 @@
         </div>
       `;
       lucide.createIcons();
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('module');
+        url.searchParams.delete('view');
+        history.pushState({ screen: 'welcome' }, '', url.toString());
+      }
     }
     function showAbout() {
       document.getElementById('app').innerHTML = ABOUT_TEMPLATE;
       lucide.createIcons();
       updateInstallButtons();
     }
-    function openArchetypes() {
-      renderEmbeddedModule('ארכיטיפים של עונג', './archetypes-he/index.html', 'ארכיטיפים של עונג');
+    function openArchetypes(initialView = 'draw', pushHistory = true, autoplayShuffle = false) {
+      const allowedViews = new Set(['draw', 'custom', 'all', 'about']);
+      const view = allowedViews.has(initialView) ? initialView : 'draw';
+      const autoParam = autoplayShuffle ? '&autoplayShuffle=1' : '';
+      const src = `./archetypes-he/index.html?initialView=${encodeURIComponent(view)}${autoParam}&v=${encodeURIComponent(SW_BUILD)}`;
+      renderEmbeddedModule('ארכיטיפים של עונג', src, 'ארכיטיפים של עונג');
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'archetypes');
+        url.searchParams.set('view', view);
+        history.pushState({ screen: 'archetypes', view }, '', url.toString());
+      }
     }
-    function renderArchetypesHome() {
+    function renderArchetypesHome(pushHistory = false) {
       const app = document.getElementById('app');
       app.innerHTML = `
-        <div class="flex flex-col h-full p-6 bg-black/10">
-          <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font">ארכיטיפים של עונג</h2>
-            <div class="w-10"></div>
+        <div class="screen">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <button class="back-btn" onclick="renderWelcome()">← חזרה</button>
+            <div style="width:96px;"></div>
           </div>
-          <div class="grid gap-4">
-            <button onclick="drawRandomArchetype()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">ערבוב ושליפה</h3>
-              <p class="text-gray-400 serif-font text-base">ערבוב ויזואלי ולאחריו שליפת קלף.</p>
+          <div class="title-wrap" style="margin-top:-2.2rem;">
+            <h2 class="title-main" style="font-size:2.05rem;">ארכיטיפים של עונג</h2>
+          </div>
+          <div class="actions" style="width:min(960px,100%); margin-top:0.2rem;">
+            <button onclick="drawRandomArchetype()" class="card-btn" style="padding:1.15rem 1.3rem; border-radius:1.25rem;">
+              ערבוב ושליפה
+              <div class="card-note">ערבוב מונפש, ולאחריו חשיפת ארכיטיפ אחד</div>
             </button>
-            <button onclick="renderArchetypeDeckBuilder()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">חבילה מותאמת</h3>
-              <p class="text-gray-400 serif-font text-base">בחירת ממלכות ו/או מועדפים ואז שליפה.</p>
+            <button onclick="renderArchetypeDeckBuilder()" class="card-btn" style="padding:1.15rem 1.3rem; border-radius:1.25rem;">
+              דק מותאם
+              <div class="card-note">בחירת ממלכות ו/או סט מועדפים, ואז שליפה</div>
             </button>
-            <button onclick="renderArchetypesList()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">כל הקלפים</h3>
-              <p class="text-gray-400 serif-font text-base">תצוגה מלאה לפי ממלכות עם סימון מועדפים.</p>
+            <button onclick="renderArchetypesList()" class="card-btn" style="padding:1.15rem 1.3rem; border-radius:1.25rem;">
+              כל הקלפים
+              <div class="card-note">מיון לפי ממלכות עם סימון מועדפים לכל קלף</div>
             </button>
-            <button onclick="showArchetypesAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">אודות ארכיטיפים של עונג</h3>
-              <p class="text-gray-400 serif-font text-base">רקע והנחיות שימוש במודול.</p>
+            <button onclick="showArchetypesAbout()" class="card-btn" style="padding:1.15rem 1.3rem; border-radius:1.25rem;">
+              אודות ארכיטיפים של עונג
+              <div class="card-note">רקע, הקשר והנחיות שימוש במודול</div>
             </button>
           </div>
         </div>
       `;
+      if (pushHistory) syncArchetypesHomeRoute(false);
+    }
+    function syncArchetypesHomeRoute(replace = false) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('module', 'archetypes');
+      url.searchParams.delete('view');
+      const state = { screen: 'archetypes-home' };
+      if (replace) history.replaceState(state, '', url.toString());
+      else history.pushState(state, '', url.toString());
     }
     async function openDiagnostics() {
       document.getElementById('app').innerHTML = `
@@ -513,16 +543,16 @@
       openHypno();
     }
     function drawRandomArchetype() {
-      openArchetypes();
+      openArchetypes('draw', true, true);
     }
     function renderArchetypeDeckBuilder() {
-      openArchetypes();
+      openArchetypes('custom');
     }
     function renderArchetypesList() {
-      openArchetypes();
+      openArchetypes('all');
     }
     function showArchetypesAbout() {
-      openArchetypes();
+      openArchetypes('about');
     }
     function openPlanner() { renderKinkyScenePlannerHome(); }
     function listPlannerSessions() {
@@ -889,6 +919,9 @@
       } else if (data.type === 'planner_open_new') {
         plannerPendingReturnTo = null;
         openPlannerNewSession();
+      } else if (data.type === 'he_module_back_home') {
+        renderArchetypesHome();
+        syncArchetypesHomeRoute(true);
       }
     });
     function isIos() {
@@ -1088,7 +1121,13 @@
         renderDiagnosticsResult(diagnosticsCache);
         return;
       }
-      const checks = await Promise.all(MODULE_HEALTH_CHECKS.map(async item => {
+      const scopedChecks = MODULE_HEALTH_CHECKS.filter(item =>
+        item.id === 'shell' ||
+        item.id === 'manifest' ||
+        item.id === 'sw' ||
+        item.id.startsWith('archetypes')
+      );
+      const checks = await Promise.all(scopedChecks.map(async item => {
         try {
           const res = await fetch(item.path, { cache: 'no-store' });
           return { ...item, ok: res.ok, status: res.status, note: res.ok ? 'זמין' : `HTTP ${res.status}` };
@@ -1096,12 +1135,102 @@
           return { ...item, ok: false, status: 0, note: 'לא נגיש (network/error)' };
         }
       }));
+      checks.push(await checkArchetypesAssetCoverage());
+      checks.push(await checkArchetypesBaselineConsistency());
       diagnosticsCache = {
         checks,
         online: navigator.onLine,
         checkedAt: new Date().toLocaleTimeString('he-IL')
       };
       renderDiagnosticsResult(diagnosticsCache);
+    }
+
+    function assetCandidates(pathValue) {
+      const p = String(pathValue || '').trim();
+      if (!p) return [];
+      const normalized = p.startsWith('./images/') ? `./archetypes-he/${p.slice(2)}` : p;
+      const base = normalized.replace(/\.[^.]+$/, '');
+      return [`${base}.webp`, `${base}.png`, `${base}.jpg`, `${base}.jpeg`];
+    }
+
+    async function pathExists(path) {
+      try {
+        const res = await fetch(`${path}${path.includes('?') ? '&' : '?'}diagTs=${Date.now()}`, { cache: 'no-store' });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    async function checkArchetypesAssetCoverage() {
+      const baseRow = {
+        id: 'archetypesAssetCoverage',
+        name: 'כיסוי נכסים ארכיטיפים (מזוהה)',
+        path: './archetypes-he/images/*'
+      };
+      try {
+        const mapRes = await fetch('./archetypes-he/image-map.json', { cache: 'no-store' });
+        if (!mapRes.ok) {
+          return { ...baseRow, ok: false, status: mapRes.status, note: `image-map HTTP ${mapRes.status}` };
+        }
+        const mapData = await mapRes.json();
+        const rows = Array.isArray(mapData && mapData.images) ? mapData.images : [];
+        let detected = 0;
+        for (const row of rows) {
+          const candidates = assetCandidates(row && row.image);
+          let found = false;
+          for (const candidate of candidates) {
+            if (await pathExists(candidate)) {
+              found = true;
+              break;
+            }
+          }
+          if (found) detected += 1;
+        }
+        const expected = rows.length;
+        const missing = Math.max(0, expected - detected);
+        return {
+          ...baseRow,
+          ok: missing === 0,
+          status: 200,
+          note: `זוהו ${detected}/${expected} • חסרים ${missing}`
+        };
+      } catch {
+        return { ...baseRow, ok: false, status: 0, note: 'בדיקת כיסוי נכשלה' };
+      }
+    }
+
+    async function checkArchetypesBaselineConsistency() {
+      const row = {
+        id: 'archetypesBaselineConsistency',
+        name: 'עקביות baseline ארכיטיפים',
+        path: './archetypes-he/parity-baseline.json'
+      };
+      try {
+        const [baselineRes, cardsRes, mapRes] = await Promise.all([
+          fetch('./archetypes-he/parity-baseline.json', { cache: 'no-store' }),
+          fetch('./archetypes_he_data.json', { cache: 'no-store' }),
+          fetch('./archetypes-he/image-map.json', { cache: 'no-store' })
+        ]);
+        if (!baselineRes.ok || !cardsRes.ok || !mapRes.ok) {
+          return { ...row, ok: false, status: 0, note: 'נכשל בטעינת baseline/cards/map' };
+        }
+        const baseline = await baselineRes.json();
+        const cardsData = await cardsRes.json();
+        const mapData = await mapRes.json();
+        const baselineCards = Number(baseline && baseline.enVisualBaselineCards);
+        const heCards = Array.isArray(cardsData && cardsData.cards) ? cardsData.cards.length : 0;
+        const heMapped = Array.isArray(mapData && mapData.images) ? mapData.images.length : 0;
+        const ok = Number.isFinite(baselineCards) && baselineCards === heCards && heMapped === baselineCards;
+        return {
+          ...row,
+          ok,
+          status: 200,
+          note: `baselineCards=${baselineCards} • HE cards=${heCards} • HE mapped=${heMapped}`
+        };
+      } catch {
+        return { ...row, ok: false, status: 0, note: 'בדיקת עקביות baseline נכשלה' };
+      }
     }
 
     function renderDiagnosticsResult(payload) {
@@ -1139,12 +1268,7 @@
         .replace(/'/g, '&#39;');
     }
     function escapeHtmlArchetype(s) {
-      if (s == null || s === '') return '';
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return escapeHtml(s);
     }
     async function preloadShellEssentials() {
       const paths = [
@@ -1164,8 +1288,37 @@
       diagnosticsCache = null;
     });
 
+    function bootShellRoute() {
+      const params = new URLSearchParams(window.location.search);
+      const moduleName = params.get('module');
+      const view = params.get('view') || 'draw';
+      if (moduleName === 'archetypes') {
+        if (params.has('view')) {
+          openArchetypes(view, false);
+          history.replaceState({ screen: 'archetypes', view }, '', window.location.href);
+        } else {
+          renderArchetypesHome();
+          syncArchetypesHomeRoute(true);
+        }
+      } else {
+        renderWelcome(false);
+        history.replaceState({ screen: 'welcome' }, '', window.location.href);
+      }
+    }
+
+    window.addEventListener('popstate', (ev) => {
+      const state = ev && ev.state ? ev.state : null;
+      if (state && state.screen === 'archetypes') {
+        openArchetypes(state.view || 'draw', false);
+      } else if (state && state.screen === 'archetypes-home') {
+        renderArchetypesHome();
+      } else {
+        renderWelcome(false);
+      }
+    });
+
     Promise.all([preloadShellEssentials()]).finally(() => {
-      renderWelcome();
+      bootShellRoute();
     });
   </script>
 </body>
