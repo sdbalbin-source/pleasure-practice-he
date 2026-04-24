@@ -314,7 +314,7 @@
       { id: 'archetypesImageMap', name: '×ž×™×¤×•×™ ×ª×ž×•× ×•×ª ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/image-map.json' },
       { id: 'archetypesAboutCopy', name: '×˜×§×¡×˜ About ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/about-copy-he.json' },
       { id: 'archetypesParityBaseline', name: 'Archetypes parity baseline', path: './archetypes-he/parity-baseline.json' },
-      { id: 'hypno', name: '×ž×•×“×•×œ ×“×¤×•×¡×™ ×©×¤×”', path: './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html' },
+      { id: 'hypno', name: '×ž×•×“×•×œ ×“×¤×•×¡×™ ×©×¤×”', path: './דפוסי שפה עברית/index.html' },
       { id: 'planner', name: '×ž×•×“×•×œ ×ž×¦×¤×Ÿ ×ª×©×•×§×•×ª', path: './planner-he/index.html' }
     ];
     const SW_BUILD = '2026-04-24-he-5';
@@ -500,7 +500,7 @@
       wireEmbedFrame(frameId, src);
     }
     function openHypno() {
-      renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
+      renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './דפוסי שפה עברית/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
     }
     function listHypnoRecordings() {
       try {
@@ -1274,7 +1274,7 @@
       const paths = [
         './archetypes_he_data.json',
         './archetypes-he/index.html',
-        './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html'
+        './דפוסי שפה עברית/index.html'
       ];
       await Promise.all(paths.map(path =>
         fetch(path, { cache: 'no-store' }).catch(() => null)

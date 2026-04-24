@@ -1,5 +1,5 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v17';
+const CACHE = 'pleasure-he-v18';
 const ASSETS = [
   './',
   './index.html',
@@ -8,10 +8,10 @@ const ASSETS = [
   './archetypes-he/index.html',
   './archetypes-he/image-map.json',
   './archetypes-he/archetype-card-back.webp',
-  './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html',
-  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/index.html',
-  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/style.css',
-  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/script.js',
+  './דפוסי שפה עברית/index.html',
+  './מצפן התשוקות/index.html',
+  './מצפן התשוקות/style.css',
+  './מצפן התשוקות/script.js',
   './scene-planner-embed-he.html',
   './planner-he/index.html',
   './planner-he/style.css',
