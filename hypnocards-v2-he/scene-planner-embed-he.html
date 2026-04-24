@@ -12,9 +12,22 @@
 <body>
   <iframe id="plannerFrame" title="מצפן התשוקות"></iframe>
   <script>
+    const frame = document.getElementById('plannerFrame');
     const params = new URLSearchParams(window.location.search);
     const src = `./planner-he/index.html?${params.toString()}`;
-    document.getElementById('plannerFrame').src = src;
+    frame.src = src;
+
+    // Bridge planner <-> shell postMessage communication.
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.source === frame.contentWindow) {
+        // Forward planner events to shell parent.
+        window.parent?.postMessage?.(event.data, window.location.origin);
+      } else if (event.source === window.parent) {
+        // Forward shell requests (e.g. planner_request_save) to planner iframe.
+        frame.contentWindow?.postMessage?.(event.data, window.location.origin);
+      }
+    });
   </script>
 </body>
 </html>
