@@ -1,5 +1,5 @@
-const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v15';
+﻿const CACHE_PREFIX = 'pleasure-he-v';
+const CACHE = 'pleasure-he-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -10,10 +10,10 @@ const ASSETS = [
   './archetypes-he/index.html',
   './archetypes-he/image-map.json',
   './archetypes-he/backside.png',
-  './דפוסי שפה עברית/index.html',
-  './מצפן התשוקות/index.html',
-  './מצפן התשוקות/style.css',
-  './מצפן התשוקות/script.js',
+  './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/index.html',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/style.css',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/script.js',
   './scene-planner-embed-he.html',
   './planner-he/index.html',
   './planner-he/style.css',
@@ -66,3 +66,4 @@ self.addEventListener('fetch', event => {
     )
   );
 });
+
