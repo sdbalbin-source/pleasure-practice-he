@@ -56,7 +56,7 @@
       <button class="btn" onclick="setView('draw')">למסך שליפה</button>
     </div>
     <div class="menu">
-      <button class="btn active" id="nav-draw" onclick="setView('draw')">ערבוב ושליפה</button>
+      <button class="btn active" id="nav-draw" onclick="openShuffleDrawFromNav()">ערבוב ושליפה</button>
       <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
       <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
       <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
@@ -108,6 +108,9 @@
       if (!pool || !pool.length) { notify('לא נמצאו קלפים לבחירה הזו. בחרו לפחות ממלכה אחת או מועדפים.'); return; }
       pendingPoolIds = pool.map(c => c.id);
       playShuffleThen(openSpread);
+    }
+    function openShuffleDrawFromNav(){
+      startSpreadDraw(randomPool(), 'random');
     }
 
     function playShuffleThen(next){
