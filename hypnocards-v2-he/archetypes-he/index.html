@@ -36,7 +36,7 @@
       border: 1px solid var(--border); border-radius: 1rem; background: var(--panel);
       padding: 0.8rem; min-height: 0;
     }
-    .flip { perspective: 1000px; width: 100%; aspect-ratio: 2 / 3; max-height: 72vh; margin: 0 auto; }
+    .flip { perspective: 1000px; width: 100%; aspect-ratio: 2 / 3; max-height: 72vh; margin: 0 auto; cursor: pointer; }
     .flip-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.25,1,0.5,1); }
     .flip-inner.flipped { transform: rotateY(180deg); }
     .face {
@@ -310,7 +310,7 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
     <div class="top">
       <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
       <h1>ארכיטיפים של עונג</h1>
@@ -457,7 +457,7 @@
       const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
       const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
       host.innerHTML = `
-        <div class="flip">
+        <div class="flip" role="button" tabindex="0" onclick="toggleFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFlip();}">
           <div class="flip-inner" id="flipInner">
             <article class="face front">
               ${artHtml}
@@ -480,6 +480,7 @@
             </article>
           </div>
         </div>
+        <button class="btn" style="display:block; width:100%; max-width:320px; margin:0.75rem auto 0;" onclick="startShuffleAndDraw()">שליפה נוספת</button>
       `;
     }
 
@@ -691,7 +692,8 @@
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
           el.classList.remove('is-dragging');
           const threshold = viewportWidth <= 640 ? 44 : 56;
-          if (outShift > threshold) {
+          const dragDistance = Math.hypot(dx, dy);
+          if (outShift > threshold || dragDistance > threshold + 18) {
             chooseCard();
           } else {
             el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.2,1)';
@@ -737,7 +739,7 @@
           <div class="panel">
             <div class="filter-row">
               <button class="btn" onclick="startShuffleAndDraw()">ערבוב ושליפה</button>
-              <button class="btn" onclick="drawRandom()">שליפה אקראית</button>
+              <button class="btn" onclick="startShuffleAndDraw()">ערבוב מחדש</button>
               <button class="btn" onclick="toggleFlip()">היפוך</button>
             </div>
             <div class="meta">גודל דק פעיל: ${getDeckCards().length} קלפים</div>
@@ -746,7 +748,12 @@
           </div>
         </div>
       `;
-      renderCard(current || getDeckCards()[0] || CARDS[0]);
+      const cardHost = document.getElementById('cardHost');
+      if (current) {
+        renderCard(current);
+      } else if (cardHost) {
+        cardHost.innerHTML = '<div class="meta" style="padding:1rem 0.6rem; text-align:center;">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div>';
+      }
       renderCompactList('drawList');
     }
 
@@ -1114,13 +1121,15 @@
       const coverage = await probeImageCoverage();
       IMAGE_AVAILABLE = coverage.available;
       IMAGE_RESOLVED = coverage.resolved;
-      current = CARDS[0] || null;
+      current = null;
       const qp = new URLSearchParams(window.location.search);
       const requestedView = qp.get('initialView');
       const autoplayShuffle = qp.get('autoplayShuffle') === '1';
-      const initialView = ['draw', 'custom', 'all', 'about'].includes(requestedView)
+      const initialView = autoplayShuffle
+        ? 'draw'
+        : (['draw', 'custom', 'all', 'about'].includes(requestedView)
         ? requestedView
-        : (['draw', 'custom', 'all', 'about'].includes(prefs.currentView) ? prefs.currentView : 'draw');
+        : (['draw', 'custom', 'all', 'about'].includes(prefs.currentView) ? prefs.currentView : 'draw'));
       setView(initialView);
       if (autoplayShuffle && initialView === 'draw') {
         window.setTimeout(() => {
