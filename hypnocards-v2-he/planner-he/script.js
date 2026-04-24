@@ -47,17 +47,55 @@ function decodeSharePayload(raw){
     return null;
   }
 }
+function pruneObject(value){
+  if (Array.isArray(value)) {
+    const arr = value
+      .map(pruneObject)
+      .filter(v => !(v == null || v === '' || (Array.isArray(v) && v.length === 0) || (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0)));
+    return arr.length ? arr : null;
+  }
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      const pv = pruneObject(v);
+      if (pv == null || pv === '' || (Array.isArray(pv) && pv.length === 0) || (typeof pv === 'object' && !Array.isArray(pv) && Object.keys(pv).length === 0)) continue;
+      out[k] = pv;
+    }
+    return Object.keys(out).length ? out : null;
+  }
+  return value;
+}
+function buildPortablePlannerState(){
+  const compactActivities = {};
+  for (const [id, item] of Object.entries(state.activities || {})) {
+    if (!item || typeof item !== 'object') continue;
+    const status = item.status ?? null;
+    const intensity = Number(item.intensity || 0);
+    const notes = String(item.notes || '').trim();
+    if (status == null && intensity <= 0 && !notes) continue;
+    compactActivities[id] = {
+      ...(status != null ? { status } : {}),
+      ...(intensity > 0 ? { intensity } : {}),
+      ...(notes ? { notes } : {})
+    };
+  }
+  const compact = {
+    session: state.session,
+    safety: state.safety,
+    refinements: state.refinements,
+    text: state.text,
+    sets: state.sets,
+    activities: compactActivities,
+    consent: {
+      name: state.consent?.name || '',
+      date: state.consent?.date || ''
+    }
+  };
+  return pruneObject(compact) || {};
+}
 function buildSharePayload(){
   return {
-    plannerState: {
-      session: state.session,
-      safety: state.safety,
-      refinements: state.refinements,
-      text: state.text,
-      sets: state.sets,
-      activities: state.activities,
-      consent: state.consent
-    }
+    plannerState: buildPortablePlannerState()
   };
 }
 
@@ -1225,6 +1263,9 @@ function setupTopActions(){
     base.searchParams.set('mode', 'existing');
     const shared = encodeSharePayload(buildSharePayload());
     if (shared) base.searchParams.set('shared', shared);
+    if (base.toString().length > 1900) {
+      base.searchParams.delete('shared');
+    }
     return base.toString();
   }
   function runWithBusyState(button, busyText, errorText, work){
@@ -1248,8 +1289,12 @@ function setupTopActions(){
   if (whatsappBtn) whatsappBtn.addEventListener('click', ()=>{
     runWithBusyState(whatsappBtn, 'פותח שיתוף...', 'לא ניתן היה לפתוח שיתוף ל-WhatsApp.', () => {
       saveActiveSession();
-      const url = encodeURIComponent(buildSummaryShareUrl());
-      window.open(`https://wa.me/?text=${url}`, '_blank');
+      const shareUrl = buildSummaryShareUrl();
+      if (navigator.share) {
+        return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {});
+      }
+      const encoded = encodeURIComponent(shareUrl);
+      window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
     });
   });
   const downloadPdfBtn = $('#downloadPdf');
