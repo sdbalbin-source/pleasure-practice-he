@@ -146,7 +146,7 @@
     }
     .archetype-shuffle-overlay {
       position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: radial-gradient(ellipse 120% 80% at 50% 45%, rgba(35, 22, 48, 0.94) 0%, rgba(5, 4, 8, 0.97) 55%, #020103 100%);
+      background: radial-gradient(ellipse 120% 80% at 50% 45%, rgba(35, 22, 48, 0.99) 0%, rgba(5, 4, 8, 1) 55%, #020103 100%);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow: hidden;
     }
     .archetype-shuffle-overlay::before {
@@ -173,7 +173,7 @@
     .archetype-shuffle-pack.right .archetype-shuffle-card:nth-child(5) { --slot: 2; z-index: 11; animation: archetypeRightCard5 1.75s ease-in-out forwards; }
     .archetype-shuffle-shine { position: absolute; width: min(70vw, 240px); height: min(70vw, 240px); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(212, 175, 125, 0.35) 0%, transparent 65%); opacity: 0; animation: archetypeShuffleShine 1.75s ease-out forwards; filter: blur(16px); }
     .archetype-shuffle-caption { margin-top: 1.75rem; font-family: "Cormorant Garamond", serif; font-size: 1.15rem; letter-spacing: 0.08em; color: rgba(245, 230, 210, 0.88); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8); }
-    .archetype-spread-overlay { position: fixed; inset: 0; z-index: 320; background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 0.95), rgba(5, 4, 8, 0.98) 58%, #020103 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
+    .archetype-spread-overlay { position: fixed; inset: 0; z-index: 320; background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 0.99), rgba(5, 4, 8, 1) 58%, #020103 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
     .archetype-spread-stage { position: relative; width: min(100%, 440px); height: min(88vh, 720px); }
     .archetype-spread-stage.is-dealing .archetype-spread-card { transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; }
     .archetype-spread-card { position: absolute; left: 50%; top: 56%; width: min(20vw, 92px); aspect-ratio: 2 / 3; transform-style: preserve-3d; touch-action: none; cursor: grab; transition: transform 0.18s ease-out, filter 0.18s ease-out; z-index: var(--z, 1); will-change: transform; }
@@ -528,6 +528,7 @@
         notify('אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.');
         return;
       }
+      setChromeVisible(false);
       pendingSpreadPoolIds = deck.map(card => card.id);
       pendingSpreadSourceView = fromView;
       playArchetypeShuffleThen(openArchetypeTarotSpread);
