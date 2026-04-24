@@ -81,6 +81,12 @@
     let pendingPoolIds = [];
     let currentView = 'draw';
     let activeCardId = '';
+    function setChromeVisible(visible){
+      const top = document.querySelector('.top');
+      const menu = document.querySelector('.menu');
+      if (top) top.style.display = visible ? 'flex' : 'none';
+      if (menu) menu.style.display = visible ? 'grid' : 'none';
+    }
 
     function notify(msg){ toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200); }
     function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -106,6 +112,7 @@
 
     function startSpreadDraw(pool, fromView){
       if (!pool || !pool.length) { notify('לא נמצאו קלפים לבחירה הזו. בחרו לפחות ממלכה אחת או מועדפים.'); return; }
+      setChromeVisible(false);
       pendingPoolIds = pool.map(c => c.id);
       playShuffleThen(openSpread);
     }
@@ -204,20 +211,22 @@
     }
 
     function renderDraw(){
+      setChromeVisible(true);
       document.getElementById('view').innerHTML = `<div class="panel"><div class="meta">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div><button class="btn" onclick="startSpreadDraw(randomPool(),'random')">ערבוב ושליפה</button><div class="meta" style="margin-top:.6rem;">גודל חפיסה פעילה: ${randomPool().length} קלפים</div></div>`;
     }
     function renderCardView(cardId, fromView){
       const card = CARDS.find(c => String(c.id) === String(cardId));
       if (!card) { setView('draw'); return; }
       activeCardId = cardId;
+      setChromeVisible(false);
       const fav = favorites.has(cardId);
       const imgPath = IMAGE_MAP[cardId] ? String(IMAGE_MAP[cardId]).replace('./','') : '';
       const imageUrl = imgPath ? `./${imgPath}` : '';
       const host = document.getElementById('view');
       host.innerHTML = `
-        <div class="panel">
+        <div style="height:100%; overflow:auto; border:1px solid var(--border); border-radius:1rem; background:var(--panel); padding:.8rem;">
           <div style="display:flex; justify-content:space-between; gap:.5rem; margin-bottom:.6rem;">
-            <button class="btn" onclick="activeCardId=''; setView('${escapeHtml(fromView || 'draw')}')">חזרה</button>
+            <button class="btn" onclick="activeCardId=''; setView('${escapeHtml(fromView === 'custom' ? 'custom' : 'draw')}')">חזרה</button>
             <button class="btn" onclick="toggleFavorite('${escapeHtml(cardId)}')">${fav ? '★ במועדפים' : '☆ הוספה למועדפים'}</button>
           </div>
           <div style="border:1px solid rgba(255,255,255,.14); border-radius:.9rem; overflow:hidden; margin-bottom:.7rem; background:rgba(255,255,255,.03);">
@@ -232,17 +241,20 @@
         </div>`;
     }
     function renderCustom(){
+      setChromeVisible(true);
       const rs = realms();
       const row = (k,l,s) => { const active = selectedDeckKeys.includes(k); return `<button class="row" onclick="toggleDeckKey('${escapeHtml(k)}')"><span><strong>${escapeHtml(l)}</strong><br><small>${escapeHtml(s)}</small></span><small>${active ? '✓' : '□'}</small></button>`; };
       document.getElementById('view').innerHTML = `<div class="panel"><div style="display:flex; gap:.5rem; margin-bottom:.55rem;"><button class="btn" onclick="selectedDeckKeys=['__favorites__',...realms()]; saveState(); renderCustom();">בחר הכל</button><button class="btn" onclick="selectedDeckKeys=[]; saveState(); renderCustom();">נקה הכל</button></div>${row('__favorites__','סט מועדפים',`${favorites.size} קלפים מסומנים כרגע`)}${rs.map(r=>row(r,r,`${CARDS.filter(c=>String(c.realm||'ללא ממלכה')===r).length} קלפים בממלכה זו`)).join('')}<div style="margin-top:.7rem;"><button class="btn" style="width:100%;" onclick="startSpreadDraw(customPool(),'custom')">ערבוב ושליפה מהחפיסה המותאמת</button></div></div>`;
     }
     function toggleDeckKey(k){ if (selectedDeckKeys.includes(k)) selectedDeckKeys = selectedDeckKeys.filter(x => x !== k); else selectedDeckKeys.push(k); saveState(); renderCustom(); }
     function renderAll(){
+      setChromeVisible(true);
       const grouped = {}; CARDS.forEach(c => { const r = String(c.realm||'ללא ממלכה'); (grouped[r] ||= []).push(c); });
       const html = Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'he')).map(r => `<div class="meta" style="margin:.6rem 0 .2rem;">${escapeHtml(r)}</div>${grouped[r].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'he')).map(c=>`<div class="row"><button style="background:transparent;border:0;color:inherit;flex:1;text-align:right;" onclick="renderCardView('${escapeHtml(c.id)}','all')">${escapeHtml(c.name||'')}</button><button class="btn" onclick="toggleFavorite('${escapeHtml(c.id)}')">${favorites.has(c.id)?'★':'☆'}</button></div>`).join('')}`).join('');
       document.getElementById('view').innerHTML = `<div class="panel">${html}</div>`;
     }
     function renderAbout(){
+      setChromeVisible(true);
       document.getElementById('view').innerHTML = `<div class="panel"><details class="about-acc" open><summary>אודות ארכיטיפים של עונג</summary><div class="about-body">${escapeHtml(ABOUT_COPY.notDisguise || 'הקלפים הם הזמנה לתרגול וחקירה.')}</div></details><details class="about-acc"><summary>איך להשתמש</summary><div class="about-body">${escapeHtml(ABOUT_COPY.howToUse || 'שליפה אקראית, חפיסה מותאמת או עיון בכל הקלפים.')}</div></details><details class="about-acc"><summary>הזמנה לתרגול</summary><div class="about-body">${escapeHtml(ABOUT_COPY.invitation || '')}</div></details></div>`;
     }
     function setView(v){ currentView = v; ['draw','custom','all','about'].forEach(x => document.getElementById('nav-'+x).classList.toggle('active', x === v)); if (v==='draw') renderDraw(); else if (v==='custom') renderCustom(); else if (v==='all') renderAll(); else renderAbout(); saveState(); }
