@@ -356,13 +356,20 @@
     let favoritesOnly = false;
     let favorites = new Set();
     const TAP_DRIFT = 10;
-    const ARCHETYPE_CARD_BACK = './backside.png';
+    const ARCHETYPE_CARD_BACK = './archetype-card-back.png';
     const toastEl = document.getElementById('toast');
     let toastTimer = null;
 
     function goBack() {
       if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'he_module_back_home' }, window.location.origin);
       else window.location.href = '../index.html';
+    }
+
+    function setChromeVisible(visible) {
+      const top = document.querySelector('.top');
+      const menu = document.querySelector('.menu');
+      if (top) top.style.display = visible ? 'flex' : 'none';
+      if (menu) menu.style.display = visible ? 'grid' : 'none';
     }
 
     function normalizeRealm(v) {
@@ -720,6 +727,13 @@
       setView(currentView);
     }
 
+    function leaveArchetypeCard(targetView) {
+      setChromeVisible(true);
+      if (targetView === 'all') setView('all');
+      else if (targetView === 'custom') setView('custom');
+      else setView('draw');
+    }
+
     function toggleArchetypeFlip() {
       if (!archetypeView.cardId) return;
       archetypeView.flipped = !archetypeView.flipped;
@@ -746,20 +760,21 @@
       const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
       const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
       const isFav = favorites.has(card.id);
-      const backAction = fromView === 'all'
-        ? "setView('all')"
+      const backTarget = fromView === 'all'
+        ? 'all'
         : fromView === 'custom'
-          ? "setView('custom')"
-          : "setView('draw')";
+          ? 'custom'
+          : 'draw';
       const reshuffleBtn = fromView === 'random'
         ? `<button class="btn" style="display:block; width:100%; max-width:320px; margin:0.75rem auto 0;" onclick="reshuffleArchetypeDraw()">שליפה נוספת</button>`
         : '';
       const host = document.getElementById('view');
       if (!host) return;
+      setChromeVisible(false);
       host.innerHTML = `
         <div class="panel" style="min-height:100%;">
           <div class="filter-row" style="justify-content:space-between;">
-            <button class="btn" onclick="${backAction}">חזרה</button>
+            <button class="btn" onclick="leaveArchetypeCard('${backTarget}')">חזרה</button>
             <button class="btn" onclick="toggleFavorite('${escapeHtml(card.id)}'); renderArchetypeCard('${escapeHtml(card.id)}','${escapeHtml(fromView)}')">
               ${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}
             </button>
@@ -796,6 +811,7 @@
     }
 
     function setView(view) {
+      setChromeVisible(true);
       currentView = view;
       ['draw', 'custom', 'all', 'about'].forEach(v => {
         const node = document.getElementById(`nav-${v}`);
