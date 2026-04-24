@@ -2,1092 +2,89 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#050408">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Pleasure HE">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pleasure Practice Studio - Hebrew</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #050408;
-      --panel: rgba(255, 255, 255, 0.08);
-      --border: rgba(255, 255, 255, 0.18);
-      --text: #f3f2f7;
-      --muted: #c6c2d5;
-      --accent: #b786ff;
+      --panel: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.16);
+      --text: #f4f2f8;
+      --muted: #c9c3d8;
+      --accent: #b787ff;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: "Assistant", "Segoe UI", sans-serif; }
-    .hypno-container {
-      position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000;
+    html, body { margin: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: Assistant, "Segoe UI", sans-serif; }
+    body {
+      background:
+        radial-gradient(1200px 560px at 50% 45%, rgba(85, 45, 140, 0.28), transparent 72%),
+        radial-gradient(900px 420px at 70% 10%, rgba(120, 70, 170, 0.20), transparent 68%),
+        #050408;
     }
-    .hypno-spiral {
-      position: absolute; top: 50%; left: 50%;
-      width: 120vmax; height: 120vmax;
-      transform-origin: center;
-      transform: translate(-50%, -50%);
-      animation: spin 13s linear infinite;
-      opacity: 0.72;
-    }
-    .vignette {
-      position: fixed; inset: 0; z-index: 1;
-      background: radial-gradient(circle, transparent 25%, #000 90%);
-      pointer-events: none;
-    }
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.8);
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.2s ease;
-    }
-    button.glass-panel:hover {
-      border-color: rgba(168, 85, 247, 0.5);
-      box-shadow: 0 15px 50px 0 rgba(0,0,0,0.8), 0 0 30px rgba(147, 51, 234, 0.15);
-    }
-    .module-home-card {
-      text-align: center;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.07) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-    .module-home-card h3 { letter-spacing: 0.01em; }
-    .module-home-card p { max-width: 28ch; margin: 0.35rem auto 0; }
-    @keyframes spin {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(-360deg); }
-    }
-    .app {
-      position: relative; z-index: 2; width: 100%; height: 100%;
-      max-width: 1240px; margin: 0 auto;
-      display: flex; flex-direction: column;
-    }
-    .screen {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      padding: 1.25rem;
-      gap: 1rem;
-      overflow: hidden;
-    }
-    .title-wrap {
-      text-align: center; margin-top: 0.5rem;
-    }
-    .title-main { margin: 0; font-size: 2.5rem; line-height: 1.04; font-family: "Frank Ruhl Libre", Georgia, serif; letter-spacing: 0.01em; }
-    .title-sub { margin: 0.2rem 0 0; font-size: 2.1rem; color: var(--accent); font-family: "Frank Ruhl Libre", Georgia, serif; }
-    .subtitle { margin: 0.8rem 0 0; font-size: 0.78rem; letter-spacing: 0.23em; color: var(--muted); text-transform: uppercase; }
-    .actions {
-      width: min(720px, 100%);
-      margin: 0 auto;
-      display: grid;
-      gap: 0.75rem;
-    }
-    .card-btn {
+    .app { min-height: 100%; padding: 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+    .top {
       border: 1px solid var(--border);
+      border-radius: 0.95rem;
       background: var(--panel);
-      color: var(--text);
-      border-radius: 1rem;
-      padding: 1rem 1.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      font-size: 1.32rem;
-      font-weight: 700;
-      font-family: "Frank Ruhl Libre", Georgia, serif;
-    }
-    .card-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
-    .card-note {
-      margin-top: -0.2rem;
-      font-size: 0.93rem;
-      color: var(--muted);
-      font-weight: 400;
-      font-family: "Assistant", "Segoe UI", sans-serif;
-    }
-    .secondary-btn {
-      border: 1px solid rgba(183, 134, 255, 0.35);
-      background: transparent;
-      color: #d8b8ff;
-      border-radius: 0.9rem;
-      padding: 0.72rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      font-size: 1.03rem;
-    }
-    .utility-row {
-      width: min(720px, 100%);
-      margin: 0.3rem auto 0;
-      display: flex;
-      gap: 0.55rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .update-banner {
-      margin-top: 0.45rem;
-      border: 1px solid rgba(183, 134, 255, 0.36);
-      background: rgba(183, 134, 255, 0.12);
-      border-radius: 0.9rem;
-      padding: 0.55rem 0.7rem;
+      padding: 0.8rem 0.9rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.9rem;
+      gap: 0.8rem;
     }
-    .back-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .back-btn {
+    .title { margin: 0; font-size: 1.22rem; font-weight: 700; }
+    .btn {
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.14);
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.06);
       color: var(--text);
-      border-radius: 999px;
-      min-width: 96px;
-      height: 42px;
-      padding: 0 0.85rem;
+      padding: 0.52rem 0.86rem;
       cursor: pointer;
       font-size: 0.95rem;
-      font-weight: 600;
     }
-    .screen-title {
-      margin: 0;
-      font-size: 1.35rem;
-      font-family: "Frank Ruhl Libre", Georgia, serif;
-    }
-    .frame-wrap {
-      flex: 1; min-height: 0;
-      border-radius: 1rem;
+    .btn:hover { background: rgba(255,255,255,0.14); }
+    .view { flex: 1; min-height: 0; }
+    .card {
       border: 1px solid var(--border);
-      overflow: hidden;
-      background: #000;
-      position: relative;
+      border-radius: 1rem;
+      background: var(--panel);
+      padding: 0.95rem;
     }
+    .stack { display: grid; gap: 0.72rem; width: min(760px, 100%); margin: 0 auto; }
+    .hero { text-align: center; margin: 1rem 0 0.4rem; }
+    .hero h2 { margin: 0; font-size: 2rem; color: #e8d9ff; }
+    .hero p { margin: 0.45rem 0 0; color: var(--muted); }
+    .module-btn {
+      width: 100%;
+      text-align: center;
+      font-size: 1.08rem;
+      padding: 1rem;
+      border-radius: 0.95rem;
+      background: rgba(255,255,255,0.07);
+    }
+    .frame-wrap { height: calc(100vh - 7.4rem); min-height: 520px; }
     iframe {
-      width: 100%; height: 100%;
-      border: 0; background: #000;
-    }
-    .embed-status {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1rem;
-      background: rgba(6, 5, 12, 0.88);
-      color: #ddd8eb;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-    .embed-status.hidden { display: none; }
-    .panel {
+      width: 100%;
+      height: 100%;
       border: 1px solid var(--border);
-      background: var(--panel);
       border-radius: 1rem;
-      padding: 1rem;
-      overflow: auto;
-      font-size: 1rem;
-      line-height: 1.7;
-      color: #ddd8eb;
+      background: #08060d;
     }
-    .list { margin: 0.2rem 0 0; padding-right: 1rem; }
-    .list li { margin-bottom: 0.3rem; }
-    .muted { color: var(--muted); }
-    .diag-grid {
-      display: grid;
-      gap: 0.55rem;
-      margin-top: 0.6rem;
-    }
-    .diag-row {
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 0.7rem;
-      background: rgba(255,255,255,0.04);
-      padding: 0.55rem 0.65rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.7rem;
-    }
-    .diag-name { font-size: 0.93rem; }
-    .diag-path { font-size: 0.8rem; color: var(--muted); direction: ltr; text-align: left; }
-    .diag-chip {
-      border: 1px solid rgba(255,255,255,0.24);
-      border-radius: 999px;
-      padding: 0.14rem 0.52rem;
-      font-size: 0.78rem;
-      white-space: nowrap;
-    }
-    .diag-chip.ok { border-color: rgba(46,204,113,0.5); color: #bff6d7; background: rgba(46,204,113,0.16); }
-    .diag-chip.bad { border-color: rgba(255,99,132,0.48); color: #ffd4de; background: rgba(255,99,132,0.14); }
-    .diag-chip.warn { border-color: rgba(255,205,86,0.5); color: #ffeab8; background: rgba(255,205,86,0.14); }
-    .net-badge { margin-right: 0.35rem; }
-    .session-card {
-      border: 1px solid rgba(255,255,255,0.16);
-      border-radius: 0.85rem;
-      background: rgba(255,255,255,0.04);
-      padding: 0.65rem;
-      margin-bottom: 0.55rem;
-    }
-    .session-actions {
-      display: flex;
-      gap: 0.45rem;
-      flex-wrap: wrap;
-      margin-top: 0.5rem;
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    @media (max-width: 760px) {
+      .title { font-size: 1.05rem; }
+      .hero h2 { font-size: 1.65rem; }
+      .frame-wrap { height: calc(100vh - 8.2rem); min-height: 480px; }
     }
   </style>
 </head>
 <body>
-  <div class="hypno-container">
-    <svg class="hypno-spiral" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="#2e1065" stroke-width="8" stroke-linecap="round"
-            d="M100,100 m0,0 a4,4 0 0 1 4,4 a8,8 0 0 1 -8,8 a12,12 0 0 1 -12,-12 a16,16 0 0 1 16,-16
-               a20,20 0 0 1 20,20 a24,24 0 0 1 -24,24 a28,28 0 0 1 -28,-28 a32,32 0 0 1 32,-32
-               a36,36 0 0 1 36,36 a40,40 0 0 1 -40,40 a44,44 0 0 1 -44,-44 a48,48 0 0 1 48,-48
-               a52,52 0 0 1 52,52 a56,56 0 0 1 -56,56 a60,60 0 0 1 -60,-60 a64,64 0 0 1 64,-64
-               a68,68 0 0 1 68,68 a72,72 0 0 1 -72,72 a76,76 0 0 1 -76,-76 a80,80 0 0 1 80,-80
-               a84,84 0 0 1 84,84 a88,88 0 0 1 -88,88 a92,92 0 0 1 -92,-92 a96,96 0 0 1 96,-96
-               a100,100 0 0 1 100,100"/>
-    </svg>
-  </div>
-  <div class="vignette"></div>
-
   <div class="app" id="app"></div>
 
   <script>
-    const ABOUT_TEMPLATE = `
-        <div class="flex flex-col h-full bg-[#050408] md:max-w-[1240px] md:mx-auto md:w-full">
-          <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font">××•×“×•×ª Pleasure Practice Studio</h2>
-          </div>
-          <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
-            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×œ×©× ×ž×” ×”×¡×˜×•×“×™×• ×§×™×™×</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio ×”×•× ×ž×¨×—×‘ ×©×§×˜ ×œ×—×§×™×¨×” ××™×¨×•×˜×™×ª ×ž×›×•×•× ×ª - ×ž×§×•× ×œ×’×œ×•×ª ×ž×” ××ª/×” ×¨×•×¦×”, ×œ×ž×¦×•× ×œ×–×” ×ž×™×œ×™× ×ž×“×•×™×§×•×ª, ×•×œ×¢×¦×‘ ×—×•×•×™×•×ª ×©×ž×¨×’×™×©×•×ª ×‘×˜×•×—×•×ª, ×—×™×•×ª ×•×‘××ž×ª ×©×œ×š.</p>
-            </div>
-            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">×©×œ×•×©×” ×›×œ×™×, ×¡×˜×•×“×™×• ××—×“</h3>
-              <div class="space-y-4 text-gray-300 serif-font text-base leading-relaxed">
-                <p><span class="text-white font-bold">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</span><br>×—×‘×™×œ×ª ×ª×¨×’×•×œ ×œ×˜×•×Ÿ, ×§×¦×‘ ×•× ×™×¡×•×— ×”×™×¤× ×•×˜×™-××™×¨×•×˜×™. ×œ×ž×™ ×©×¨×•×¦×” ×œ×”×¨×—×™×‘ ××ª ×˜×•×•×— ×”×©×¤×”, ×œ×”×¢×ž×™×§ ×“×ž×™×•×Ÿ ××™×¨×•×˜×™, ××• ×œ×—×§×•×¨ ×ž×¦×‘×™× ×ž×•×“×¨×›×™× ×“×¨×š ×ž×™×œ×™×.</p>
-                <p><span class="text-white font-bold">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</span><br>×—×‘×™×œ×ª ×§×œ×¤×™× ×—×–×•×ª×™×ª-×¡×ž×œ×™×ª ×œ×—×§×™×¨×” ×¨×’×©×™×ª ×•×× ×¨×’×˜×™×ª. ×œ×–×”×•×ª ××™×–×” ××¨×›×™×˜×™×¤ ×©×œ ×ž×¦×‘ ×¨×•×— ×¨×¦×•×™ ×œ×š ×œ×’×œ×, ×œ×”×–×ž×™×Ÿ ××• ×œ×”×‘×™×Ÿ - ×‘×¢×¦×ž×š ××• ×‘×“×™× ×ž×™×§×” ×¢× ×¤×¨×˜× ×¨/×™×ª.</p>
-                <p><span class="text-white font-bold">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</span><br>×ž×¨×—×‘ ×ž×•×‘× ×” ×œ×”×¡×›×ž×•×ª ×•×ª×§×©×•×¨×ª ×‘×™×Ÿ ×¤×¨×˜× ×¨×™×. ×œ×“×™×™×§ ×¨×¦×•× ×•×ª, ×’×‘×•×œ×•×ª, ×¢×•×¦×ž×” ×•××¤×˜×¨×§×¨ ×œ×¤× ×™ ×¡×©×Ÿ, ×›×“×™ ×œ×”×™×›× ×¡ ××œ×™×• ×‘×‘×™×˜×—×•×Ÿ, ×‘×”×™×¨×•×ª ×•×“××’×” ×”×“×“×™×ª.</p>
-              </div>
-            </div>
-            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¢×œ ×¡×©×”</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">×¡×©×” ×‘×œ×‘×™×Ÿ ×”×•× ×ž×—× ×š ×œ××ž× ×•×™×•×ª ××™×¨×•×˜×™×•×ª ×•×™×•×¦×¨ Pleasure Practice Studio. ×”×¢×‘×•×“×” ×©×œ×• ×ž×—×‘×¨×ª ×‘×™×Ÿ ×ª×©×•×§×”, ×¢×•×ž×§ ×•×”×¡×›×ž×” ×“×¨×š ×›×œ×™× ×ž×¢×©×™×™× ×©××¤×©×¨ ×œ×™×™×©× ×‘×—×™×™× ×¢×¦×ž× - ×œ×‘×“ ××• ×™×—×“. ×”×’×™×©×” ×ž×©×œ×‘×ª ×©×¤×” ×”×™×¤× ×•×˜×™×ª, ×“×ž×™×•×Ÿ ××¨×›×™×˜×™×¤×™ ×•×¢×™×¦×•×‘ ×ª×§×©×•×¨×ª ×›×“×™ ×œ×ª×ž×•×š ×‘×—×•×•×™×•×ª ××™× ×˜×™×ž×™×•×ª ×ž×“×•×™×§×•×ª, ×‘×˜×•×—×•×ª ×•×ž×©×ž×¢×•×ª×™×•×ª ×™×•×ª×¨.</p>
-            </div>
-            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×—×™×‘×•×¨</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">××¤×©×¨ ×œ×¢×§×•×‘ ××—×¨×™ <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> ×œ×ª×¨×’×•×œ×™× ×ž×ª×ž×©×›×™×, ×ª×•×‘× ×•×ª ×•×¢×“×›×•× ×™× ×¢×œ ×”×¦×¢×•×ª ×—×“×©×•×ª.</p>
-            </div>
-            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¤×¨×˜×™×•×ª</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ/×ž×›×©×™×¨ ×©×œ×š ×›×‘×¨×™×¨×ª ×ž×—×“×œ. ×× ×ž×©×ª×ž×©×™× ×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ - ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×œ××—×¨ ×©×™×ž×•×©.</p>
-            </div>
-            <div class="pt-2">
-              <button onclick="promptInstallApp()" class="install-app-btn w-full py-3 rounded-2xl border border-purple-500/30 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font">
-                <i data-lucide="download"></i> ×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª
-              </button>
-              <button onclick="forceUpdateApp()" class="mt-2 w-full py-2 rounded-xl border border-blue-500/30 text-blue-200 text-xs hover:bg-blue-500/10 transition flex items-center justify-center gap-2 font-mono">
-                <i data-lucide="refresh-cw"></i> ×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    const MODULE_HEALTH_CHECKS = [
-      { id: 'shell', name: 'מעטפת עברית', path: './index.html' },
-      { id: 'manifest', name: 'Manifest', path: './manifest.json' },
-      { id: 'sw', name: 'Service Worker', path: './sw.js' },
-      { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
-      { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
-    ];
-    const SW_BUILD = '2026-04-24-he-6';
-    const APP_CACHE_PREFIX = 'pleasure-he-v';
-    const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
+    const SW_BUILD = '2026-04-25-he-rebuild-1';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
-    const THEME_ORDER = ['Direct Suggestions', 'Invitations', 'Identity', 'Future Pace'];
-    const DEFAULT_CATEGORY_INFO = {};
-    const AppState = { cards: [], categories: [], themes: [], plannerSessions: [] };
-    let CATEGORY_INFO = DEFAULT_CATEGORY_INFO;
-    let deferredInstallPrompt = null;
-    let currentSwReg = null;
-    let diagnosticsCache = null;
-    let plannerPendingReturnTo = null;
 
-    function mergeCategoryInfoMaps(defaults, incoming) {
-      return { ...(defaults || {}), ...(incoming || {}) };
-    }
-    function attachCategoryInfoToCards(cards) {
-      return Array.isArray(cards) ? cards.slice() : [];
-    }
-    function loadFromStorage() {
-      try {
-        const cachedCards = JSON.parse(localStorage.getItem('en_cards_data_v1') || '[]');
-        AppState.cards = Array.isArray(cachedCards) ? cachedCards : [];
-      } catch {
-        AppState.cards = [];
-      }
-      try {
-        const cachedCategoryInfo = JSON.parse(localStorage.getItem('en_category_info_v1') || '{}');
-        CATEGORY_INFO = cachedCategoryInfo && typeof cachedCategoryInfo === 'object' ? cachedCategoryInfo : DEFAULT_CATEGORY_INFO;
-      } catch {
-        CATEGORY_INFO = DEFAULT_CATEGORY_INFO;
-      }
-      AppState.themes = THEME_ORDER.slice();
-    }
-    function renderWelcome(pushHistory = true) {
-      if (AppState.cards.length === 0) {
-        fetch('cards_data.json')
-          .then(r => r.json())
-          .then(data => {
-            AppState.cards = data.cards;
-            AppState.categories = data.categories;
-            CATEGORY_INFO = mergeCategoryInfoMaps(DEFAULT_CATEGORY_INFO, data.category_info || {});
-            AppState.cards = attachCategoryInfoToCards(AppState.cards, CATEGORY_INFO);
-            try { localStorage.setItem('en_category_info_v1', JSON.stringify(CATEGORY_INFO)); } catch (e) {}
-            try { localStorage.setItem('en_cards_data_v1', JSON.stringify(AppState.cards)); } catch (e) {}
-            AppState.themes = THEME_ORDER.slice();
-          })
-          .catch(() => {
-            loadFromStorage();
-          });
-      }
-      document.getElementById('app').innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full p-6 text-center relative z-10">
-          <div class="mb-8 relative">
-            <div class="absolute inset-0 bg-purple-500 blur-3xl opacity-20 rounded-full animate-pulse"></div>
-            <h1 class="text-5xl font-bold serif-font text-white mb-2 tracking-tight relative z-10">Pleasure Practice</h1>
-            <h1 class="text-5xl font-bold serif-font text-purple-400 mb-4 tracking-tight relative z-10">Studio</h1>
-            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">×©×œ×•×©×” ×›×œ×™× ×ž×©×•×œ×‘×™× ×œ×ª×¨×’×•×œ</p>
-          </div>
-
-          <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
-          </button>
-          <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª
-          </button>
-
-          <button onclick="showAbout()" class="w-full max-w-xs py-3 rounded-2xl border border-purple-500/20 text-purple-300 text-base hover:bg-purple-500/10 transition flex items-center justify-center serif-font">
-            ××•×“×•×ª ×›×œ×œ×™×•×ª
-          </button>
-
-          <button onclick="clearData()" class="absolute bottom-6 text-xs text-gray-600 hover:text-red-400 transition opacity-60 hover:opacity-100">
-            ××™×¤×•×¡ ×›×œ ×”× ×ª×•× ×™×
-          </button>
-        </div>
-      `;
-      lucide.createIcons();
-      if (pushHistory) {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('module');
-        url.searchParams.delete('view');
-        history.pushState({ screen: 'welcome' }, '', url.toString());
-      }
-    }
-    function showAbout() {
-      document.getElementById('app').innerHTML = ABOUT_TEMPLATE;
-      lucide.createIcons();
-      updateInstallButtons();
-    }
-    async function openDiagnostics() {
-      document.getElementById('app').innerHTML = `
-        <div class="screen">
-          <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
-            <h2 class="screen-title">מצב מערכת</h2>
-          </div>
-          <div class="panel">
-            <p>×‘×“×™×§×•×ª ×–×ž×™× ×•×ª ×ž×•×“×•×œ×™× ×•×§×‘×¦×™ ×ª×©×ª×™×ª ×‘×¨×™×¦×” ×ž×§×•×ž×™×ª.</p>
-            <div class="utility-row" style="justify-content:flex-start;">
-              <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
-            </div>
-            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">טוען בדיקות...</div>
-            <div id="diagGrid" class="diag-grid"></div>
-          </div>
-        </div>
-      `;
-      await runDiagnostics(false);
-    }
-    function renderEmbeddedModule(title, src, iframeTitle, extraAttrs = '') {
-      const frameId = `frame-${Math.random().toString(36).slice(2, 8)}`;
-      document.getElementById('app').innerHTML = `
-        <div class="screen">
-          <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
-            <h2 class="screen-title">${title}</h2>
-          </div>
-          <div class="frame-wrap">
-            <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
-          </div>
-        </div>
-      `;
-      wireEmbedFrame(frameId, src);
-    }
-    function openHypno() {
-      renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './דפוסי שפה עברית/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
-    }
-    function listHypnoRecordings() {
-      try {
-        const raw = localStorage.getItem('he_recordings_v4');
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-    function renderModeSelect() {
-      const app = document.getElementById('app');
-      const recordingsCount = listHypnoRecordings().length;
-      app.innerHTML = `
-        <div class="flex flex-col h-full p-5 bg-black/10">
-          <div class="flex items-center justify-between mb-6 pt-3 gap-3">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font text-center">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</h2>
-            <div class="w-10"></div>
-          </div>
-          <div class="flex-1 min-h-0 flex flex-col justify-between">
-            <div class="grid gap-4">
-              <button onclick="startSession('all')" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×‘×¡×™×¡×™×ª</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">
-                  ×—×‘×™×œ×” ×ž××•×–× ×ª ×‘×œ×™ × ×•×©××™× ×ž×ª×§×“×ž×™×, ×œ×ª×¨×’×•×œ ×©×•×˜×£.
-                </p>
-              </button>
-              <button onclick="renderCategorySelect()" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×ž×•×ª××ž×ª</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">×‘×—×™×¨×” ×œ×¤×™ ×§×˜×’×•×¨×™×•×ª ×ž×ž×•×§×“×•×ª.</p>
-              </button>
-              <button onclick="renderRecordings()" class="glass-panel module-home-card p-4 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <div class="flex items-center justify-center gap-4">
-                  <div>
-                    <h3 class="text-lg font-bold text-white serif-font">×”×”×§×œ×˜×•×ª ×©×œ×™</h3>
-                    <p class="text-gray-400 text-xs text-center">${recordingsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div class="pt-3">
-              <button onclick="showHypnoAbout()" class="w-full py-3 rounded-2xl border border-purple-500/35 bg-black/40 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-                ××•×“×•×ª ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    function startSession(mode) {
-      openHypno();
-    }
-    function renderCategorySelect() {
-      openHypno();
-    }
-    function renderRecordings() {
-      openHypno();
-    }
-    function showHypnoAbout() {
-      openHypno();
-    }
-    function drawRandomArchetype() {}
-    function renderArchetypeDeckBuilder() {}
-    function renderArchetypesList() {}
-    function showArchetypesAbout() {}
-    function openPlanner() { renderKinkyScenePlannerHome(); }
-    function listPlannerSessions() {
-      try {
-        const raw = localStorage.getItem(PLANNER_SESSIONS_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(parsed)) return [];
-        return parsed
-          .filter(s =>
-            s &&
-            typeof s === 'object' &&
-            typeof s.id === 'string' &&
-            typeof s.createdAt === 'string' &&
-            typeof s.updatedAt === 'string' &&
-            s.plannerState &&
-            typeof s.plannerState === 'object'
-          )
-          .map(s => {
-            const sessionName = s?.plannerState?.session?.sessionName || '';
-            const nickname = s?.plannerState?.session?.nickname || '';
-            const fallbackTitle = String(sessionName || nickname || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
-            return { ...s, title: String(s.title || fallbackTitle) };
-          })
-          .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
-      } catch {
-        return [];
-      }
-    }
-    function savePlannerSessions(sessions) {
-      const clean = Array.isArray(sessions) ? sessions.slice(0, 100) : [];
-      localStorage.setItem(PLANNER_SESSIONS_KEY, JSON.stringify(clean));
-      AppState.plannerSessions = clean;
-    }
-    function plannerSessionDate(s) {
-      const raw = String((s && (s.updatedAt || s.createdAt)) || '');
-      const dt = new Date(raw);
-      if (Number.isNaN(dt.getTime())) return String(raw || '');
-      return dt.toLocaleString('he-IL');
-    }
-    function plannerSessionMeta(s) {
-      const snap = s && s.summarySnapshot && typeof s.summarySnapshot === 'object' ? s.summarySnapshot : {};
-      const roleRaw = String(snap.role || '').trim().toLowerCase();
-      const roleMap = { dom: '×“×•×', sub: '×¡××‘', switch: '×¡×•×•×™×¥×³' };
-      const role = roleRaw ? (roleMap[roleRaw] || roleRaw) : 'â€”';
-      const durationNum = Number(snap.duration || 0);
-      const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} ×“×§×³` : 'â€”';
-      return `${role} â€¢ ${duration}`;
-    }
-    function renderKinkyScenePlannerHome() {
-      const savedSessionsCount = listPlannerSessions().length;
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <div class="flex flex-col h-full p-6 bg-black/10">
-          <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
-            <div class="w-10"></div>
-          </div>
-          <div class="grid gap-4">
-            <button onclick="startPlannerSession()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×¡×©×Ÿ ×”×¡×›×ž×•×ª ×—×“×©</h3>
-              <p class="text-gray-400 serif-font text-base">×¤×ª×™×—×ª ×ª×”×œ×™×š ×—×“×© ×œ×‘×™×¨×•×¨ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª ×•×”×¡×›×ž×•×ª ×œ×¤× ×™ ×ž×¤×’×©.</p>
-            </button>
-            <button onclick="renderPlannerSessions()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×”×¡×©× ×™× ×©×œ×™</h3>
-                <p class="text-gray-400 serif-font text-base">×¦×¤×™×™×”, ×”×ž×©×š ×•× ×™×”×•×œ ×©×œ ×¡×©× ×™× ×©× ×©×ž×¨×•.</p>
-              <p class="text-gray-400 text-xs text-center mt-2">${savedSessionsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
-            </button>
-            <button onclick="showPlannerAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h3>
-              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© × ×›×•× ×•×ª ×‘×ž×•×“×•×œ.</p>
-            </button>
-          </div>
-        </div>
-      `;
-    }
-    function renderPlannerHome() { renderKinkyScenePlannerHome(); }
-    function renderPlannerAbout() {
-      document.getElementById('app').innerHTML = `
-        <div class="screen">
-          <div class="back-row">
-            <button class="back-btn" onclick="renderPlannerHome()">×—×–×¨×” â†’</button>
-            <h2 class="screen-title">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
-          </div>
-          <div class="panel">
-            <p><strong>×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</strong> ×”×•× ×›×œ×™ ×¢×‘×•×“×” ×œ×©×™×—×” ×ž×™× ×™×ªÖ¾×¨×’×©×™×ª ×œ×¤× ×™ ×¡×©×Ÿ, ×•×œ× ×ª×—×œ×™×£ ×œ×©×™×§×•×œ ×“×¢×ª, ×ª×§×©×•×¨×ª ×‘×–×ž×Ÿ ××ž×ª ××• ××—×¨×™×•×ª ×”×“×“×™×ª.</p>
-            <details open>
-              <summary><strong>×œ×ž×” ×œ×”×©×ª×ž×© ×‘×ž×¦×¤×Ÿ?</strong></summary>
-              <ul class="list">
-                <li>×œ×™×™×¦×¨ ×©×™×—×” ×‘×¨×•×¨×” ×¢×œ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª, ×¢×¦×™×ž×•×ª ×•××¤×˜×¨Ö¾×§×¨ ×œ×¤× ×™ ×©×ž×ª×—×™×œ×™×.</li>
-                <li>×œ×”×¤×•×š ×”×¡×›×ž×•×ª ×œ××¡×•×¤×” ×›×ª×•×‘×” ×©××¤×©×¨ ×œ×—×–×•×¨ ××œ×™×” ×œ×¤× ×™/××—×¨×™ ×”×¡×©×Ÿ.</li>
-                <li>×œ×–×”×•×ª ×ž×¨××© × ×§×•×“×•×ª ×¨×’×™×©×•×ª, ×˜×¨×™×’×¨×™×, ×•×ž×¡×œ×•×œ×™ ×¢×¦×™×¨×” ×‘×˜×•×—×™×.</li>
-              </ul>
-            </details>
-            <details>
-              <summary><strong>×ž×¡×’×¨×•×ª ×”×¡×›×ž×” ×ž×•×ž×œ×¦×•×ª</strong></summary>
-              <ul class="list">
-                <li><strong>SSC</strong> - ×‘×˜×•×—, ×©×¤×•×™ ×•×‘×”×¡×›×ž×”.</li>
-                <li><strong>RACK</strong> - ×ž×•×“×¢×•×ª ×œ×¡×™×›×•×Ÿ ×•×”×¡×›×ž×” ×ž×•×“×¢×ª.</li>
-                <li><strong>FRIES</strong> - ×”×¡×›×ž×” ×—×•×¤×©×™×ª, ×”×¤×™×›×”, ×ž×•×“×¢×ª, × ×œ×”×‘×ª ×•×¡×¤×¦×™×¤×™×ª.</li>
-              </ul>
-            </details>
-            <details>
-              <summary><strong>×ª×§×©×•×¨×ª ×•×‘×˜×™×—×•×ª ×‘×–×ž×Ÿ ×¡×©×Ÿ</strong></summary>
-              <ul class="list">
-                <li>×”×’×“×™×¨×• ×ž×™×œ×ª ×‘×™×˜×—×•×Ÿ ×•×ž×—×•×•×ª ×¢×¦×™×¨×” ×œ×¤× ×™ ×›×œ ×ž×©×—×§.</li>
-                <li>×ª×§×©×¨×• ×ª×•×š ×›×“×™ - ×’× ×›×©×´×”×›×•×œ × ×¨××” ×‘×¡×“×¨×´.</li>
-                <li>××¤×©×¨ ×œ×©× ×•×ª, ×œ×¢×¦×•×¨ ××• ×œ×ž×©×•×š ×”×¡×›×ž×” ×‘×›×œ ×©×œ×‘.</li>
-              </ul>
-            </details>
-            <details>
-              <summary><strong>×ž×” ×—×©×•×‘ ×œ×–×›×•×¨ ×œ×’×‘×™ × ×ª×•× ×™× ×•×¤×¨×˜×™×•×ª</strong></summary>
-              <ul class="list">
-                <li>×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ ×©×œ ×”×ž×›×©×™×¨ ×”× ×•×›×—×™.</li>
-                <li>×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×‘×¡×™×•×.</li>
-                <li>×©×™×ª×•×£ PDF/×§×™×©×•×¨ ×”×•× ×‘××—×¨×™×•×ª ×”×ž×©×ª×ž×©/×ª ×‘×œ×‘×“.</li>
-              </ul>
-            </details>
-            <p class="muted">×”×¡×›×ž×” ×”×™× ×ª×”×œ×™×š ×ž×ª×ž×©×š - ×œ× ××™×¨×•×¢ ×—×“Ö¾×¤×¢×ž×™. ×ž×•×ž×œ×¥ ×œ×‘×¦×¢ ×¦×³×§Ö¾××™×Ÿ ×’× ×‘×ž×”×œ×š ×”×¡×©×Ÿ ×•×’× ××—×¨×™×•.</p>
-          </div>
-        </div>
-      `;
-    }
-    function showPlannerAbout() {
-      renderPlannerAbout();
-    }
-    function openPlannerNewSession() {
-      const sid = `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      renderPlannerEmbed('new', sid, null, null, 'home');
-    }
-    function startPlannerSession() {
-      openPlannerNewSession();
-    }
-    function renderPlannerSessions() {
-      const app = document.getElementById('app');
-      const sessions = listPlannerSessions();
-      const sessionsTitle = `×”×¡×©× ×™× ×©×œ×™ (${sessions.length})`;
-      const rows = sessions.length
-        ? sessions.map(s => `
-          <div class="glass-panel p-4 rounded-2xl border border-white/15 space-y-3">
-            <div>
-              <div class="text-white serif-font text-[1.14rem] leading-tight font-semibold">${escapeHtml(s.title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª')}</div>
-              <div class="text-[0.92rem] text-gray-300/90 serif-font mt-1">${escapeHtml(plannerSessionDate(s))}</div>
-              <div class="text-[0.84rem] text-gray-400 serif-font mt-1">${escapeHtml(plannerSessionMeta(s))}</div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">×¤×ª×™×—×”</button>
-              <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">×©×™× ×•×™ ×©×</button>
-              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">×”×•×¨×“×” PDF</button>
-              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition" aria-label="×ž×—×™×§×ª ×¡×©×Ÿ">ðŸ—‘ï¸</button>
-              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition" aria-label="×©×™×ª×•×£ ×¡×™×›×•×">ðŸ”—</button>
-            </div>
-          </div>
-        `).join('')
-        : `<div class="glass-panel p-6 rounded-2xl border border-white/15 text-center">
-            <h3 class="text-xl text-white serif-font font-bold mb-2">×¢×“×™×™×Ÿ ××™×Ÿ ×¡×©× ×™× ×©×ž×•×¨×™×</h3>
-            <p class="text-gray-400 serif-font text-base">×”×ª×—×™×œ×• ×¡×©×Ÿ ×—×“×© ×›×“×™ ×œ×™×¦×•×¨ ××ª ×”×¡×©×Ÿ ×”×¨××©×•×Ÿ ×©×œ×›×.</p>
-           </div>`;
-      app.innerHTML = `
-        <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font">${sessionsTitle}</h2>
-          </div>
-          <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
-        </div>
-      `;
-    }
-    function getPlannerSessionById(sessionId) {
-      return listPlannerSessions().find(s => s && s.id === sessionId) || null;
-    }
-    function openPlannerSummary(sessionId) {
-      if (!getPlannerSessionById(sessionId)) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
-        renderPlannerSessions();
-        return;
-      }
-      renderPlannerEmbed('existing', sessionId, 'chapter-8', null, 'sessions');
-    }
-    function downloadPlannerSessionPdf(sessionId) {
-      if (!getPlannerSessionById(sessionId)) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
-        renderPlannerSessions();
-        return;
-      }
-      renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
-    }
-    async function createPlannerShareId(payload) {
-      try {
-        const endpoint = new URL('./api/planner-share', window.location.href);
-        const resp = await fetch(endpoint.toString(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payload })
-        });
-        if (!resp.ok) return '';
-        const data = await resp.json().catch(() => null);
-        return data && typeof data.id === 'string' ? data.id : '';
-      } catch (_) {
-        return '';
-      }
-    }
-    async function sharePlannerSessionSummary(sessionId) {
-      const session = getPlannerSessionById(sessionId);
-      if (!session) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
-        renderPlannerSessions();
-        return;
-      }
-      const compact = {
-        plannerState: (session.plannerState && typeof session.plannerState === 'object')
-          ? session.plannerState
-          : {}
-      };
-      const shareId = await createPlannerShareId(compact);
-      if (!shareId) {
-        alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×™×¦×•×¨ ×§×™×©×•×¨ ×©×™×ª×•×£ ×›×¨×’×¢. × ×¡×• ×©×•×‘ ×‘×¢×•×“ ×¨×’×¢.');
-        return;
-      }
-      const summaryUrl = new URL('scene-planner-embed-he.html', window.location.href);
-      summaryUrl.searchParams.set('sessionId', sessionId);
-      summaryUrl.searchParams.set('startChapter', 'chapter-8');
-      summaryUrl.searchParams.set('mode', 'existing');
-      summaryUrl.searchParams.set('shareId', shareId);
-      summaryUrl.searchParams.set('v', '2026-04-24-sharefix3');
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: '×¡×™×›×•× ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª', url: summaryUrl.toString() });
-          return;
-        } catch (_) {}
-      }
-      const encoded = encodeURIComponent(summaryUrl.toString());
-      const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
-      if (!popup) {
-        try {
-          await navigator.clipboard.writeText(summaryUrl.toString());
-          alert('×”×œ×™× ×§ ×”×•×¢×ª×§ ×œ×œ×•×—. ××¤×©×¨ ×œ×”×“×‘×™×§ ×•×œ×©×ª×£ ×™×“× ×™×ª.');
-        } catch (_) {
-          alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×¤×ª×•×— ×©×™×ª×•×£ ××•×˜×•×ž×˜×™. ×”×¢×ª×™×§×• ×™×“× ×™×ª ×ž×”×©×•×¨×ª ×›×ª×•×‘×ª ×œ××—×¨ ×¤×ª×™×—×ª ×”×¡×™×›×•×.');
-        }
-      }
-    }
-    function renamePlannerSession(sessionId) {
-      const rows = listPlannerSessions();
-      const ix = rows.findIndex(s => s.id === sessionId);
-      if (ix < 0) return;
-      const current = String(rows[ix].title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
-      const next = prompt('×©× ×—×“×© ×œ×¡×©×Ÿ:', current);
-      if (next === null) return;
-      const clean = String(next || '').trim() || current;
-      rows[ix].title = clean;
-      rows[ix].updatedAt = new Date().toISOString();
-      savePlannerSessions(rows);
-      renderPlannerSessions();
-    }
-    function deletePlannerSessionById(sessionId) {
-      const sessions = listPlannerSessions().filter(s => s.id !== sessionId);
-      savePlannerSessions(sessions);
-      return sessions;
-    }
-    function deletePlannerSession(sessionId) {
-      if (!confirm('×œ×ž×—×•×§ ××ª ×”×¡×©×Ÿ ×”×©×ž×•×¨? ×œ× × ×™×ª×Ÿ ×œ×‘×˜×œ ×¤×¢×•×œ×” ×–×•.')) return;
-      deletePlannerSessionById(sessionId);
-      renderPlannerSessions();
-    }
-    function resolvePlannerReturnTarget(target) {
-      if (target === 'sessions') renderPlannerSessions();
-      else if (target === 'home') renderKinkyScenePlannerHome();
-      else renderPlannerSessions();
-    }
-    function requestPlannerSaveThenReturn(returnTo) {
-      const frame = document.getElementById('plannerFrame');
-      if (!frame || !frame.contentWindow) {
-        resolvePlannerReturnTarget(returnTo);
-        return;
-      }
-      plannerPendingReturnTo = returnTo || 'sessions';
-      try {
-        frame.contentWindow.postMessage({ type: 'planner_request_save' }, window.location.origin);
-      } catch (err) {
-        console.warn('[planner-shell-he] failed to request planner save', err);
-        resolvePlannerReturnTarget(plannerPendingReturnTo);
-        plannerPendingReturnTo = null;
-        return;
-      }
-      window.setTimeout(() => {
-        if (!plannerPendingReturnTo) return;
-        const target = plannerPendingReturnTo;
-        plannerPendingReturnTo = null;
-        resolvePlannerReturnTarget(target);
-      }, 900);
-    }
-    function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
-      const app = document.getElementById('app');
-      const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}${mode ? `&mode=${encodeURIComponent(mode)}` : ''}`;
-      app.innerHTML = `
-        <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-3 pt-4 md:p-4 md:pt-5 flex items-center justify-end">
-            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">×—×–×¨×” â†’</button>
-          </div>
-          <div class="flex-1 min-h-0 px-2 pb-3 md:px-6 md:pb-6">
-            <iframe id="plannerFrame" src="${plannerSrc}" title="×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
-          </div>
-        </div>
-      `;
-      const backBtn = document.getElementById('plannerShellBackBtn');
-      if (backBtn) {
-        backBtn.addEventListener('click', () => requestPlannerSaveThenReturn(returnTo === 'sessions' ? 'sessions' : 'home'));
-      }
-    }
-
-    if ('serviceWorker' in navigator) {
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        if (sessionStorage.getItem('pps_reload_after_update') !== '1') return;
-        refreshing = true;
-        sessionStorage.removeItem('pps_reload_after_update');
-        window.location.reload();
-      });
-
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(SW_BUILD)}`).then(reg => {
-          currentSwReg = reg;
-          reg.addEventListener('updatefound', () => {
-            const installing = reg.installing;
-            if (!installing) return;
-            installing.addEventListener('statechange', () => {
-              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                alert('×™×© ×¢×“×›×•×Ÿ ×ž×•×›×Ÿ. ××¤×©×¨ ×œ×œ×—×•×¥ "×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•" ×ž×ª×•×š ××•×“×•×ª ×›×©×ª×¡×™×™×ž×• ××ª ×”×¡×©×Ÿ ×”× ×•×›×—×™.');
-              }
-            });
-          });
-        }).catch(() => {});
-      });
-    }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      updateInstallButtons();
-    });
-
-    window.addEventListener('appinstalled', () => {
-      deferredInstallPrompt = null;
-      updateInstallButtons();
-    });
-
-    window.addEventListener('message', (e) => {
-      if (e.origin !== window.location.origin) return;
-      const data = e && e.data ? e.data : null;
-      if (!data || typeof data !== 'object') return;
-      if (data.type === 'planner_session_finished') {
-        if (plannerPendingReturnTo) {
-          const target = plannerPendingReturnTo;
-          plannerPendingReturnTo = null;
-          resolvePlannerReturnTarget(target);
-          return;
-        }
-        renderPlannerSessions();
-      } else if (data.type === 'planner_open_sessions') {
-        plannerPendingReturnTo = null;
-        renderPlannerSessions();
-      } else if (data.type === 'planner_open_new') {
-        plannerPendingReturnTo = null;
-        openPlannerNewSession();
-      } else if (data.type === 'he_module_back_home') {
-        renderWelcome();
-      }
-    });
-    function isIos() {
-      return /iphone|ipad|ipod/i.test(navigator.userAgent);
-    }
-    function isAndroid() {
-      return /android/i.test(navigator.userAgent);
-    }
-    function isInstalledApp() {
-      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    }
-    function updateInstallButtons() {
-      const installButtons = document.querySelectorAll('.install-app-btn');
-      installButtons.forEach(btn => {
-        if (isInstalledApp()) {
-          btn.style.display = 'flex';
-          btn.disabled = true;
-          btn.innerText = '×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª';
-        } else if (deferredInstallPrompt) {
-          btn.style.display = 'flex';
-          btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
-        } else if (isIos()) {
-          btn.style.display = 'flex';
-          btn.disabled = false;
-          btn.innerText = '××™×š ×œ×”×•×¡×™×£ ×œ×ž×¡×š ×”×‘×™×ª';
-        } else if (isAndroid()) {
-          btn.style.display = 'flex';
-          btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
-        } else {
-          btn.style.display = 'flex';
-          btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
-        }
-      });
-    }
-    async function promptInstallApp() {
-      if (isInstalledApp()) {
-        alert('×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª ×‘×ž×›×©×™×¨ ×”×–×”.');
-        return;
-      }
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') {
-          deferredInstallPrompt = null;
-        }
-        updateInstallButtons();
-        return;
-      }
-      if (isIos()) {
-        alert('×œ×”×ª×§× ×” ×‘××™×™×¤×•×Ÿ:\n1. ×œ×—×¦×• ×¢×œ Share ×‘-Safari\n2. ×‘×—×¨×• Add to Home Screen\n3. ××©×¨×• Add');
-        return;
-      }
-      if (isAndroid()) {
-        alert('×œ×”×ª×§× ×” ×‘×× ×“×¨×•××™×“:\n1. ×¤×ª×—×• ××ª ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ (3 × ×§×•×“×•×ª)\n2. ×‘×—×¨×• Add to Home screen ××• Install app\n3. ××©×¨×• ×”×ª×§× ×”');
-        return;
-      }
-      alert('×—×œ×•×Ÿ ×”×ª×§× ×” ×¢×“×™×™×Ÿ ×œ× ×–×ž×™×Ÿ ×‘×“×¤×“×¤×Ÿ ×–×”. × ×¡×• Chrome/Edge ××• ×”×•×¡×¤×” ×“×¨×š ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ ×œ×ž×¡×š ×”×‘×™×ª.');
-    }
-    async function forceUpdateApp() {
-      try {
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          const ownCaches = keys.filter(k => k.startsWith(APP_CACHE_PREFIX));
-          await Promise.all(ownCaches.map(k => caches.delete(k)));
-        }
-        if ('serviceWorker' in navigator) {
-          const reg = currentSwReg || (await navigator.serviceWorker.getRegistration());
-          if (reg) {
-            await reg.update();
-            const latestReg = await navigator.serviceWorker.getRegistration();
-            if (latestReg && latestReg.waiting) {
-              sessionStorage.setItem('pps_reload_after_update', '1');
-              latestReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              return;
-            }
-          }
-        }
-      } catch (e) {}
-      const bust = `?_refresh=${Date.now()}`;
-      window.location.href = `${CANONICAL_ORIGIN}${bust}`;
-    }
-
-    function refreshStudio() {
-      diagnosticsCache = null;
-      const next = `${window.location.pathname}?refresh=${Date.now()}`;
-      window.location.replace(next);
-    }
-    function clearData() {
-      const keys = ['planner_sessions_v1', 'he_favorites_v4', 'he_recordings_v4'];
-      keys.forEach(k => localStorage.removeItem(k));
-      alert('×›×œ ×”× ×ª×•× ×™× ×”×ž×§×•×ž×™×™× × ×ž×—×§×• ×ž×”××¤×œ×™×§×¦×™×”.');
-      renderWelcome();
-    }
-
-    function wireEmbedFrame(frameId, srcOrCandidates) {
-      const frame = document.getElementById(frameId);
-      const status = document.getElementById(`${frameId}-status`);
-      if (!frame || !status) return;
-      const srcCandidates = Array.isArray(srcOrCandidates) ? srcOrCandidates.filter(Boolean) : [srcOrCandidates].filter(Boolean);
-      if (!srcCandidates.length) return;
-      let currentIdx = 0;
-      let settled = false;
-      let timeout = 0;
-      const currentSrc = () => srcCandidates[Math.max(0, Math.min(currentIdx, srcCandidates.length - 1))];
-      const srcWithBust = () => {
-        const src = currentSrc();
-        const sep = src.includes('?') ? '&' : '?';
-        return `${src}${sep}retryTs=${Date.now()}`;
-      };
-      function tryNextCandidate() {
-        if (currentIdx >= srcCandidates.length - 1) return false;
-        currentIdx += 1;
-        frame.src = srcWithBust();
-        status.classList.remove('hidden');
-        status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
-        armWatchdog();
-        return true;
-      }
-      function showFallback(reason) {
-        if (tryNextCandidate()) return;
-        settled = false;
-        const offlineHint = navigator.onLine ? '' : '<br><strong>× ×¨××” ×©×”×ž×›×©×™×¨ ××•×¤×œ×™×™×Ÿ ×›×¨×’×¢.</strong>';
-        const reasonText = reason === 'error'
-          ? '××™×¨×¢×” ×©×’×™××” ×‘×˜×¢×™× ×ª ×”×ž×•×“×•×œ.'
-          : '×”×ž×•×“×•×œ × ×˜×¢×Ÿ ×™×•×ª×¨ ×ž×”×¨×’×™×œ.';
-        status.innerHTML = `
-          ${reasonText}<br>
-          ×× ×”×ž×¡×š × ×©××¨ ×¨×™×§, × ×¡×• ×˜×¢×™× ×” ×ž×—×“×©.${offlineHint}
-          <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
-            <button class="secondary-btn" type="button" id="${frameId}-retry">×˜×¢×™× ×” ×ž×—×“×©</button>
-            <button class="secondary-btn" type="button" id="${frameId}-open">×¤×ª×™×—×” ×‘×—×œ×•×Ÿ × ×¤×¨×“</button>
-          </div>
-          <small style="display:block; margin-top:0.55rem; direction:ltr;">${currentSrc()}</small>
-        `;
-        const retryBtn = document.getElementById(`${frameId}-retry`);
-        const openBtn = document.getElementById(`${frameId}-open`);
-        if (retryBtn) retryBtn.addEventListener('click', () => {
-          status.classList.remove('hidden');
-          status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
-          armWatchdog();
-          frame.src = srcWithBust();
-        });
-        if (openBtn) openBtn.addEventListener('click', () => { window.open(currentSrc(), '_blank', 'noopener'); });
-      }
-      function armWatchdog() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          if (settled) return;
-          showFallback('timeout');
-        }, 5000);
-      }
-      armWatchdog();
-      frame.addEventListener('load', () => {
-        settled = true;
-        clearTimeout(timeout);
-        status.classList.add('hidden');
-      });
-      frame.addEventListener('error', () => {
-        clearTimeout(timeout);
-        showFallback('error');
-      });
-    }
-
-    async function runDiagnostics(forceRefresh) {
-      if (diagnosticsCache && !forceRefresh) {
-        renderDiagnosticsResult(diagnosticsCache);
-        return;
-      }
-      const scopedChecks = MODULE_HEALTH_CHECKS.filter(item =>
-        item.id === 'shell' || item.id === 'manifest' || item.id === 'sw'
-      );
-      const checks = await Promise.all(scopedChecks.map(async item => {
-        try {
-          const res = await fetch(item.path, { cache: 'no-store' });
-          return { ...item, ok: res.ok, status: res.status, note: res.ok ? '×–×ž×™×Ÿ' : `HTTP ${res.status}` };
-        } catch {
-          return { ...item, ok: false, status: 0, note: '×œ× × ×’×™×© (network/error)' };
-        }
-      }));
-      diagnosticsCache = {
-        checks,
-        online: navigator.onLine,
-        checkedAt: new Date().toLocaleTimeString('he-IL')
-      };
-      renderDiagnosticsResult(diagnosticsCache);
-    }
-
-
-    function renderDiagnosticsResult(payload) {
-      const grid = document.getElementById('diagGrid');
-      const summary = document.getElementById('diagSummary');
-      if (!grid || !summary || !payload) return;
-      const okCount = payload.checks.filter(c => c.ok).length;
-      const total = payload.checks.length;
-      const netClass = payload.online ? 'ok' : 'warn';
-      const netLabel = payload.online ? '××•× ×œ×™×™×Ÿ' : '××•×¤×œ×™×™×Ÿ';
-      summary.innerHTML = `<span class="diag-chip net-badge ${netClass}">${netLabel}</span>×‘×“×™×§×•×ª: ${okCount}/${total} â€¢ ×¢×•×“×›×Ÿ: ${payload.checkedAt}`;
-      grid.innerHTML = payload.checks.map(row => {
-        const chipClass = row.ok ? 'ok' : 'bad';
-        const chipText = row.ok ? '×–×ž×™×Ÿ' : '×œ× ×–×ž×™×Ÿ';
-        return `
-          <div class="diag-row">
-            <div>
-              <div class="diag-name">${row.name}</div>
-              <div class="diag-path">${row.path}</div>
-            </div>
-            <div style="display:flex; align-items:center; gap:0.45rem;">
-              <small class="muted">${row.note}</small>
-              <span class="diag-chip ${chipClass}">${chipText}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
     function escapeHtml(value) {
       return String(value || '')
         .replace(/&/g, '&amp;')
@@ -1096,38 +93,81 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
     }
-    function escapeHtmlArchetype(s) {
-      return escapeHtml(s);
-    }
-    async function preloadShellEssentials() {
-      const paths = ['./דפוסי שפה עברית/index.html'];
-      await Promise.all(paths.map(path =>
-        fetch(path, { cache: 'no-store' }).catch(() => null)
-      ));
+
+    function renderShell(title, content) {
+      document.getElementById('app').innerHTML = `
+        <div class="top">
+          <button class="btn" onclick="renderHome()">חזרה לבית</button>
+          <h1 class="title">${escapeHtml(title)}</h1>
+          <div style="width:90px;"></div>
+        </div>
+        <div class="view">${content}</div>
+      `;
     }
 
-    window.addEventListener('online', () => {
-      diagnosticsCache = null;
-    });
-    window.addEventListener('offline', () => {
-      diagnosticsCache = null;
+    function renderHome() {
+      renderShell('Pleasure Practice Studio', `
+        <div class="hero">
+          <h2>סטודיו לתרגול עונג</h2>
+          <p>מבנה נקי ל־rebuild. מודול הארכיטיפים הוסר לגמרי ונבנה מחדש בהמשך.</p>
+        </div>
+        <div class="stack">
+          <button class="btn module-btn" onclick="openHypno()">דפוסי שפה עברית</button>
+          <button class="btn module-btn" onclick="openPlanner()">מצפן התשוקות</button>
+          <div class="card muted">
+            סטטוס: מודול הארכיטיפים הוסר במלואו מהמערכת כהכנה לבנייה מחדש מאפס.
+          </div>
+          <button class="btn" onclick="clearData()">איפוס נתונים מקומיים</button>
+        </div>
+      `);
+      history.replaceState({ screen: 'home' }, '', window.location.pathname);
+    }
+
+    function renderEmbedded(title, src) {
+      const srcWithVersion = `${src}${src.includes('?') ? '&' : '?'}v=${encodeURIComponent(SW_BUILD)}`;
+      renderShell(title, `
+        <div class="frame-wrap">
+          <iframe src="${escapeHtml(srcWithVersion)}" title="${escapeHtml(title)}"></iframe>
+        </div>
+      `);
+    }
+
+    function openHypno() {
+      renderEmbedded('דפוסי שפה עברית', './דפוסי שפה עברית/index.html');
+      history.pushState({ screen: 'hypno' }, '', `${window.location.pathname}?module=hypno`);
+    }
+
+    function openPlanner() {
+      renderEmbedded('מצפן התשוקות', './planner-he/index.html');
+      history.pushState({ screen: 'planner' }, '', `${window.location.pathname}?module=planner`);
+    }
+
+    function clearData() {
+      ['he_favorites_v4', 'he_recordings_v4', PLANNER_SESSIONS_KEY].forEach(k => localStorage.removeItem(k));
+      alert('הנתונים המקומיים נמחקו.');
+      renderHome();
+    }
+
+    window.addEventListener('message', event => {
+      const data = event && event.data ? event.data : {};
+      if (data.type === 'he_module_back_home') renderHome();
     });
 
-    function bootShellRoute() {
+    window.addEventListener('popstate', () => {
       const params = new URLSearchParams(window.location.search);
-      renderWelcome(false);
-      history.replaceState({ screen: 'welcome' }, '', window.location.href);
-    }
-
-    window.addEventListener('popstate', (ev) => {
-      const state = ev && ev.state ? ev.state : null;
-      renderWelcome(false);
+      const moduleName = params.get('module');
+      if (moduleName === 'hypno') openHypno();
+      else if (moduleName === 'planner') openPlanner();
+      else renderHome();
     });
 
-    Promise.all([preloadShellEssentials()]).finally(() => {
-      bootShellRoute();
-    });
+    (function boot() {
+      const params = new URLSearchParams(window.location.search);
+      const moduleName = params.get('module');
+      if (moduleName === 'hypno') openHypno();
+      else if (moduleName === 'planner') openPlanner();
+      else renderHome();
+    })();
   </script>
 </body>
 </html>
-
