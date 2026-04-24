@@ -47,7 +47,10 @@ function showChapter(id){
   const el = document.getElementById(id);
   if (el){ el.classList.add('visible'); window.scrollTo({top:0, behavior:'smooth'}); }
   $$('.step-btn').forEach(b => b.classList.toggle('active', b.dataset.target===id));
-  if (id==='chapter-8') renderSummary();
+  if (id==='chapter-8') {
+    renderSummary();
+    initializeSignaturePad(true);
+  }
 }
 function setupStepper(){
   $$('.step-btn').forEach(btn=>{
@@ -1182,7 +1185,7 @@ function initializeSignaturePad(forceResize = false) {
 /* ========== TOP ACTIONS ========== */
 function setupTopActions(){
   function buildSummaryShareUrl(){
-    const base = new URL('scene-planner-embed-he.html', window.location.href);
+    const base = new URL('../scene-planner-embed-he.html', window.location.href);
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
     base.searchParams.set('mode', 'existing');
