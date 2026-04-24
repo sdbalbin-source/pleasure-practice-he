@@ -394,6 +394,10 @@
       return deck;
     }
 
+    function getRandomDrawPool() {
+      return Array.isArray(CARDS) ? CARDS.slice() : [];
+    }
+
     function getSelectedDeckKeys() {
       const keys = Array.from(selectedRealms);
       if (favoritesOnly) keys.unshift('__favorites__');
@@ -480,10 +484,10 @@
         return;
       }
       archetypeView = { cardId: null, fromView, flipped: false };
-      const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
+      const deck = Array.isArray(poolOverride) ? poolOverride : getRandomDrawPool();
       if (!deck.length) {
         setChromeVisible(true);
-        notify('אין קלפים בחפיסה הנוכחית. עדכן בחירה ב-חפיסה מותאמת.');
+        notify('אין קלפים זמינים כרגע. נסו שוב בעוד רגע.');
         return;
       }
       pendingSpreadPoolIds = deck.map(card => card.id);
@@ -719,7 +723,7 @@
       if (archetypeView.fromView === 'custom') {
         startShuffleAndDraw(getCustomDeckPool(), 'custom');
       } else {
-        startShuffleAndDraw(getDeckCards(), 'random');
+        startShuffleAndDraw(getRandomDrawPool(), 'random');
       }
     }
 
@@ -849,7 +853,7 @@
               <button class="btn" onclick="startShuffleAndDraw()">ערבוב מחדש</button>
               <button class="btn" onclick="toggleFlip()">היפוך</button>
             </div>
-            <div class="meta">גודל חפיסה פעילה: ${getDeckCards().length} קלפים</div>
+            <div class="meta">גודל חפיסה פעילה: ${getRandomDrawPool().length} קלפים</div>
             <div class="meta">נכסים חזותיים שזוהו: ${IMAGE_AVAILABLE.size}/${Object.keys(IMAGE_MAP).length}</div>
             <div class="list" id="drawList"></div>
           </div>
@@ -867,9 +871,9 @@
     function renderCompactList(id) {
       const panel = document.getElementById(id);
       if (!panel) return;
-      const deck = getDeckCards();
+      const deck = getRandomDrawPool();
       if (!deck.length) {
-        panel.innerHTML = '<div class="meta">אין קלפים בחפיסה הנוכחית. עדכן בחירה ב-חפיסה מותאמת.</div><button class="btn" onclick="setView(\'custom\')">פתח חפיסה מותאמת</button>';
+        panel.innerHTML = '<div class="meta">אין קלפים זמינים כרגע. נסו שוב בעוד רגע.</div>';
         return;
       }
       let html = '';
