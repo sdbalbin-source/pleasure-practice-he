@@ -80,6 +80,7 @@
     let selectedDeckKeys = [];
     let pendingPoolIds = [];
     let currentView = 'draw';
+    let activeCardId = '';
 
     function notify(msg){ toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200); }
     function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -88,7 +89,12 @@
     function realms(){ return Array.from(new Set(CARDS.map(c => String(c.realm||'ללא ממלכה')))).sort((a,b)=>a.localeCompare(b,'he')); }
     function customPool(){ const keys = new Set(selectedDeckKeys); const ids = new Set(); if (keys.has('__favorites__')) favorites.forEach(id => ids.add(id)); CARDS.forEach(c => { if (keys.has(String(c.realm||'ללא ממלכה'))) ids.add(c.id); }); return CARDS.filter(c => ids.has(c.id)); }
     function randomPool(){ return CARDS.slice(); }
-    function toggleFavorite(id){ if (favorites.has(id)) favorites.delete(id); else favorites.add(id); saveState(); setView(currentView); }
+    function toggleFavorite(id){
+      if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+      saveState();
+      if (activeCardId && String(activeCardId) === String(id)) renderCardView(id, currentView);
+      else setView(currentView);
+    }
 
     async function resolveBack() {
       for (const p of CARD_BACK_CANDIDATES) {
@@ -172,7 +178,11 @@
           el.classList.add('is-chosen');
           el.style.transform = 'translate3d(0px,40px,0) rotate(0deg) scale(2.2)';
           setTimeout(() => el.classList.add('is-flipping'), 260);
-          setTimeout(() => { layer.remove(); setView('draw'); }, 1280);
+          setTimeout(() => {
+            const cardId = String(el.dataset.cardId || '');
+            layer.remove();
+            if (cardId) renderCardView(cardId, pendingPoolIds.length ? 'random' : 'draw');
+          }, 1280);
         };
         const up = ev => {
           if (pid == null || ev.pointerId !== pid || selected) return;
@@ -193,6 +203,31 @@
     function renderDraw(){
       document.getElementById('view').innerHTML = `<div class="panel"><div class="meta">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div><button class="btn" onclick="startSpreadDraw(randomPool(),'random')">ערבוב ושליפה</button><div class="meta" style="margin-top:.6rem;">גודל חפיסה פעילה: ${randomPool().length} קלפים</div></div>`;
     }
+    function renderCardView(cardId, fromView){
+      const card = CARDS.find(c => String(c.id) === String(cardId));
+      if (!card) { setView('draw'); return; }
+      activeCardId = cardId;
+      const fav = favorites.has(cardId);
+      const imgPath = IMAGE_MAP[cardId] ? String(IMAGE_MAP[cardId]).replace('./','') : '';
+      const imageUrl = imgPath ? `./${imgPath}` : '';
+      const host = document.getElementById('view');
+      host.innerHTML = `
+        <div class="panel">
+          <div style="display:flex; justify-content:space-between; gap:.5rem; margin-bottom:.6rem;">
+            <button class="btn" onclick="activeCardId=''; setView('${escapeHtml(fromView || 'draw')}')">חזרה</button>
+            <button class="btn" onclick="toggleFavorite('${escapeHtml(cardId)}')">${fav ? '★ במועדפים' : '☆ הוספה למועדפים'}</button>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.14); border-radius:.9rem; overflow:hidden; margin-bottom:.7rem; background:rgba(255,255,255,.03);">
+            <div style="height:260px; background:${imageUrl ? `url('${imageUrl}') center/cover no-repeat` : 'linear-gradient(165deg,#1f0f1c 0%,#0a060c 55%,#070408 100%)'};"></div>
+            <div style="padding:.8rem;">
+              <div style="font-weight:700; font-size:1.2rem;">${escapeHtml(card.name || '')}</div>
+              <div class="meta">${escapeHtml(card.realm || 'ללא ממלכה')}</div>
+              <div style="white-space:pre-wrap; line-height:1.6; color:#efeaff;">${escapeHtml(card.essence || card.gift || card.shadow || card.practice || '')}</div>
+            </div>
+          </div>
+          <button class="btn" style="width:100%;" onclick="startSpreadDraw(${fromView === 'custom' ? 'customPool()' : 'randomPool()'}, '${escapeHtml(fromView || 'random')}')">שליפה נוספת</button>
+        </div>`;
+    }
     function renderCustom(){
       const rs = realms();
       const row = (k,l,s) => { const active = selectedDeckKeys.includes(k); return `<button class="row" onclick="toggleDeckKey('${escapeHtml(k)}')"><span><strong>${escapeHtml(l)}</strong><br><small>${escapeHtml(s)}</small></span><small>${active ? '✓' : '□'}</small></button>`; };
@@ -201,7 +236,7 @@
     function toggleDeckKey(k){ if (selectedDeckKeys.includes(k)) selectedDeckKeys = selectedDeckKeys.filter(x => x !== k); else selectedDeckKeys.push(k); saveState(); renderCustom(); }
     function renderAll(){
       const grouped = {}; CARDS.forEach(c => { const r = String(c.realm||'ללא ממלכה'); (grouped[r] ||= []).push(c); });
-      const html = Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'he')).map(r => `<div class="meta" style="margin:.6rem 0 .2rem;">${escapeHtml(r)}</div>${grouped[r].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'he')).map(c=>`<div class="row"><button style="background:transparent;border:0;color:inherit;flex:1;text-align:right;" onclick="notify('${escapeHtml(c.name||'')}')">${escapeHtml(c.name||'')}</button><button class="btn" onclick="toggleFavorite('${escapeHtml(c.id)}')">${favorites.has(c.id)?'★':'☆'}</button></div>`).join('')}`).join('');
+      const html = Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'he')).map(r => `<div class="meta" style="margin:.6rem 0 .2rem;">${escapeHtml(r)}</div>${grouped[r].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'he')).map(c=>`<div class="row"><button style="background:transparent;border:0;color:inherit;flex:1;text-align:right;" onclick="renderCardView('${escapeHtml(c.id)}','all')">${escapeHtml(c.name||'')}</button><button class="btn" onclick="toggleFavorite('${escapeHtml(c.id)}')">${favorites.has(c.id)?'★':'☆'}</button></div>`).join('')}`).join('');
       document.getElementById('view').innerHTML = `<div class="panel">${html}</div>`;
     }
     function renderAbout(){
