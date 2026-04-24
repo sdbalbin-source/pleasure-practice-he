@@ -142,7 +142,7 @@
     .archetype-spread-overlay { position: fixed; inset: 0; z-index: 320; background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(40, 20, 52, 1), rgba(5, 4, 8, 1) 58%, #020103 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
     .archetype-spread-stage { position: relative; width: min(100%, 440px); height: min(88vh, 720px); }
     .archetype-spread-stage.is-dealing .archetype-spread-card { transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; }
-    .archetype-spread-card { position: absolute; left: 50%; top: 56%; width: min(20vw, 92px); aspect-ratio: 2 / 3; transform-style: preserve-3d; touch-action: none; cursor: grab; transition: transform 0.18s ease-out, filter 0.18s ease-out; z-index: var(--z, 1); will-change: transform; }
+    .archetype-spread-card { position: absolute; left: 50%; top: 56%; width: 92px; height: 138px; width: min(20vw, 92px); aspect-ratio: 2 / 3; transform-style: preserve-3d; touch-action: none; cursor: grab; transition: transform 0.18s ease-out, filter 0.18s ease-out; z-index: var(--z, 1); will-change: transform; }
     .archetype-spread-card.is-not-ready { pointer-events: none; }
     .archetype-spread-card.is-dragging { cursor: grabbing; filter: brightness(1.14); }
     .archetype-spread-card.is-chosen { transition: transform 0.82s cubic-bezier(0.2, 0.9, 0.22, 1); z-index: 400 !important; }
@@ -545,7 +545,9 @@
         return `
           <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${card.id}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
             <div class="archetype-spread-inner">
-              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
+              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}'); background-color:#120b1d;">
+                <div style="position:absolute; inset:6px; border:1px solid rgba(245, 220, 170, 0.42); border-radius:4px;"></div>
+              </div>
               <div class="archetype-spread-face front"></div>
             </div>
           </div>
