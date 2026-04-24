@@ -711,12 +711,21 @@
       renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
     }
     function sharePlannerSessionSummary(sessionId) {
-      if (!getPlannerSessionById(sessionId)) {
+      const session = getPlannerSessionById(sessionId);
+      if (!session) {
         alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
         renderPlannerSessions();
         return;
       }
-      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing`;
+      let shared = '';
+      try {
+        if (session.plannerState && typeof session.plannerState === 'object') {
+          shared = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({ plannerState: session.plannerState })))));
+        }
+      } catch (_) {
+        shared = '';
+      }
+      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing${shared ? `&shared=${shared}` : ''}`;
       const encoded = encodeURIComponent(summaryUrl);
       window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
     }
@@ -773,12 +782,10 @@
     function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
       const app = document.getElementById('app');
       const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}${mode ? `&mode=${encodeURIComponent(mode)}` : ''}`;
-      const subtitle = mode === 'new' ? 'סשן הסכמות חדש' : 'מצפן התשוקות';
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-4 pt-6 flex items-center gap-3">
-            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-xl font-bold text-white serif-font">${subtitle}</h2>
+          <div class="p-3 pt-4 md:p-4 md:pt-5 flex items-center justify-end">
+            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">חזרה →</button>
           </div>
           <div class="flex-1 min-h-0 px-2 pb-3 md:px-6 md:pb-6">
             <iframe id="plannerFrame" src="${plannerSrc}" title="מצפן התשוקות" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>

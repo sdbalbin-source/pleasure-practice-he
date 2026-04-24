@@ -25,11 +25,11 @@ body{
 
 .site-container{max-width:980px;margin:0 auto;padding:0 0.5rem}
 
-/* Header sticky */
+/* Header is intentionally non-sticky to avoid blocking scroll content */
 .site-header{
   background:linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
-  position:relative;
-  z-index:50;
+  position:static;
+  z-index:auto;
   padding:0.65rem 0.7rem 0.75rem;
   border:1px solid var(--border);
   border-radius:16px;

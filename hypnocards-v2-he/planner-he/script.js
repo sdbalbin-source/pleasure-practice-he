@@ -25,12 +25,41 @@ const sessionIdFromUrl = urlParams.get('sessionId') || '';
 const startChapterFromUrl = urlParams.get('startChapter') || '';
 const autoShareFromUrl = urlParams.get('autoShare') || '';
 const modeFromUrl = urlParams.get('mode') || '';
+const sharedPayloadFromUrl = urlParams.get('shared') || '';
 let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /* ========== HELPERS ========== */
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
+function encodeSharePayload(payload){
+  try {
+    return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+  } catch {
+    return '';
+  }
+}
+function decodeSharePayload(raw){
+  if (!raw) return null;
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))));
+  } catch {
+    return null;
+  }
+}
+function buildSharePayload(){
+  return {
+    plannerState: {
+      session: state.session,
+      safety: state.safety,
+      refinements: state.refinements,
+      text: state.text,
+      sets: state.sets,
+      activities: state.activities,
+      consent: state.consent
+    }
+  };
+}
 
 function perspectiveText(){
   if (state.session.role === 'dom') return '• לתת';
@@ -1194,6 +1223,8 @@ function setupTopActions(){
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
     base.searchParams.set('mode', 'existing');
+    const shared = encodeSharePayload(buildSharePayload());
+    if (shared) base.searchParams.set('shared', shared);
     return base.toString();
   }
   function runWithBusyState(button, busyText, errorText, work){
@@ -1265,6 +1296,10 @@ function init(){
       activeSessionId = saved.id;
       mergeStateFromSaved(saved.plannerState);
     } else {
+      const shared = decodeSharePayload(sharedPayloadFromUrl);
+      if (shared && shared.plannerState) {
+        mergeStateFromSaved(shared.plannerState);
+      } else {
       const isExistingSessionFlow = modeFromUrl === 'existing';
       if (isExistingSessionFlow) {
         console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl);
@@ -1295,6 +1330,7 @@ function init(){
           });
         }
       }
+      }
     }
   }
   restoreDynamicRowsFromState();
@@ -1315,7 +1351,6 @@ function init(){
       setTimeout(() => window.print(), 350);
     }, 200);
   }
-  window.addEventListener('beforeunload', saveActiveSession);
   window.addEventListener('message', (e) => {
     if (e.origin !== window.location.origin) return;
     const data = e && e.data ? e.data : null;
