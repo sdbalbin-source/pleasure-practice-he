@@ -1344,7 +1344,8 @@ label,
 
           <!-- Share/print -->
           <div class="actions" id="shareActionsBottom" style="margin-top:1rem;">
-            <button class="btn" id="sharePdfBtn" type="button">📄 Share as PDF</button>
+            <button class="btn" id="sharePdfBtn" type="button">📄 Download PDF</button>
+            <button class="btn ghost" id="shareSummaryBtn" type="button" aria-label="Share summary link">🔗</button>
             <button class="btn" id="finishSessionBtn" type="button">✅ Save Session</button>
           </div>
         </div>
@@ -2962,7 +2963,15 @@ label,
     }
     function setupActions(){
       const sharePdfBtn = document.getElementById('sharePdfBtn');
+      const shareSummaryBtn = document.getElementById('shareSummaryBtn');
       const finishSessionBtn = document.getElementById('finishSessionBtn');
+      function buildSummaryShareUrl(){
+        const base = new URL('scene-planner-embed-en.html', window.location.href);
+        base.searchParams.set('sessionId', activeSessionId);
+        base.searchParams.set('startChapter', 'chapter-8');
+        base.searchParams.set('mode', 'existing');
+        return base.toString();
+      }
 
       async function shareAsPdf(){
         if (sharePdfBtn) {
@@ -3006,11 +3015,23 @@ label,
         } finally {
           if (sharePdfBtn) {
             sharePdfBtn.disabled = false;
-            sharePdfBtn.textContent = '📄 Share as PDF';
+            sharePdfBtn.textContent = '📄 Download PDF';
           }
         }
       }
       sharePdfBtn?.addEventListener('click', shareAsPdf);
+      shareSummaryBtn?.addEventListener('click', async () => {
+        saveActiveSession();
+        const url = buildSummaryShareUrl();
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: 'Kinky Scene Planner Summary', url });
+          } else {
+            await navigator.clipboard.writeText(url);
+            alert('Summary link copied.');
+          }
+        } catch (_) {}
+      });
       finishSessionBtn?.addEventListener('click', async () => {
         saveActiveSession();
         if (finishSessionBtn) {
