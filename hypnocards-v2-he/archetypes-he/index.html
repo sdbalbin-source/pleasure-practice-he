@@ -292,7 +292,7 @@
     </div>
     <div class="menu">
       <button class="btn active" id="nav-draw" onclick="setView('draw')">ערבוב ושליפה</button>
-      <button class="btn" id="nav-custom" onclick="setView('custom')">דק מותאם</button>
+      <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
       <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
       <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
     </div>
@@ -471,7 +471,7 @@
       const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
       if (!deck.length) {
         setChromeVisible(true);
-        notify('אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.');
+        notify('אין קלפים בחפיסה הנוכחית. עדכן בחירה ב-חפיסה מותאמת.');
         return;
       }
       pendingSpreadPoolIds = deck.map(card => card.id);
@@ -497,7 +497,7 @@
           </div>
           <div class="archetype-shuffle-shine" aria-hidden="true"></div>
         </div>
-        <p class="archetype-shuffle-caption">מערבב את הדק...</p>
+        <p class="archetype-shuffle-caption">מערבב את החפיסה...</p>
       `;
       app.appendChild(layer);
       window.setTimeout(() => {
@@ -833,7 +833,7 @@
               <button class="btn" onclick="startShuffleAndDraw()">ערבוב מחדש</button>
               <button class="btn" onclick="toggleFlip()">היפוך</button>
             </div>
-            <div class="meta">גודל דק פעיל: ${getDeckCards().length} קלפים</div>
+            <div class="meta">גודל חפיסה פעילה: ${getDeckCards().length} קלפים</div>
             <div class="meta">נכסים חזותיים שזוהו: ${IMAGE_AVAILABLE.size}/${Object.keys(IMAGE_MAP).length}</div>
             <div class="list" id="drawList"></div>
           </div>
@@ -853,7 +853,7 @@
       if (!panel) return;
       const deck = getDeckCards();
       if (!deck.length) {
-        panel.innerHTML = '<div class="meta">אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.</div><button class="btn" onclick="setView(\'custom\')">פתח Custom Deck</button>';
+        panel.innerHTML = '<div class="meta">אין קלפים בחפיסה הנוכחית. עדכן בחירה ב-חפיסה מותאמת.</div><button class="btn" onclick="setView(\'custom\')">פתח חפיסה מותאמת</button>';
         return;
       }
       let html = '';
@@ -886,7 +886,6 @@
               <div class="row" style="display:block; margin-bottom:0.45rem;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem;">
                   <button
-                    onclick="renderArchetypeCard('${escapeHtml(card.id)}', 'all')"
                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();renderArchetypeCard('${escapeHtml(card.id)}', 'all');}"
                     onpointerdown="startArchetypeListTap('${escapeHtml(card.id)}', event)"
                     onpointerup="finishArchetypeListTap('${escapeHtml(card.id)}', event)"
@@ -977,7 +976,7 @@
             ${realms.map(realm => row(realm, realm, `${counts[realm] || 0} קלפים בממלכה זו`)).join('')}
           </div>
           <div class="filter-row" style="margin-top:0.75rem;">
-            <button class="btn" id="customShuffleDraw" style="width:100%;">ערבוב ושליפה מהדק המותאם</button>
+            <button class="btn" id="customShuffleDraw" style="width:100%;">ערבוב ושליפה מהחפיסה המותאמת</button>
           </div>
         </div>
       `;
@@ -1024,7 +1023,7 @@
           <div class="about-stack">
             <details class="about-acc" open>
               <summary>לפני שמתחילים</summary>
-              <div class="about-body">הקלפים הם הזמנה לתרגול חי: שליפה להפתעה, בניית דק לפי ממלכה, וסימון מועדפים פעילים.\nהמטרה היא לא "תשובה נכונה", אלא חקירה של מה מהדהד בך עכשיו - רגשית, גופנית ודמיונית.</div>
+              <div class="about-body">הקלפים הם הזמנה לתרגול חי: שליפה להפתעה, בניית חפיסה לפי ממלכה, וסימון מועדפים פעילים.\nהמטרה היא לא "תשובה נכונה", אלא חקירה של מה מהדהד בך עכשיו - רגשית, גופנית ודמיונית.</div>
             </details>
             <details class="about-acc">
               <summary>אור וצל</summary>
