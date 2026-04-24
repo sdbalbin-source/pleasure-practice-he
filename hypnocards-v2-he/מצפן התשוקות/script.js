@@ -28,7 +28,10 @@ const modeFromUrl = urlParams.get('mode') || '';
 const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
 const sharedPayloadFromUrl = urlParams.get('shared') || hashParams.get('shared') || '';
 const shareIdFromUrl = urlParams.get('shareId') || '';
-let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+function createLocalSessionId(){
+  return `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+let activeSessionId = sessionIdFromUrl || createLocalSessionId();
 
 /* ========== HELPERS ========== */
 const $  = s => document.querySelector(s);
@@ -1392,10 +1395,17 @@ async function init(){
       const remote = await fetchSharedPayloadById(shareIdFromUrl);
       if (remote && remote.plannerState) {
         mergeStateFromSaved(remote.plannerState);
+        activeSessionId = createLocalSessionId();
       } else {
-        const isExistingSessionFlow = modeFromUrl === 'existing';
-        if (isExistingSessionFlow) {
-          console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+        const local = loadSessionById(sessionIdFromUrl);
+        if (local && local.plannerState) {
+          activeSessionId = local.id;
+          mergeStateFromSaved(local.plannerState);
+        } else {
+          const isExistingSessionFlow = modeFromUrl === 'existing';
+          if (isExistingSessionFlow) {
+            console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+          }
         }
       }
     } else {

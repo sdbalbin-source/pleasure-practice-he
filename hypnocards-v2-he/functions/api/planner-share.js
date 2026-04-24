@@ -38,6 +38,11 @@ export async function onRequestGet(context) {
   if (!id) return json({ error: 'missing_id' }, 400);
   const raw = await env.PLANNER_SHARE_KV.get(`planner-share:${id}`);
   if (!raw) return json({ error: 'not_found' }, 404);
-  const payload = JSON.parse(raw);
+  let payload = null;
+  try {
+    payload = JSON.parse(raw);
+  } catch (_) {
+    return json({ error: 'invalid_stored_payload' }, 500);
+  }
   return json({ payload });
 }
