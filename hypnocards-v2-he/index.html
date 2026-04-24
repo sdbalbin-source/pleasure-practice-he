@@ -306,18 +306,13 @@
         </div>
       `;
     const MODULE_HEALTH_CHECKS = [
-      { id: 'shell', name: '×ž×¢×˜×¤×ª ×¢×‘×¨×™×ª', path: './index.html' },
+      { id: 'shell', name: 'מעטפת עברית', path: './index.html' },
       { id: 'manifest', name: 'Manifest', path: './manifest.json' },
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
-      { id: 'archetypes', name: '×ž×•×“×•×œ ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/index.html' },
-      { id: 'archetypesData', name: '×“××˜×” ××¨×›×™×˜×™×¤×™×', path: './archetypes_he_data.json' },
-      { id: 'archetypesImageMap', name: '×ž×™×¤×•×™ ×ª×ž×•× ×•×ª ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/image-map.json' },
-      { id: 'archetypesAboutCopy', name: '×˜×§×¡×˜ About ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/about-copy-he.json' },
-      { id: 'archetypesParityBaseline', name: 'Archetypes parity baseline', path: './archetypes-he/parity-baseline.json' },
-      { id: 'hypno', name: '×ž×•×“×•×œ ×“×¤×•×¡×™ ×©×¤×”', path: './דפוסי שפה עברית/index.html' },
-      { id: 'planner', name: '×ž×•×“×•×œ ×ž×¦×¤×Ÿ ×ª×©×•×§×•×ª', path: './planner-he/index.html' }
+      { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
+      { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-24-he-6';
+    const SW_BUILD = '2026-04-25-he-planner-restore';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -380,9 +375,6 @@
           <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
           </button>
-          <button onclick="renderArchetypesHome(true)" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’
-          </button>
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª
           </button>
@@ -409,74 +401,19 @@
       lucide.createIcons();
       updateInstallButtons();
     }
-    function openArchetypes(initialView = 'draw', pushHistory = true, autoplayShuffle = false) {
-      const allowedViews = new Set(['draw', 'custom', 'all', 'about']);
-      const view = allowedViews.has(initialView) ? initialView : 'draw';
-      const autoParam = autoplayShuffle ? '&autoplayShuffle=1' : '';
-      const src = `./archetypes-he/index.html?initialView=${encodeURIComponent(view)}${autoParam}&v=${encodeURIComponent(SW_BUILD)}`;
-      renderEmbeddedModule('××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’', src, '××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’');
-      if (pushHistory) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('module', 'archetypes');
-        url.searchParams.set('view', view);
-        history.pushState({ screen: 'archetypes', view }, '', url.toString());
-      }
-    }
-    function renderArchetypesHome(pushHistory = false) {
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <div class="flex flex-col h-full p-6 bg-black/10">
-          <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition" aria-label="×—×–×¨×”">
-              <i data-lucide="arrow-left"></i>
-            </button>
-            <h2 class="text-2xl font-bold text-white serif-font">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h2>
-            <div class="w-10"></div>
-          </div>
-          <div class="grid gap-4 w-full max-w-3xl mx-auto">
-            <button onclick="drawRandomArchetype()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×¢×¨×‘×•×‘ ×•×©×œ×™×¤×”</h3>
-              <p class="text-gray-400 serif-font text-base">×¢×¨×‘×•×‘ ×ž×•× ×¤×©, ×•×œ××—×¨×™×• ×—×©×™×¤×ª ××¨×›×™×˜×™×¤ ××—×“.</p>
-            </button>
-            <button onclick="renderArchetypeDeckBuilder()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×“×§ ×ž×•×ª××</h3>
-              <p class="text-gray-400 serif-font text-base">×‘×—×™×¨×ª ×ž×ž×œ×›×•×ª ×•/××• ×¡×˜ ×ž×•×¢×“×¤×™×, ×•××– ×©×œ×™×¤×”.</p>
-            </button>
-            <button onclick="renderArchetypesList()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×›×œ ×”×§×œ×¤×™×</h3>
-              <p class="text-gray-400 serif-font text-base">×ž×™×•×Ÿ ×œ×¤×™ ×ž×ž×œ×›×•×ª ×¢× ×¡×™×ž×•×Ÿ ×ž×•×¢×“×¤×™× ×œ×›×œ ×§×œ×£.</p>
-            </button>
-            <button onclick="showArchetypesAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h3>
-              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© ×‘×ž×•×“×•×œ.</p>
-            </button>
-          </div>
-        </div>
-      `;
-      lucide.createIcons();
-      if (pushHistory) syncArchetypesHomeRoute(false);
-    }
-    function syncArchetypesHomeRoute(replace = false) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('module', 'archetypes');
-      url.searchParams.delete('view');
-      const state = { screen: 'archetypes-home' };
-      if (replace) history.replaceState(state, '', url.toString());
-      else history.pushState(state, '', url.toString());
-    }
     async function openDiagnostics() {
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
-            <h2 class="screen-title">×ž×¦×‘ ×ž×¢×¨×›×ª</h2>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
+            <h2 class="screen-title">מצב מערכת</h2>
           </div>
           <div class="panel">
             <p>×‘×“×™×§×•×ª ×–×ž×™× ×•×ª ×ž×•×“×•×œ×™× ×•×§×‘×¦×™ ×ª×©×ª×™×ª ×‘×¨×™×¦×” ×ž×§×•×ž×™×ª.</p>
             <div class="utility-row" style="justify-content:flex-start;">
               <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
             </div>
-            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">×˜×•×¢×Ÿ ×‘×“×™×§×•×ª...</div>
+            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">טוען בדיקות...</div>
             <div id="diagGrid" class="diag-grid"></div>
           </div>
         </div>
@@ -488,12 +425,12 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
             <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">×˜×•×¢×Ÿ ×ž×•×“×•×œ...</div>
+            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
@@ -501,6 +438,7 @@
     }
     function openHypno() {
       renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './דפוסי שפה עברית/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
+      heShellSyncModuleQuery('hypno');
     }
     function listHypnoRecordings() {
       try {
@@ -563,18 +501,10 @@
     function showHypnoAbout() {
       openHypno();
     }
-    function drawRandomArchetype() {
-      openArchetypes('draw', true, true);
-    }
-    function renderArchetypeDeckBuilder() {
-      openArchetypes('custom');
-    }
-    function renderArchetypesList() {
-      openArchetypes('all');
-    }
-    function showArchetypesAbout() {
-      openArchetypes('about');
-    }
+    function drawRandomArchetype() {}
+    function renderArchetypeDeckBuilder() {}
+    function renderArchetypesList() {}
+    function showArchetypesAbout() {}
     function openPlanner() { renderKinkyScenePlannerHome(); }
     function listPlannerSessions() {
       try {
@@ -649,6 +579,7 @@
           </div>
         </div>
       `;
+      heShellSyncModuleQuery('planner');
     }
     function renderPlannerHome() { renderKinkyScenePlannerHome(); }
     function renderPlannerAbout() {
@@ -696,6 +627,7 @@
           </div>
         </div>
       `;
+      heShellSyncModuleQuery('planner');
     }
     function showPlannerAbout() {
       renderPlannerAbout();
@@ -741,6 +673,7 @@
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
         </div>
       `;
+      heShellSyncModuleQuery('planner');
     }
     function getPlannerSessionById(sessionId) {
       return listPlannerSessions().find(s => s && s.id === sessionId) || null;
@@ -883,6 +816,7 @@
       if (backBtn) {
         backBtn.addEventListener('click', () => requestPlannerSaveThenReturn(returnTo === 'sessions' ? 'sessions' : 'home'));
       }
+      heShellSyncModuleQuery('planner');
     }
 
     if ('serviceWorker' in navigator) {
@@ -941,8 +875,7 @@
         plannerPendingReturnTo = null;
         openPlannerNewSession();
       } else if (data.type === 'he_module_back_home') {
-        renderArchetypesHome();
-        syncArchetypesHomeRoute(true);
+        renderWelcome();
       }
     });
     function isIos() {
@@ -1034,14 +967,7 @@
       window.location.replace(next);
     }
     function clearData() {
-      const keys = [
-        'archetype_he_favorites_v1',
-        'archetype_he_deck_realms_v1',
-        'archetype_he_prefs_v1',
-        'planner_sessions_v1',
-        'he_favorites_v4',
-        'he_recordings_v4'
-      ];
+      const keys = ['planner_sessions_v1', 'he_favorites_v4', 'he_recordings_v4'];
       keys.forEach(k => localStorage.removeItem(k));
       alert('×›×œ ×”× ×ª×•× ×™× ×”×ž×§×•×ž×™×™× × ×ž×—×§×• ×ž×”××¤×œ×™×§×¦×™×”.');
       renderWelcome();
@@ -1122,10 +1048,7 @@
         return;
       }
       const scopedChecks = MODULE_HEALTH_CHECKS.filter(item =>
-        item.id === 'shell' ||
-        item.id === 'manifest' ||
-        item.id === 'sw' ||
-        item.id.startsWith('archetypes')
+        item.id === 'shell' || item.id === 'manifest' || item.id === 'sw'
       );
       const checks = await Promise.all(scopedChecks.map(async item => {
         try {
@@ -1135,8 +1058,6 @@
           return { ...item, ok: false, status: 0, note: '×œ× × ×’×™×© (network/error)' };
         }
       }));
-      checks.push(await checkArchetypesAssetCoverage());
-      checks.push(await checkArchetypesBaselineConsistency());
       diagnosticsCache = {
         checks,
         online: navigator.onLine,
@@ -1145,93 +1066,6 @@
       renderDiagnosticsResult(diagnosticsCache);
     }
 
-    function assetCandidates(pathValue) {
-      const p = String(pathValue || '').trim();
-      if (!p) return [];
-      const normalized = p.startsWith('./images/') ? `./archetypes-he/${p.slice(2)}` : p;
-      const base = normalized.replace(/\.[^.]+$/, '');
-      return [`${base}.webp`, `${base}.png`, `${base}.jpg`, `${base}.jpeg`];
-    }
-
-    async function pathExists(path) {
-      try {
-        const res = await fetch(`${path}${path.includes('?') ? '&' : '?'}diagTs=${Date.now()}`, { cache: 'no-store' });
-        return res.ok;
-      } catch {
-        return false;
-      }
-    }
-
-    async function checkArchetypesAssetCoverage() {
-      const baseRow = {
-        id: 'archetypesAssetCoverage',
-        name: '×›×™×¡×•×™ × ×›×¡×™× ××¨×›×™×˜×™×¤×™× (×ž×–×•×”×”)',
-        path: './archetypes-he/images/*'
-      };
-      try {
-        const mapRes = await fetch('./archetypes-he/image-map.json', { cache: 'no-store' });
-        if (!mapRes.ok) {
-          return { ...baseRow, ok: false, status: mapRes.status, note: `image-map HTTP ${mapRes.status}` };
-        }
-        const mapData = await mapRes.json();
-        const rows = Array.isArray(mapData && mapData.images) ? mapData.images : [];
-        let detected = 0;
-        for (const row of rows) {
-          const candidates = assetCandidates(row && row.image);
-          let found = false;
-          for (const candidate of candidates) {
-            if (await pathExists(candidate)) {
-              found = true;
-              break;
-            }
-          }
-          if (found) detected += 1;
-        }
-        const expected = rows.length;
-        const missing = Math.max(0, expected - detected);
-        return {
-          ...baseRow,
-          ok: missing === 0,
-          status: 200,
-          note: `×–×•×”×• ${detected}/${expected} â€¢ ×—×¡×¨×™× ${missing}`
-        };
-      } catch {
-        return { ...baseRow, ok: false, status: 0, note: '×‘×“×™×§×ª ×›×™×¡×•×™ × ×›×©×œ×”' };
-      }
-    }
-
-    async function checkArchetypesBaselineConsistency() {
-      const row = {
-        id: 'archetypesBaselineConsistency',
-        name: '×¢×§×‘×™×•×ª baseline ××¨×›×™×˜×™×¤×™×',
-        path: './archetypes-he/parity-baseline.json'
-      };
-      try {
-        const [baselineRes, cardsRes, mapRes] = await Promise.all([
-          fetch('./archetypes-he/parity-baseline.json', { cache: 'no-store' }),
-          fetch('./archetypes_he_data.json', { cache: 'no-store' }),
-          fetch('./archetypes-he/image-map.json', { cache: 'no-store' })
-        ]);
-        if (!baselineRes.ok || !cardsRes.ok || !mapRes.ok) {
-          return { ...row, ok: false, status: 0, note: '× ×›×©×œ ×‘×˜×¢×™× ×ª baseline/cards/map' };
-        }
-        const baseline = await baselineRes.json();
-        const cardsData = await cardsRes.json();
-        const mapData = await mapRes.json();
-        const baselineCards = Number(baseline && baseline.enVisualBaselineCards);
-        const heCards = Array.isArray(cardsData && cardsData.cards) ? cardsData.cards.length : 0;
-        const heMapped = Array.isArray(mapData && mapData.images) ? mapData.images.length : 0;
-        const ok = Number.isFinite(baselineCards) && baselineCards === heCards && heMapped === baselineCards;
-        return {
-          ...row,
-          ok,
-          status: 200,
-          note: `baselineCards=${baselineCards} â€¢ HE cards=${heCards} â€¢ HE mapped=${heMapped}`
-        };
-      } catch {
-        return { ...row, ok: false, status: 0, note: '×‘×“×™×§×ª ×¢×§×‘×™×•×ª baseline × ×›×©×œ×”' };
-      }
-    }
 
     function renderDiagnosticsResult(payload) {
       const grid = document.getElementById('diagGrid');
@@ -1271,11 +1105,7 @@
       return escapeHtml(s);
     }
     async function preloadShellEssentials() {
-      const paths = [
-        './archetypes_he_data.json',
-        './archetypes-he/index.html',
-        './דפוסי שפה עברית/index.html'
-      ];
+      const paths = ['./דפוסי שפה עברית/index.html'];
       await Promise.all(paths.map(path =>
         fetch(path, { cache: 'no-store' }).catch(() => null)
       ));
@@ -1288,33 +1118,46 @@
       diagnosticsCache = null;
     });
 
+    function heShellSyncModuleQuery(moduleVal) {
+      try {
+        const url = new URL(window.location.href);
+        if (moduleVal) url.searchParams.set('module', moduleVal);
+        else url.searchParams.delete('module');
+        history.replaceState(history.state || {}, '', url.toString());
+      } catch (_) {}
+    }
+
     function bootShellRoute() {
       const params = new URLSearchParams(window.location.search);
       const moduleName = params.get('module');
-      const view = params.get('view') || 'draw';
-      if (moduleName === 'archetypes') {
-        if (params.has('view')) {
-          openArchetypes(view, false);
-          history.replaceState({ screen: 'archetypes', view }, '', window.location.href);
-        } else {
-          renderArchetypesHome();
-          syncArchetypesHomeRoute(true);
-        }
-      } else {
-        renderWelcome(false);
-        history.replaceState({ screen: 'welcome' }, '', window.location.href);
+      if (moduleName === 'planner') {
+        renderKinkyScenePlannerHome();
+        history.replaceState({ screen: 'planner-home' }, '', window.location.href);
+        return;
       }
+      if (moduleName === 'hypno') {
+        openHypno();
+        history.replaceState({ screen: 'hypno' }, '', window.location.href);
+        return;
+      }
+      renderWelcome(false);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('module');
+      history.replaceState({ screen: 'welcome' }, '', url.toString());
     }
 
-    window.addEventListener('popstate', (ev) => {
-      const state = ev && ev.state ? ev.state : null;
-      if (state && state.screen === 'archetypes') {
-        openArchetypes(state.view || 'draw', false);
-      } else if (state && state.screen === 'archetypes-home') {
-        renderArchetypesHome();
-      } else {
-        renderWelcome(false);
+    window.addEventListener('popstate', () => {
+      const params = new URLSearchParams(window.location.search);
+      const moduleName = params.get('module');
+      if (moduleName === 'planner') {
+        renderKinkyScenePlannerHome();
+        return;
       }
+      if (moduleName === 'hypno') {
+        openHypno();
+        return;
+      }
+      renderWelcome(false);
     });
 
     Promise.all([preloadShellEssentials()]).finally(() => {
