@@ -414,7 +414,7 @@
       const view = allowedViews.has(initialView) ? initialView : 'draw';
       const autoParam = autoplayShuffle ? '&autoplayShuffle=1' : '';
       const src = `./archetypes-he/index.html?initialView=${encodeURIComponent(view)}${autoParam}&v=${encodeURIComponent(SW_BUILD)}`;
-      renderEmbeddedModule('××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’', src, '××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’');
+      renderEmbeddedModule('ארכיטיפים של עונג', src, 'ארכיטיפים של עונג');
       if (pushHistory) {
         const url = new URL(window.location.href);
         url.searchParams.set('module', 'archetypes');
@@ -468,15 +468,15 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
-            <h2 class="screen-title">×ž×¦×‘ ×ž×¢×¨×›×ª</h2>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
+            <h2 class="screen-title">מצב מערכת</h2>
           </div>
           <div class="panel">
             <p>×‘×“×™×§×•×ª ×–×ž×™× ×•×ª ×ž×•×“×•×œ×™× ×•×§×‘×¦×™ ×ª×©×ª×™×ª ×‘×¨×™×¦×” ×ž×§×•×ž×™×ª.</p>
             <div class="utility-row" style="justify-content:flex-start;">
               <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
             </div>
-            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">×˜×•×¢×Ÿ ×‘×“×™×§×•×ª...</div>
+            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">טוען בדיקות...</div>
             <div id="diagGrid" class="diag-grid"></div>
           </div>
         </div>
@@ -488,12 +488,12 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
             <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">×˜×•×¢×Ÿ ×ž×•×“×•×œ...</div>
+            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
