@@ -1301,10 +1301,7 @@ function setupTopActions(){
       base.searchParams.set('v', '2026-04-24-sharefix3');
       return base.toString();
     }
-    base.searchParams.set('v', '2026-04-24-sharefix2');
-    const shared = encodeSharePayload(payload);
-    if (shared) base.hash = `shared=${shared}`;
-    return base.toString();
+    throw new Error('share_service_unavailable');
   }
   function runWithBusyState(button, busyText, errorText, work){
     if (!button) return Promise.resolve();
@@ -1329,10 +1326,25 @@ function setupTopActions(){
       saveActiveSession();
       return buildSummaryShareUrl().then((shareUrl) => {
         if (navigator.share) {
-          return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {});
+          return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {
+            const encoded = encodeURIComponent(shareUrl);
+            const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+            if (!popup) {
+              return navigator.clipboard.writeText(shareUrl)
+                .then(() => alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.'))
+                .catch(() => alert('לא ניתן היה לפתוח שיתוף אוטומטי. נסו שוב.'));
+            }
+            return null;
+          });
         }
         const encoded = encodeURIComponent(shareUrl);
-        window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+        const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+        if (!popup) {
+          return navigator.clipboard.writeText(shareUrl)
+            .then(() => alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.'))
+            .catch(() => alert('לא ניתן היה לפתוח שיתוף אוטומטי. נסו שוב.'));
+        }
+        return null;
       });
     });
   });

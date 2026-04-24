@@ -746,40 +746,42 @@
           ...(notes ? { notes } : {})
         };
       });
-      let shared = '';
-      try {
-        const compact = {
-          plannerState: {
-            session: plannerState.session || {},
-            safety: plannerState.safety || {},
-            refinements: plannerState.refinements || {},
-            text: plannerState.text || {},
-            sets: plannerState.sets || {},
-            activities: compactActivities,
-            consent: {
-              name: plannerState.consent?.name || '',
-              date: plannerState.consent?.date || ''
-            }
+      const compact = {
+        plannerState: {
+          session: plannerState.session || {},
+          safety: plannerState.safety || {},
+          refinements: plannerState.refinements || {},
+          text: plannerState.text || {},
+          sets: plannerState.sets || {},
+          activities: compactActivities,
+          consent: {
+            name: plannerState.consent?.name || '',
+            date: plannerState.consent?.date || ''
           }
-        };
-        if (compact.plannerState) {
-          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
-          shared = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
         }
-      } catch (_) {
-        shared = '';
-      }
-      let summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&v=2026-04-24-sharefix2${shared ? `#shared=${shared}` : ''}`;
+      };
       const shareId = await createPlannerShareId(compact);
-      if (shareId) {
-        summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&shareId=${encodeURIComponent(shareId)}&v=2026-04-24-sharefix3`;
-      }
-      if (navigator.share) {
-        navigator.share({ title: 'סיכום מצפן התשוקות', url: summaryUrl }).catch(() => {});
+      if (!shareId) {
+        alert('לא ניתן היה ליצור קישור שיתוף כרגע. נסו שוב בעוד רגע.');
         return;
       }
+      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&shareId=${encodeURIComponent(shareId)}&v=2026-04-24-sharefix3`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'סיכום מצפן התשוקות', url: summaryUrl });
+          return;
+        } catch (_) {}
+      }
       const encoded = encodeURIComponent(summaryUrl);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      if (!popup) {
+        try {
+          await navigator.clipboard.writeText(summaryUrl);
+          alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.');
+        } catch (_) {
+          alert('לא ניתן היה לפתוח שיתוף אוטומטי. העתיקו ידנית מהשורת כתובת לאחר פתיחת הסיכום.');
+        }
+      }
     }
     function renamePlannerSession(sessionId) {
       const rows = listPlannerSessions();
