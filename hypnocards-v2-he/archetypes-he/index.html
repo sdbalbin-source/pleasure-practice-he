@@ -324,7 +324,12 @@
     let selectedRealms = new Set();
     let favoritesOnly = false;
     let favorites = new Set();
-    const ARCHETYPE_CARD_BACK = './archetype-card-back.webp';
+    const ARCHETYPE_CARD_BACK_CANDIDATES = [
+      './archetype-card-back.webp',
+      './archetype-card-back.png',
+      './backside.png'
+    ];
+    let archetypeCardBackUrl = ARCHETYPE_CARD_BACK_CANDIDATES[0];
     const SHUFFLE_OVERLAY_MS = 1780;
     const SPREAD_SELECT_THRESHOLD_MOBILE = 44;
     const SPREAD_SELECT_THRESHOLD_DESKTOP = 56;
@@ -494,7 +499,9 @@
       const layer = document.createElement('div');
       layer.className = 'archetype-shuffle-overlay';
       layer.setAttribute('dir', 'ltr');
-      const cardStyle = `background-image:url('${ARCHETYPE_CARD_BACK}')`;
+      const cardStyle = archetypeCardBackUrl
+        ? `background-image:url('${archetypeCardBackUrl}'); background-color:#120b1d;`
+        : 'background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%);';
       const leftPack = Array.from({ length: 5 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
       const rightPack = Array.from({ length: 5 }, () => `<div class="archetype-shuffle-card" style="${cardStyle}"></div>`).join('');
       layer.innerHTML = `
@@ -560,10 +567,15 @@
         const x = centerX + Math.sin(rad) * radius;
         const y = centerY - Math.cos(rad) * radius;
         const rot = angle * 0.56;
+                const backStyle = archetypeCardBackUrl
+                  ? `background-image:url('${archetypeCardBackUrl}'); background-color:#120b1d;`
+                  : "background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%);";
         return `
           <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${escapeHtml(card.id)}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
             <div class="archetype-spread-inner">
-              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
+                            <div class="archetype-spread-face back" style="${backStyle}">
+                              <div style="position:absolute; inset:6px; border:1px solid rgba(245, 220, 170, 0.42); border-radius:4px;"></div>
+                            </div>
               <div class="archetype-spread-face front"></div>
             </div>
           </div>
@@ -741,7 +753,7 @@
       current = card;
       const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
       const useFaceImage = Boolean(String(art || '').trim());
-      const frontBgUrl = useFaceImage ? String(art).replace(/'/g, "\\'") : ARCHETYPE_CARD_BACK;
+      const frontBgUrl = useFaceImage ? String(art).replace(/'/g, "\\'") : archetypeCardBackUrl;
       const practiceForBook = archetypePracticeWithoutDuplicateQuestion(card.practice, card.question);
       const isFav = favorites.has(card.id);
       const backTarget = fromView === 'all'
@@ -1133,6 +1145,7 @@
       const coverage = await probeImageCoverage();
       IMAGE_AVAILABLE = coverage.available;
       IMAGE_RESOLVED = coverage.resolved;
+      await resolveCardBackAsset();
       current = null;
       const qp = new URLSearchParams(window.location.search);
       const requestedView = qp.get('initialView');
@@ -1167,6 +1180,18 @@
         }
       }));
       return { available, resolved };
+    }
+
+    async function resolveCardBackAsset() {
+      for (const candidate of ARCHETYPE_CARD_BACK_CANDIDATES) {
+        const ok = await loadImage(candidate);
+        if (ok) {
+          archetypeCardBackUrl = candidate;
+          return;
+        }
+      }
+      archetypeCardBackUrl = '';
+      notify('תמונת גב קלף לא נטענה. מופעלת תצוגת גיבוי.');
     }
 
     boot();
