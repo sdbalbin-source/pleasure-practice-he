@@ -16,6 +16,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: "Assistant", "Segoe UI", sans-serif; }
     .app { height: 100%; display: flex; flex-direction: column; padding: 1rem; gap: 0.8rem; }
+    .app.is-fullscreen { padding: 0; gap: 0; }
     .top {
       display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
       border: 1px solid var(--border); border-radius: 0.9rem; background: var(--panel); padding: 0.65rem 0.8rem;
@@ -288,11 +289,11 @@
     <div class="top">
       <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
       <h1>ארכיטיפים של עונג</h1>
-      <button class="btn" onclick="setView('draw')">למסך שליפה</button>
+      <button class="btn" onclick="openShuffleDrawFromNav()">למסך שליפה</button>
     </div>
     <div class="menu">
-      <button class="btn active" id="nav-draw" onclick="setView('draw')">ערבוב ושליפה</button>
-      <button class="btn" id="nav-custom" onclick="setView('custom')">דק מותאם</button>
+      <button class="btn active" id="nav-draw" onclick="openShuffleDrawFromNav()">ערבוב ושליפה</button>
+          <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
       <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
       <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
     </div>
@@ -305,7 +306,7 @@
     const FAVORITES_KEY = 'archetype_he_favorites_v1';
     const DECK_KEY = 'archetype_he_deck_realms_v1';
     const PREFS_KEY = 'archetype_he_prefs_v1';
-    const MODULE_VERSION = '2026-04-24-archetypes-draw-3';
+    const MODULE_VERSION = '2026-04-24-archetypes-draw-4';
     const ABOUT_COPY_FALLBACK = {
       notDisguise: 'אחת הדאגות הנפוצות סביב משחקי תפקידים היא: אם אני נכנס/ת לדמות אחרת, אולי אני לא אותנטי/ת.\nמחקר פסיכולוגי מצביע פעמים רבות על ההפך: זו לא התחפשות, אלא התגלמות של חלקים אמיתיים שלא תמיד מקבלים מקום ביום־יום.\nמי שמחזיק/ה שליטה כל היום יכול/ה לגלות מנוחה עמוקה בארכיטיפ שמרפה. מי שבדרך כלל שקט/ה יכול/ה לגלות עוצמה בארכיטיפ פראי. אלה לא סתירות - אלה השלמות.\nאנחנו לא נעשים מישהו/י אחר/ת; אנחנו מרשים/ות לעוד חלקים שלנו להיחשף.',
       howToUse: 'הקלפים אינם הוראות ביצוע - הם הזמנה.\nיש קלפים שימשכו אותך מיד, כאילו חיכו לך תמיד. ויש קלפים שיעוררו רתיעה, פחד או מבוכה - ולעיתים דווקא שם מסתתר שער לחקירה עמוקה.\n• לבד: לבחור קלף ולשאול מי אני כשאני הדמות הזו. אילו ארכיטיפים חיים בי, ואילו מפחידים אותי?\n• בזוג: לבחור ארכיטיפ ולגלם אותו יחד, או שכל צד יבחר קלף ולראות מה נוצר במפגש ביניהם.\n• כשיחה: להשתמש בקלף כדי לפתוח שיחה על רצונות, גבולות ופנטזיות בצורה נגישה יותר.',
@@ -338,6 +339,41 @@
       const menu = document.querySelector('.menu');
       if (top) top.style.display = visible ? 'flex' : 'none';
       if (menu) menu.style.display = visible ? 'grid' : 'none';
+    }
+
+    function setAppFullscreen(enabled) {
+      const app = document.getElementById('app');
+      if (!app) return;
+      app.classList.toggle('is-fullscreen', Boolean(enabled));
+    }
+
+    function renderShellFrame() {
+      const app = document.getElementById('app');
+      if (!app) return;
+      setAppFullscreen(false);
+      app.innerHTML = `
+        <div class="top">
+          <button class="btn" onclick="goBack()">חזרה לסטודיו</button>
+          <h1>ארכיטיפים של עונג</h1>
+          <button class="btn" onclick="openShuffleDrawFromNav()">למסך שליפה</button>
+        </div>
+        <div class="menu">
+          <button class="btn" id="nav-draw" onclick="openShuffleDrawFromNav()">ערבוב ושליפה</button>
+          <button class="btn" id="nav-custom" onclick="setView('custom')">חפיסה מותאמת</button>
+          <button class="btn" id="nav-all" onclick="setView('all')">כל הקלפים</button>
+          <button class="btn" id="nav-about" onclick="setView('about')">אודות ארכיטיפים</button>
+        </div>
+        <div class="view" id="view"></div>
+      `;
+    }
+
+    function ensureShell() {
+      if (!document.getElementById('view')) renderShellFrame();
+    }
+
+    function openShuffleDrawFromNav() {
+      setView('draw');
+      window.setTimeout(() => startShuffleAndDraw(), 40);
     }
 
     function normalizeRealm(v) {
@@ -382,12 +418,6 @@
       localStorage.setItem(PREFS_KEY, JSON.stringify({ favoritesOnly, currentView }));
     }
 
-    function getDeckCards() {
-      let deck = CARDS.filter(card => selectedRealms.size ? selectedRealms.has(normalizeRealm(card.realm)) : true);
-      if (favoritesOnly) deck = deck.filter(card => favorites.has(card.id));
-      return deck;
-    }
-
     function getSelectedDeckKeys() {
       const keys = Array.from(selectedRealms);
       if (favoritesOnly) keys.unshift('__favorites__');
@@ -417,61 +447,20 @@
       return CARDS.filter(card => idSet.has(card.id));
     }
 
-    function renderItem(label, value) {
-      const v = String(value || '').trim();
-      if (!v) return '';
-      return `<div class="item"><div class="label">${label}</div><div class="value">${escapeHtml(v)}</div></div>`;
+    function getRandomDrawPool() {
+      return [...CARDS];
     }
 
     function escapeHtml(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function renderCard(card) {
-      current = card;
-      const host = document.getElementById('cardHost');
-      if (!host || !card) return;
-      const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
-      const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
-      host.innerHTML = `
-        <div class="flip" role="button" tabindex="0" onclick="toggleFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFlip();}">
-          <div class="flip-inner" id="flipInner">
-            <article class="face front">
-              ${artHtml}
-              <div class="front-overlay"></div>
-              <div class="front-text">
-                <h2>${escapeHtml(card.name || 'ללא שם')}</h2>
-                <p>${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</p>
-              </div>
-            </article>
-            <article class="face back">
-              <div class="back-scroll">
-                <h3>${escapeHtml(card.name || 'ללא שם')}</h3>
-                <div class="meta">${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</div>
-                ${renderItem('המהות', card.essence)}
-                ${renderItem('המתנה', card.gift)}
-                ${renderItem('הצל', card.shadow)}
-                ${renderItem('הפרקטיקה', card.practice)}
-                ${renderItem('השאלה', card.question)}
-              </div>
-            </article>
-          </div>
-        </div>
-        <button class="btn" style="display:block; width:100%; max-width:320px; margin:0.75rem auto 0;" onclick="startShuffleAndDraw()">שליפה נוספת</button>
-      `;
-    }
-
-    function toggleFlip() {
-      const flipInner = document.getElementById('flipInner');
-      if (flipInner) flipInner.classList.toggle('flipped');
-    }
-
     function startShuffleAndDraw(poolOverride = null, fromView = 'random') {
       setChromeVisible(false);
-      const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
+      const deck = Array.isArray(poolOverride) ? poolOverride : getRandomDrawPool();
       if (!deck.length) {
         setChromeVisible(true);
-        notify('אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.');
+        notify('אין קלפים זמינים כרגע לשליפה.');
         return;
       }
       pendingSpreadPoolIds = deck.map(card => card.id);
@@ -497,7 +486,7 @@
           </div>
           <div class="archetype-shuffle-shine" aria-hidden="true"></div>
         </div>
-        <p class="archetype-shuffle-caption">מערבב את הדק...</p>
+        <p class="archetype-shuffle-caption">מערבב את החפיסה...</p>
       `;
       app.appendChild(layer);
       window.setTimeout(() => {
@@ -687,6 +676,8 @@
     }
 
     function leaveArchetypeCard(targetView) {
+      renderShellFrame();
+      setAppFullscreen(false);
       setChromeVisible(true);
       if (targetView === 'all') setView('all');
       else if (targetView === 'custom') setView('custom');
@@ -703,7 +694,7 @@
       if (archetypeView.fromView === 'custom') {
         startShuffleAndDraw(getCustomDeckPool(), 'custom');
       } else {
-        startShuffleAndDraw(getDeckCards(), 'random');
+        startShuffleAndDraw(getRandomDrawPool(), 'random');
       }
     }
 
@@ -745,69 +736,56 @@
       const reshuffleBtn = fromView === 'random'
         ? `<button class="btn" style="display:block; width:100%; max-width:320px; margin:0.75rem auto 0;" onclick="reshuffleArchetypeDraw()">שליפה נוספת</button>`
         : '';
-      const host = document.getElementById('view');
-      if (!host) return;
+      const app = document.getElementById('app');
+      if (!app) return;
+      setAppFullscreen(true);
       setChromeVisible(false);
-      host.innerHTML = `
-        <div class="panel" style="min-height:100%; background:#050408;">
-          <div class="filter-row" style="justify-content:space-between; margin-bottom:0.25rem;">
+      app.innerHTML = `
+        <div style="height:100%; min-height:100vh; display:flex; flex-direction:column; background:radial-gradient(ellipse 120% 90% at 50% 45%, rgba(14, 8, 20, 0.98), rgba(4, 3, 7, 1) 64%, #020103 100%); padding:0.9rem;">
+          <div class="filter-row" style="justify-content:space-between; margin-bottom:0.1rem;">
             <button class="btn" onclick="leaveArchetypeCard('${backTarget}')">חזרה</button>
             <button class="btn" onclick="toggleFavorite('${escapeHtml(card.id)}'); renderArchetypeCard('${escapeHtml(card.id)}','${escapeHtml(fromView)}')">
               ${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}
             </button>
           </div>
-          <div class="archetype-perspective" style="max-width:26rem; margin:0.35rem auto 0;">
-            <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner ${archetypeView.flipped ? 'is-flipped' : ''}">
-              <div class="archetype-face bg-black">
-                <div class="absolute inset-0 bg-no-repeat bg-center bg-contain" style="background-image:url('${frontBgUrl}')"></div>
-                ${useFaceImage ? '' : '<div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>'}
-                ${useFaceImage ? '' : `<div class="absolute bottom-0 left-0 right-0 p-5 text-center"><p class="text-amber-200/90 text-[0.62rem] tracking-[0.28em] uppercase font-mono mb-1">ממלכה</p><p class="text-amber-50/95 serif-font text-base leading-snug mb-4">${escapeHtml(normalizeRealm(card.realm))}</p><h3 class="text-3xl text-white serif-font font-bold leading-tight">${escapeHtml(card.name || '')}</h3><p class="text-amber-200/90 text-[0.62rem] tracking-[0.22em] uppercase font-mono mt-4 mb-1">תדר</p><p class="text-white/80 serif-font text-sm leading-snug">${escapeHtml(cardEnergy(card) || '')}</p></div>`}
-              </div>
-              <div class="archetype-face archetype-face-back">
-                <div class="archetype-booklet-scroll h-full overflow-y-auto no-scrollbar px-5 py-4 pb-6">
-                  <div class="pt-1 pb-2 text-center border-b border-amber-900/20">
-                    <h3 class="text-3xl text-amber-50 serif-font font-semibold leading-tight">${escapeHtml(card.name || '')}</h3>
-                    <div class="mt-4 space-y-3 text-center">
-                      <div>
-                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">ממלכה</p>
-                        <p class="text-sm text-amber-50/95 serif-font leading-snug">${escapeHtml(normalizeRealm(card.realm))}</p>
-                      </div>
-                      <div>
-                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">תדר</p>
-                        <p class="text-sm text-amber-50/90 serif-font leading-snug">${escapeHtml(cardEnergy(card) || '')}</p>
-                      </div>
+          <div class="archetype-perspective" style="flex:1; min-height:0; display:flex; align-items:center; justify-content:center;">
+            <div style="width:100%; max-width:26rem; margin:0 auto;">
+              <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner ${archetypeView.flipped ? 'is-flipped' : ''}">
+                <article class="archetype-face" style="background:#000;">
+                  <div style="position:absolute; inset:0; background-repeat:no-repeat; background-position:center; background-size:contain; background-image:url('${frontBgUrl}');"></div>
+                </article>
+                <article class="archetype-face archetype-face-back">
+                  <div class="archetype-booklet-scroll" style="height:100%; overflow-y:auto; padding:1rem 1.2rem 1.4rem;">
+                    <h3 style="margin:0 0 .6rem; font-size:2rem; color:#f8ecd8; text-align:center;">${escapeHtml(card.name || '')}</h3>
+                    <div style="margin-bottom:1rem; text-align:center;">
+                      <div class="archetype-section-label">ממלכה</div>
+                      <p class="archetype-prose-p">${escapeHtml(normalizeRealm(card.realm))}</p>
+                      <div class="archetype-section-label">תדר</div>
+                      <p class="archetype-prose-p">${escapeHtml(cardEnergy(card) || '')}</p>
                     </div>
-                  </div>
-                  <div class="pt-4">
-                    <div class="mb-5">
-                      <div class="archetype-section-label">מהות</div>
-                      ${archetypeParagraphBlocks(card.essence)}
-                    </div>
-                    <div class="mb-5">
-                      <div class="archetype-section-label">מתנה</div>
-                      ${archetypeParagraphBlocks(card.gift)}
-                    </div>
-                    <div class="mb-5">
-                      <div class="archetype-section-label">צל</div>
-                      ${archetypeParagraphBlocks(card.shadow)}
-                    </div>
-                    <div class="mb-4">
-                      <div class="archetype-section-label">פרקטיקה</div>
-                      ${archetypeParagraphBlocks(practiceForBook)}
-                    </div>
+                    <div class="archetype-section-label">מהות</div>
+                    ${archetypeParagraphBlocks(card.essence)}
+                    <div class="archetype-section-label">מתנה</div>
+                    ${archetypeParagraphBlocks(card.gift)}
+                    <div class="archetype-section-label">צל</div>
+                    ${archetypeParagraphBlocks(card.shadow)}
+                    <div class="archetype-section-label">פרקטיקה</div>
+                    ${archetypeParagraphBlocks(practiceForBook)}
                     <div class="archetype-question-callout">${escapeHtml(card.question || '')}</div>
                   </div>
-                </div>
+                </article>
               </div>
+              <p class="meta" style="text-align:center; margin:.55rem 0 0;">לחיצה על הקלף חושפת את הצד השני</p>
+              ${reshuffleBtn}
             </div>
-            <p class="meta" style="text-align:center; margin-top:0.6rem;">לחיצה על הקלף חושפת את הצד השני</p>
-            ${reshuffleBtn}
           </div>
         </div>
       `;
     }
 
     function setView(view) {
+      ensureShell();
+      setAppFullscreen(false);
       setChromeVisible(true);
       currentView = view;
       ['draw', 'custom', 'all', 'about'].forEach(v => {
@@ -825,50 +803,13 @@
 
     function renderDrawView(host) {
       host.innerHTML = `
-        <div class="grid">
-          <div class="card-wrap"><div id="cardHost"></div></div>
-          <div class="panel">
-            <div class="filter-row">
-              <button class="btn" onclick="startShuffleAndDraw()">ערבוב ושליפה</button>
-              <button class="btn" onclick="startShuffleAndDraw()">ערבוב מחדש</button>
-              <button class="btn" onclick="toggleFlip()">היפוך</button>
-            </div>
-            <div class="meta">גודל דק פעיל: ${getDeckCards().length} קלפים</div>
-            <div class="meta">נכסים חזותיים שזוהו: ${IMAGE_AVAILABLE.size}/${Object.keys(IMAGE_MAP).length}</div>
-            <div class="list" id="drawList"></div>
-          </div>
+        <div class="panel" style="min-height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:0.8rem;">
+          <h3 style="margin:0; font-size:1.35rem;">ערבוב ושליפה</h3>
+          <p class="meta" style="max-width:34rem; margin:0;">דחוף/דחפי קלף החוצה מהקשת כדי לחשוף אותו.</p>
+          <button class="btn" style="min-width:16rem;" onclick="startShuffleAndDraw()">התחל ערבוב ושליפה</button>
+          <p class="meta" style="margin:0;">סה״כ קלפים זמינים: ${CARDS.length}</p>
         </div>
       `;
-      const cardHost = document.getElementById('cardHost');
-      if (current) {
-        renderCard(current);
-      } else if (cardHost) {
-        cardHost.innerHTML = '<div class="meta" style="padding:1rem 0.6rem; text-align:center;">בחר/י ערבוב ושליפה כדי לחשוף קלף.</div>';
-      }
-      renderCompactList('drawList');
-    }
-
-    function renderCompactList(id) {
-      const panel = document.getElementById(id);
-      if (!panel) return;
-      const deck = getDeckCards();
-      if (!deck.length) {
-        panel.innerHTML = '<div class="meta">אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.</div><button class="btn" onclick="setView(\'custom\')">פתח Custom Deck</button>';
-        return;
-      }
-      let html = '';
-      deck.slice(0, 18).forEach(card => {
-        const currentClass = current && current.id === card.id ? 'is-current' : '';
-        const fav = favorites.has(card.id) ? '★' : '☆';
-        html += `<button class="row ${currentClass}" data-id="${escapeHtml(card.id)}"><span>${escapeHtml(card.name)}</span><small>${fav}</small></button>`;
-      });
-      panel.innerHTML = html;
-      panel.querySelectorAll('.row').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const card = deck.find(c => String(c.id) === String(btn.dataset.id));
-          if (card) renderCard(card);
-        });
-      });
     }
 
     function renderAllCardsView(host) {
@@ -977,7 +918,7 @@
             ${realms.map(realm => row(realm, realm, `${counts[realm] || 0} קלפים בממלכה זו`)).join('')}
           </div>
           <div class="filter-row" style="margin-top:0.75rem;">
-            <button class="btn" id="customShuffleDraw" style="width:100%;">ערבוב ושליפה מהדק המותאם</button>
+            <button class="btn" id="customShuffleDraw" style="width:100%;">ערבוב ושליפה מהחפיסה המותאמת</button>
           </div>
         </div>
       `;
@@ -1024,7 +965,7 @@
           <div class="about-stack">
             <details class="about-acc" open>
               <summary>לפני שמתחילים</summary>
-              <div class="about-body">הקלפים הם הזמנה לתרגול חי: שליפה להפתעה, בניית דק לפי ממלכה, וסימון מועדפים פעילים.\nהמטרה היא לא "תשובה נכונה", אלא חקירה של מה מהדהד בך עכשיו - רגשית, גופנית ודמיונית.</div>
+              <div class="about-body">הקלפים הם הזמנה לתרגול חי: שליפה להפתעה, בניית חפיסה לפי ממלכה, וסימון מועדפים פעילים.\nהמטרה היא לא "תשובה נכונה", אלא חקירה של מה מהדהד בך עכשיו - רגשית, גופנית ודמיונית.</div>
             </details>
             <details class="about-acc">
               <summary>אור וצל</summary>
