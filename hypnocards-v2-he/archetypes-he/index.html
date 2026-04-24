@@ -506,13 +506,12 @@
 
     function openArchetypeTarotSpread() {
       setChromeVisible(false);
-      const spreadCards = pickArchetypeSpreadCards(15);
-      if (!spreadCards.length) return;
       const app = document.getElementById('app');
-      if (!app) return;
       const layer = document.createElement('div');
       layer.className = 'archetype-spread-overlay';
       layer.setAttribute('dir', 'ltr');
+      const spreadCards = pickArchetypeSpreadCards(15);
+      if (!spreadCards.length) return;
       const viewportWidth = Math.max(320, window.innerWidth || 360);
       const viewportHeight = Math.max(560, window.innerHeight || 640);
       const stageWidth = Math.min(440, viewportWidth - 32);
@@ -526,7 +525,9 @@
       const cardWidth = Math.min(viewportWidth * (isMobileSpread ? 0.22 : 0.20), isMobileSpread ? 82 : 92);
       const cardHeight = cardWidth * 1.5;
       const maxCardRotRad = Math.abs(maxAngleDeg * 0.56) * Math.PI / 180;
-      const rotatedHalfWidth = (Math.abs(Math.cos(maxCardRotRad)) * cardWidth * 0.5) + (Math.abs(Math.sin(maxCardRotRad)) * cardHeight * 0.5);
+      const rotatedHalfWidth =
+        (Math.abs(Math.cos(maxCardRotRad)) * cardWidth * 0.5) +
+        (Math.abs(Math.sin(maxCardRotRad)) * cardHeight * 0.5);
       const horizontalSafeHalf = (stageWidth / 2) - rotatedHalfWidth - (isMobileSpread ? 10 : 8);
       const radiusByWidth = horizontalSafeHalf / Math.max(0.001, Math.sin(maxAngleRad));
       const radius = Math.max(150, Math.min(272, radiusByWidth, stageWidth * (isMobileSpread ? 0.44 : 0.56)));
@@ -542,11 +543,9 @@
         const y = centerY - Math.cos(rad) * radius;
         const rot = angle * 0.56;
         return `
-          <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${escapeHtml(card.id)}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; width:${cardWidth.toFixed(2)}px; height:${cardHeight.toFixed(2)}px; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
+          <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${card.id}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
             <div class="archetype-spread-inner">
-              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}'); background-color:#120b1d;">
-                <div style="position:absolute; inset:6px; border:1px solid rgba(245, 220, 170, 0.42); border-radius:4px;"></div>
-              </div>
+              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
               <div class="archetype-spread-face front"></div>
             </div>
           </div>
@@ -560,8 +559,10 @@
       `;
       app.appendChild(layer);
       const stage = layer.querySelector('.archetype-spread-stage');
+
       let selected = false;
       const cards = Array.from(layer.querySelectorAll('.archetype-spread-card'));
+
       cards.forEach((el, i) => {
         const targetX = Number(el.dataset.x || 0);
         const targetY = Number(el.dataset.y || 0);
@@ -577,31 +578,7 @@
       window.setTimeout(() => {
         stage.classList.remove('is-dealing');
       }, 980);
-      // Safety fallback: if arc cards end up off-screen on specific devices/webviews,
-      // re-layout them into a guaranteed visible fan so draw can proceed.
-      window.setTimeout(() => {
-        const viewportW = window.innerWidth || 360;
-        const viewportH = window.innerHeight || 640;
-        const visibleCount = cards.reduce((acc, el) => {
-          const rect = el.getBoundingClientRect();
-          const hasSize = rect.width > 6 && rect.height > 6;
-          const intersects =
-            rect.right > 0 &&
-            rect.bottom > 0 &&
-            rect.left < viewportW &&
-            rect.top < viewportH;
-          return acc + (hasSize && intersects ? 1 : 0);
-        }, 0);
-        if (visibleCount >= Math.min(4, cards.length)) return;
-        const mid = (cards.length - 1) / 2;
-        cards.forEach((el, i) => {
-          const dx = (i - mid) * (viewportW <= 640 ? 14 : 16);
-          const dy = Math.abs(i - mid) * (viewportW <= 640 ? 2.2 : 2.6);
-          const rot = (i - mid) * 3.4;
-          el.style.transform = `translate3d(${dx.toFixed(2)}px, ${(72 + dy).toFixed(2)}px, 0) rotate(${rot.toFixed(2)}deg)`;
-          el.classList.remove('is-not-ready');
-        });
-      }, 1150);
+
       cards.forEach((el) => {
         const baseX = Number(el.dataset.x || 0);
         const baseY = Number(el.dataset.y || 0);
