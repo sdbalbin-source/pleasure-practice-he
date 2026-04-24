@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -266,58 +266,58 @@
     const ABOUT_TEMPLATE = `
         <div class="flex flex-col h-full bg-[#050408] md:max-w-[1240px] md:mx-auto md:w-full">
           <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font">××•×“×•×ª Pleasure Practice Studio</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
+            <h2 class="text-2xl font-bold text-white serif-font">אודות Pleasure Practice Studio</h2>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×œ×©× ×ž×” ×”×¡×˜×•×“×™×• ×§×™×™×</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio ×”×•× ×ž×¨×—×‘ ×©×§×˜ ×œ×—×§×™×¨×” ××™×¨×•×˜×™×ª ×ž×›×•×•× ×ª - ×ž×§×•× ×œ×’×œ×•×ª ×ž×” ××ª/×” ×¨×•×¦×”, ×œ×ž×¦×•× ×œ×–×” ×ž×™×œ×™× ×ž×“×•×™×§×•×ª, ×•×œ×¢×¦×‘ ×—×•×•×™×•×ª ×©×ž×¨×’×™×©×•×ª ×‘×˜×•×—×•×ª, ×—×™×•×ª ×•×‘××ž×ª ×©×œ×š.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">לשם מה הסטודיו קיים</h3>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio הוא מרחב שקט לחקירה אירוטית מכוונת - מקום לגלות מה את/ה רוצה, למצוא לזה מילים מדויקות, ולעצב חוויות שמרגישות בטוחות, חיות ובאמת שלך.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">×©×œ×•×©×” ×›×œ×™×, ×¡×˜×•×“×™×• ××—×“</h3>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">שלושה כלים, סטודיו אחד</h3>
               <div class="space-y-4 text-gray-300 serif-font text-base leading-relaxed">
-                <p><span class="text-white font-bold">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</span><br>×—×‘×™×œ×ª ×ª×¨×’×•×œ ×œ×˜×•×Ÿ, ×§×¦×‘ ×•× ×™×¡×•×— ×”×™×¤× ×•×˜×™-××™×¨×•×˜×™. ×œ×ž×™ ×©×¨×•×¦×” ×œ×”×¨×—×™×‘ ××ª ×˜×•×•×— ×”×©×¤×”, ×œ×”×¢×ž×™×§ ×“×ž×™×•×Ÿ ××™×¨×•×˜×™, ××• ×œ×—×§×•×¨ ×ž×¦×‘×™× ×ž×•×“×¨×›×™× ×“×¨×š ×ž×™×œ×™×.</p>
-                <p><span class="text-white font-bold">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</span><br>×—×‘×™×œ×ª ×§×œ×¤×™× ×—×–×•×ª×™×ª-×¡×ž×œ×™×ª ×œ×—×§×™×¨×” ×¨×’×©×™×ª ×•×× ×¨×’×˜×™×ª. ×œ×–×”×•×ª ××™×–×” ××¨×›×™×˜×™×¤ ×©×œ ×ž×¦×‘ ×¨×•×— ×¨×¦×•×™ ×œ×š ×œ×’×œ×, ×œ×”×–×ž×™×Ÿ ××• ×œ×”×‘×™×Ÿ - ×‘×¢×¦×ž×š ××• ×‘×“×™× ×ž×™×§×” ×¢× ×¤×¨×˜× ×¨/×™×ª.</p>
-                <p><span class="text-white font-bold">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</span><br>×ž×¨×—×‘ ×ž×•×‘× ×” ×œ×”×¡×›×ž×•×ª ×•×ª×§×©×•×¨×ª ×‘×™×Ÿ ×¤×¨×˜× ×¨×™×. ×œ×“×™×™×§ ×¨×¦×•× ×•×ª, ×’×‘×•×œ×•×ª, ×¢×•×¦×ž×” ×•××¤×˜×¨×§×¨ ×œ×¤× ×™ ×¡×©×Ÿ, ×›×“×™ ×œ×”×™×›× ×¡ ××œ×™×• ×‘×‘×™×˜×—×•×Ÿ, ×‘×”×™×¨×•×ª ×•×“××’×” ×”×“×“×™×ª.</p>
+                <p><span class="text-white font-bold">דפוסי שפה היפנוטיים</span><br>חבילת תרגול לטון, קצב וניסוח היפנוטי-אירוטי. למי שרוצה להרחיב את טווח השפה, להעמיק דמיון אירוטי, או לחקור מצבים מודרכים דרך מילים.</p>
+                <p><span class="text-white font-bold">ארכיטיפים של עונג</span><br>חבילת קלפים חזותית-סמלית לחקירה רגשית ואנרגטית. לזהות איזה ארכיטיפ של מצב רוח רצוי לך לגלם, להזמין או להבין - בעצמך או בדינמיקה עם פרטנר/ית.</p>
+                <p><span class="text-white font-bold">מצפן התשוקות</span><br>מרחב מובנה להסכמות ותקשורת בין פרטנרים. לדייק רצונות, גבולות, עוצמה ואפטרקר לפני סשן, כדי להיכנס אליו בביטחון, בהירות ודאגה הדדית.</p>
               </div>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¢×œ ×¡×©×”</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">×¡×©×” ×‘×œ×‘×™×Ÿ ×”×•× ×ž×—× ×š ×œ××ž× ×•×™×•×ª ××™×¨×•×˜×™×•×ª ×•×™×•×¦×¨ Pleasure Practice Studio. ×”×¢×‘×•×“×” ×©×œ×• ×ž×—×‘×¨×ª ×‘×™×Ÿ ×ª×©×•×§×”, ×¢×•×ž×§ ×•×”×¡×›×ž×” ×“×¨×š ×›×œ×™× ×ž×¢×©×™×™× ×©××¤×©×¨ ×œ×™×™×©× ×‘×—×™×™× ×¢×¦×ž× - ×œ×‘×“ ××• ×™×—×“. ×”×’×™×©×” ×ž×©×œ×‘×ª ×©×¤×” ×”×™×¤× ×•×˜×™×ª, ×“×ž×™×•×Ÿ ××¨×›×™×˜×™×¤×™ ×•×¢×™×¦×•×‘ ×ª×§×©×•×¨×ª ×›×“×™ ×œ×ª×ž×•×š ×‘×—×•×•×™×•×ª ××™× ×˜×™×ž×™×•×ª ×ž×“×•×™×§×•×ª, ×‘×˜×•×—×•×ª ×•×ž×©×ž×¢×•×ª×™×•×ª ×™×•×ª×¨.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">על סשה</h3>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">סשה בלבין הוא מחנך לאמנויות אירוטיות ויוצר Pleasure Practice Studio. העבודה שלו מחברת בין תשוקה, עומק והסכמה דרך כלים מעשיים שאפשר ליישם בחיים עצמם - לבד או יחד. הגישה משלבת שפה היפנוטית, דמיון ארכיטיפי ועיצוב תקשורת כדי לתמוך בחוויות אינטימיות מדויקות, בטוחות ומשמעותיות יותר.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×—×™×‘×•×¨</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">××¤×©×¨ ×œ×¢×§×•×‘ ××—×¨×™ <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> ×œ×ª×¨×’×•×œ×™× ×ž×ª×ž×©×›×™×, ×ª×•×‘× ×•×ª ×•×¢×“×›×•× ×™× ×¢×œ ×”×¦×¢×•×ª ×—×“×©×•×ª.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">חיבור</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">אפשר לעקוב אחרי <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> לתרגולים מתמשכים, תובנות ועדכונים על הצעות חדשות.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¤×¨×˜×™×•×ª</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ/×ž×›×©×™×¨ ×©×œ×š ×›×‘×¨×™×¨×ª ×ž×—×“×œ. ×× ×ž×©×ª×ž×©×™× ×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ - ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×œ××—×¨ ×©×™×ž×•×©.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">פרטיות</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">הנתונים נשמרים מקומית בדפדפן/מכשיר שלך כברירת מחדל. אם משתמשים במכשיר משותף - מומלץ למחוק נתונים לאחר שימוש.</p>
             </div>
             <div class="pt-2">
               <button onclick="promptInstallApp()" class="install-app-btn w-full py-3 rounded-2xl border border-purple-500/30 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font">
-                <i data-lucide="download"></i> ×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª
+                <i data-lucide="download"></i> התקן אפליקציה למסך הבית
               </button>
               <button onclick="forceUpdateApp()" class="mt-2 w-full py-2 rounded-xl border border-blue-500/30 text-blue-200 text-xs hover:bg-blue-500/10 transition flex items-center justify-center gap-2 font-mono">
-                <i data-lucide="refresh-cw"></i> ×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•
+                <i data-lucide="refresh-cw"></i> כפיית עדכון עכשיו
               </button>
             </div>
           </div>
         </div>
       `;
     const MODULE_HEALTH_CHECKS = [
-      { id: 'shell', name: '×ž×¢×˜×¤×ª ×¢×‘×¨×™×ª', path: './index.html' },
+      { id: 'shell', name: 'מעטפת עברית', path: './index.html' },
       { id: 'manifest', name: 'Manifest', path: './manifest.json' },
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
-      { id: 'archetypes', name: '×ž×•×“×•×œ ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/index.html' },
-      { id: 'archetypesData', name: '×“××˜×” ××¨×›×™×˜×™×¤×™×', path: './archetypes_he_data.json' },
-      { id: 'archetypesImageMap', name: '×ž×™×¤×•×™ ×ª×ž×•× ×•×ª ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/image-map.json' },
-      { id: 'archetypesAboutCopy', name: '×˜×§×¡×˜ About ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/about-copy-he.json' },
+      { id: 'archetypes', name: 'מודול ארכיטיפים', path: './archetypes-he/index.html' },
+      { id: 'archetypesData', name: 'דאטה ארכיטיפים', path: './archetypes_he_data.json' },
+      { id: 'archetypesImageMap', name: 'מיפוי תמונות ארכיטיפים', path: './archetypes-he/image-map.json' },
+      { id: 'archetypesAboutCopy', name: 'טקסט About ארכיטיפים', path: './archetypes-he/about-copy-he.json' },
       { id: 'archetypesParityBaseline', name: 'Archetypes parity baseline', path: './archetypes-he/parity-baseline.json' },
-      { id: 'hypno', name: '×ž×•×“×•×œ ×“×¤×•×¡×™ ×©×¤×”', path: './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html' },
-      { id: 'planner', name: '×ž×•×“×•×œ ×ž×¦×¤×Ÿ ×ª×©×•×§×•×ª', path: './planner-he/index.html' }
+      { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
+      { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-24-he-4';
+    const SW_BUILD = '2026-04-24-he-3';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -374,25 +374,25 @@
             <div class="absolute inset-0 bg-purple-500 blur-3xl opacity-20 rounded-full animate-pulse"></div>
             <h1 class="text-5xl font-bold serif-font text-white mb-2 tracking-tight relative z-10">Pleasure Practice</h1>
             <h1 class="text-5xl font-bold serif-font text-purple-400 mb-4 tracking-tight relative z-10">Studio</h1>
-            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">×©×œ×•×©×” ×›×œ×™× ×ž×©×•×œ×‘×™× ×œ×ª×¨×’×•×œ</p>
+            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">שלושה כלים משולבים לתרגול</p>
           </div>
 
           <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
+            דפוסי שפה היפנוטיים
           </button>
           <button onclick="renderArchetypesHome(true)" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’
+            ארכיטיפים של עונג
           </button>
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª
+            מצפן התשוקות
           </button>
 
           <button onclick="showAbout()" class="w-full max-w-xs py-3 rounded-2xl border border-purple-500/20 text-purple-300 text-base hover:bg-purple-500/10 transition flex items-center justify-center serif-font">
-            ××•×“×•×ª ×›×œ×œ×™×•×ª
+            אודות כלליות
           </button>
 
           <button onclick="clearData()" class="absolute bottom-6 text-xs text-gray-600 hover:text-red-400 transition opacity-60 hover:opacity-100">
-            ××™×¤×•×¡ ×›×œ ×”× ×ª×•× ×™×
+            איפוס כל הנתונים
           </button>
         </div>
       `;
@@ -414,7 +414,7 @@
       const view = allowedViews.has(initialView) ? initialView : 'draw';
       const autoParam = autoplayShuffle ? '&autoplayShuffle=1' : '';
       const src = `./archetypes-he/index.html?initialView=${encodeURIComponent(view)}${autoParam}&v=${encodeURIComponent(SW_BUILD)}`;
-      renderEmbeddedModule('××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’', src, '××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’');
+      renderEmbeddedModule('ארכיטיפים של עונג', src, 'ארכיטיפים של עונג');
       if (pushHistory) {
         const url = new URL(window.location.href);
         url.searchParams.set('module', 'archetypes');
@@ -427,28 +427,28 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
           <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition" aria-label="×—×–×¨×”">
+            <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition" aria-label="חזרה">
               <i data-lucide="arrow-left"></i>
             </button>
-            <h2 class="text-2xl font-bold text-white serif-font">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h2>
+            <h2 class="text-2xl font-bold text-white serif-font">ארכיטיפים של עונג</h2>
             <div class="w-10"></div>
           </div>
           <div class="grid gap-4 w-full max-w-3xl mx-auto">
             <button onclick="drawRandomArchetype()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×¢×¨×‘×•×‘ ×•×©×œ×™×¤×”</h3>
-              <p class="text-gray-400 serif-font text-base">×¢×¨×‘×•×‘ ×ž×•× ×¤×©, ×•×œ××—×¨×™×• ×—×©×™×¤×ª ××¨×›×™×˜×™×¤ ××—×“.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">ערבוב ושליפה</h3>
+              <p class="text-gray-400 serif-font text-base">ערבוב מונפש, ולאחריו חשיפת ארכיטיפ אחד.</p>
             </button>
             <button onclick="renderArchetypeDeckBuilder()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×“×§ ×ž×•×ª××</h3>
-              <p class="text-gray-400 serif-font text-base">×‘×—×™×¨×ª ×ž×ž×œ×›×•×ª ×•/××• ×¡×˜ ×ž×•×¢×“×¤×™×, ×•××– ×©×œ×™×¤×”.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">דק מותאם</h3>
+              <p class="text-gray-400 serif-font text-base">בחירת ממלכות ו/או סט מועדפים, ואז שליפה.</p>
             </button>
             <button onclick="renderArchetypesList()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×›×œ ×”×§×œ×¤×™×</h3>
-              <p class="text-gray-400 serif-font text-base">×ž×™×•×Ÿ ×œ×¤×™ ×ž×ž×œ×›×•×ª ×¢× ×¡×™×ž×•×Ÿ ×ž×•×¢×“×¤×™× ×œ×›×œ ×§×œ×£.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">כל הקלפים</h3>
+              <p class="text-gray-400 serif-font text-base">מיון לפי ממלכות עם סימון מועדפים לכל קלף.</p>
             </button>
             <button onclick="showArchetypesAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h3>
-              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© ×‘×ž×•×“×•×œ.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">אודות ארכיטיפים של עונג</h3>
+              <p class="text-gray-400 serif-font text-base">רקע והנחיות שימוש במודול.</p>
             </button>
           </div>
         </div>
@@ -468,15 +468,15 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
-            <h2 class="screen-title">×ž×¦×‘ ×ž×¢×¨×›×ª</h2>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
+            <h2 class="screen-title">מצב מערכת</h2>
           </div>
           <div class="panel">
-            <p>×‘×“×™×§×•×ª ×–×ž×™× ×•×ª ×ž×•×“×•×œ×™× ×•×§×‘×¦×™ ×ª×©×ª×™×ª ×‘×¨×™×¦×” ×ž×§×•×ž×™×ª.</p>
+            <p>בדיקות זמינות מודולים וקבצי תשתית בריצה מקומית.</p>
             <div class="utility-row" style="justify-content:flex-start;">
               <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
             </div>
-            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">×˜×•×¢×Ÿ ×‘×“×™×§×•×ª...</div>
+            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">טוען בדיקות...</div>
             <div id="diagGrid" class="diag-grid"></div>
           </div>
         </div>
@@ -488,19 +488,19 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
+            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
             <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">×˜×•×¢×Ÿ ×ž×•×“×•×œ...</div>
+            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
           </div>
         </div>
       `;
       wireEmbedFrame(frameId, src);
     }
     function openHypno() {
-      renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
+      renderEmbeddedModule('דפוסי שפה היפנוטיים', './דפוסי שפה עברית/index.html', 'דפוסי שפה עברית');
     }
     function listHypnoRecordings() {
       try {
@@ -517,34 +517,34 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-5 bg-black/10">
           <div class="flex items-center justify-between mb-6 pt-3 gap-3">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font text-center">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
+            <h2 class="text-2xl font-bold text-white serif-font text-center">דפוסי שפה היפנוטיים</h2>
             <div class="w-10"></div>
           </div>
           <div class="flex-1 min-h-0 flex flex-col justify-between">
             <div class="grid gap-4">
               <button onclick="startSession('all')" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×‘×¡×™×¡×™×ª</h3>
+                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה בסיסית</h3>
                 <p class="serif-font text-gray-300 text-base font-light leading-relaxed">
-                  ×—×‘×™×œ×” ×ž××•×–× ×ª ×‘×œ×™ × ×•×©××™× ×ž×ª×§×“×ž×™×, ×œ×ª×¨×’×•×œ ×©×•×˜×£.
+                  חבילה מאוזנת בלי נושאים מתקדמים, לתרגול שוטף.
                 </p>
               </button>
               <button onclick="renderCategorySelect()" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×ž×•×ª××ž×ª</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">×‘×—×™×¨×” ×œ×¤×™ ×§×˜×’×•×¨×™×•×ª ×ž×ž×•×§×“×•×ª.</p>
+                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה מותאמת</h3>
+                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">בחירה לפי קטגוריות ממוקדות.</p>
               </button>
               <button onclick="renderRecordings()" class="glass-panel module-home-card p-4 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
                 <div class="flex items-center justify-center gap-4">
                   <div>
-                    <h3 class="text-lg font-bold text-white serif-font">×”×”×§×œ×˜×•×ª ×©×œ×™</h3>
-                    <p class="text-gray-400 text-xs text-center">${recordingsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
+                    <h3 class="text-lg font-bold text-white serif-font">ההקלטות שלי</h3>
+                    <p class="text-gray-400 text-xs text-center">${recordingsCount} סשנים שמורים</p>
                   </div>
                 </div>
               </button>
             </div>
             <div class="pt-3">
               <button onclick="showHypnoAbout()" class="w-full py-3 rounded-2xl border border-purple-500/35 bg-black/40 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-                ××•×“×•×ª ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
+                אודות דפוסי שפה היפנוטיים
               </button>
             </div>
           </div>
@@ -594,7 +594,7 @@
           .map(s => {
             const sessionName = s?.plannerState?.session?.sessionName || '';
             const nickname = s?.plannerState?.session?.nickname || '';
-            const fallbackTitle = String(sessionName || nickname || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
+            const fallbackTitle = String(sessionName || nickname || 'סשן ללא כותרת');
             return { ...s, title: String(s.title || fallbackTitle) };
           })
           .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
@@ -616,11 +616,11 @@
     function plannerSessionMeta(s) {
       const snap = s && s.summarySnapshot && typeof s.summarySnapshot === 'object' ? s.summarySnapshot : {};
       const roleRaw = String(snap.role || '').trim().toLowerCase();
-      const roleMap = { dom: '×“×•×', sub: '×¡××‘', switch: '×¡×•×•×™×¥×³' };
-      const role = roleRaw ? (roleMap[roleRaw] || roleRaw) : 'â€”';
+      const roleMap = { dom: 'דום', sub: 'סאב', switch: 'סוויץ׳' };
+      const role = roleRaw ? (roleMap[roleRaw] || roleRaw) : '—';
       const durationNum = Number(snap.duration || 0);
-      const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} ×“×§×³` : 'â€”';
-      return `${role} â€¢ ${duration}`;
+      const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} דק׳` : '—';
+      return `${role} • ${duration}`;
     }
     function renderKinkyScenePlannerHome() {
       const savedSessionsCount = listPlannerSessions().length;
@@ -628,23 +628,23 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
           <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
-            <h2 class="text-2xl font-bold text-white serif-font">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
+            <h2 class="text-2xl font-bold text-white serif-font">מצפן התשוקות</h2>
             <div class="w-10"></div>
           </div>
           <div class="grid gap-4">
             <button onclick="startPlannerSession()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×¡×©×Ÿ ×”×¡×›×ž×•×ª ×—×“×©</h3>
-              <p class="text-gray-400 serif-font text-base">×¤×ª×™×—×ª ×ª×”×œ×™×š ×—×“×© ×œ×‘×™×¨×•×¨ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª ×•×”×¡×›×ž×•×ª ×œ×¤× ×™ ×ž×¤×’×©.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">סשן הסכמות חדש</h3>
+              <p class="text-gray-400 serif-font text-base">פתיחת תהליך חדש לבירור גבולות, רצונות והסכמות לפני מפגש.</p>
             </button>
             <button onclick="renderPlannerSessions()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">×”×¡×©× ×™× ×©×œ×™</h3>
-                <p class="text-gray-400 serif-font text-base">×¦×¤×™×™×”, ×”×ž×©×š ×•× ×™×”×•×œ ×©×œ ×¡×©× ×™× ×©× ×©×ž×¨×•.</p>
-              <p class="text-gray-400 text-xs text-center mt-2">${savedSessionsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">הסשנים שלי</h3>
+                <p class="text-gray-400 serif-font text-base">צפייה, המשך וניהול של סשנים שנשמרו.</p>
+              <p class="text-gray-400 text-xs text-center mt-2">${savedSessionsCount} סשנים שמורים</p>
             </button>
             <button onclick="showPlannerAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h3>
-              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© × ×›×•× ×•×ª ×‘×ž×•×“×•×œ.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">אודות מצפן התשוקות</h3>
+              <p class="text-gray-400 serif-font text-base">רקע והנחיות שימוש נכונות במודול.</p>
             </button>
           </div>
         </div>
@@ -655,44 +655,44 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderPlannerHome()">×—×–×¨×” â†’</button>
-            <h2 class="screen-title">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
+            <button class="back-btn" onclick="renderPlannerHome()">חזרה →</button>
+            <h2 class="screen-title">אודות מצפן התשוקות</h2>
           </div>
           <div class="panel">
-            <p><strong>×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</strong> ×”×•× ×›×œ×™ ×¢×‘×•×“×” ×œ×©×™×—×” ×ž×™× ×™×ªÖ¾×¨×’×©×™×ª ×œ×¤× ×™ ×¡×©×Ÿ, ×•×œ× ×ª×—×œ×™×£ ×œ×©×™×§×•×œ ×“×¢×ª, ×ª×§×©×•×¨×ª ×‘×–×ž×Ÿ ××ž×ª ××• ××—×¨×™×•×ª ×”×“×“×™×ª.</p>
+            <p><strong>מצפן התשוקות</strong> הוא כלי עבודה לשיחה מינית־רגשית לפני סשן, ולא תחליף לשיקול דעת, תקשורת בזמן אמת או אחריות הדדית.</p>
             <details open>
-              <summary><strong>×œ×ž×” ×œ×”×©×ª×ž×© ×‘×ž×¦×¤×Ÿ?</strong></summary>
+              <summary><strong>למה להשתמש במצפן?</strong></summary>
               <ul class="list">
-                <li>×œ×™×™×¦×¨ ×©×™×—×” ×‘×¨×•×¨×” ×¢×œ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª, ×¢×¦×™×ž×•×ª ×•××¤×˜×¨Ö¾×§×¨ ×œ×¤× ×™ ×©×ž×ª×—×™×œ×™×.</li>
-                <li>×œ×”×¤×•×š ×”×¡×›×ž×•×ª ×œ××¡×•×¤×” ×›×ª×•×‘×” ×©××¤×©×¨ ×œ×—×–×•×¨ ××œ×™×” ×œ×¤× ×™/××—×¨×™ ×”×¡×©×Ÿ.</li>
-                <li>×œ×–×”×•×ª ×ž×¨××© × ×§×•×“×•×ª ×¨×’×™×©×•×ª, ×˜×¨×™×’×¨×™×, ×•×ž×¡×œ×•×œ×™ ×¢×¦×™×¨×” ×‘×˜×•×—×™×.</li>
+                <li>לייצר שיחה ברורה על גבולות, רצונות, עצימות ואפטר־קר לפני שמתחילים.</li>
+                <li>להפוך הסכמות לאסופה כתובה שאפשר לחזור אליה לפני/אחרי הסשן.</li>
+                <li>לזהות מראש נקודות רגישות, טריגרים, ומסלולי עצירה בטוחים.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>×ž×¡×’×¨×•×ª ×”×¡×›×ž×” ×ž×•×ž×œ×¦×•×ª</strong></summary>
+              <summary><strong>מסגרות הסכמה מומלצות</strong></summary>
               <ul class="list">
-                <li><strong>SSC</strong> - ×‘×˜×•×—, ×©×¤×•×™ ×•×‘×”×¡×›×ž×”.</li>
-                <li><strong>RACK</strong> - ×ž×•×“×¢×•×ª ×œ×¡×™×›×•×Ÿ ×•×”×¡×›×ž×” ×ž×•×“×¢×ª.</li>
-                <li><strong>FRIES</strong> - ×”×¡×›×ž×” ×—×•×¤×©×™×ª, ×”×¤×™×›×”, ×ž×•×“×¢×ª, × ×œ×”×‘×ª ×•×¡×¤×¦×™×¤×™×ª.</li>
+                <li><strong>SSC</strong> - בטוח, שפוי ובהסכמה.</li>
+                <li><strong>RACK</strong> - מודעות לסיכון והסכמה מודעת.</li>
+                <li><strong>FRIES</strong> - הסכמה חופשית, הפיכה, מודעת, נלהבת וספציפית.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>×ª×§×©×•×¨×ª ×•×‘×˜×™×—×•×ª ×‘×–×ž×Ÿ ×¡×©×Ÿ</strong></summary>
+              <summary><strong>תקשורת ובטיחות בזמן סשן</strong></summary>
               <ul class="list">
-                <li>×”×’×“×™×¨×• ×ž×™×œ×ª ×‘×™×˜×—×•×Ÿ ×•×ž×—×•×•×ª ×¢×¦×™×¨×” ×œ×¤× ×™ ×›×œ ×ž×©×—×§.</li>
-                <li>×ª×§×©×¨×• ×ª×•×š ×›×“×™ - ×’× ×›×©×´×”×›×•×œ × ×¨××” ×‘×¡×“×¨×´.</li>
-                <li>××¤×©×¨ ×œ×©× ×•×ª, ×œ×¢×¦×•×¨ ××• ×œ×ž×©×•×š ×”×¡×›×ž×” ×‘×›×œ ×©×œ×‘.</li>
+                <li>הגדירו מילת ביטחון ומחוות עצירה לפני כל משחק.</li>
+                <li>תקשרו תוך כדי - גם כש״הכול נראה בסדר״.</li>
+                <li>אפשר לשנות, לעצור או למשוך הסכמה בכל שלב.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>×ž×” ×—×©×•×‘ ×œ×–×›×•×¨ ×œ×’×‘×™ × ×ª×•× ×™× ×•×¤×¨×˜×™×•×ª</strong></summary>
+              <summary><strong>מה חשוב לזכור לגבי נתונים ופרטיות</strong></summary>
               <ul class="list">
-                <li>×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ ×©×œ ×”×ž×›×©×™×¨ ×”× ×•×›×—×™.</li>
-                <li>×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×‘×¡×™×•×.</li>
-                <li>×©×™×ª×•×£ PDF/×§×™×©×•×¨ ×”×•× ×‘××—×¨×™×•×ª ×”×ž×©×ª×ž×©/×ª ×‘×œ×‘×“.</li>
+                <li>הנתונים נשמרים מקומית בדפדפן של המכשיר הנוכחי.</li>
+                <li>במכשיר משותף מומלץ למחוק נתונים בסיום.</li>
+                <li>שיתוף PDF/קישור הוא באחריות המשתמש/ת בלבד.</li>
               </ul>
             </details>
-            <p class="muted">×”×¡×›×ž×” ×”×™× ×ª×”×œ×™×š ×ž×ª×ž×©×š - ×œ× ××™×¨×•×¢ ×—×“Ö¾×¤×¢×ž×™. ×ž×•×ž×œ×¥ ×œ×‘×¦×¢ ×¦×³×§Ö¾××™×Ÿ ×’× ×‘×ž×”×œ×š ×”×¡×©×Ÿ ×•×’× ××—×¨×™×•.</p>
+            <p class="muted">הסכמה היא תהליך מתמשך - לא אירוע חד־פעמי. מומלץ לבצע צ׳ק־אין גם במהלך הסשן וגם אחריו.</p>
           </div>
         </div>
       `;
@@ -710,32 +710,32 @@
     function renderPlannerSessions() {
       const app = document.getElementById('app');
       const sessions = listPlannerSessions();
-      const sessionsTitle = `×”×¡×©× ×™× ×©×œ×™ (${sessions.length})`;
+      const sessionsTitle = `הסשנים שלי (${sessions.length})`;
       const rows = sessions.length
         ? sessions.map(s => `
           <div class="glass-panel p-4 rounded-2xl border border-white/15 space-y-3">
             <div>
-              <div class="text-white serif-font text-[1.14rem] leading-tight font-semibold">${escapeHtml(s.title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª')}</div>
+              <div class="text-white serif-font text-[1.14rem] leading-tight font-semibold">${escapeHtml(s.title || 'סשן ללא כותרת')}</div>
               <div class="text-[0.92rem] text-gray-300/90 serif-font mt-1">${escapeHtml(plannerSessionDate(s))}</div>
               <div class="text-[0.84rem] text-gray-400 serif-font mt-1">${escapeHtml(plannerSessionMeta(s))}</div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">×¤×ª×™×—×”</button>
-              <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">×©×™× ×•×™ ×©×</button>
-              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">×”×•×¨×“×” PDF</button>
-              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition" aria-label="×ž×—×™×§×ª ×¡×©×Ÿ">ðŸ—‘ï¸</button>
-              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition" aria-label="×©×™×ª×•×£ ×¡×™×›×•×">ðŸ”—</button>
+              <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">פתיחה</button>
+              <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">שינוי שם</button>
+              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">הורדה PDF</button>
+              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition" aria-label="מחיקת סשן">🗑️</button>
+              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition" aria-label="שיתוף סיכום">🔗</button>
             </div>
           </div>
         `).join('')
         : `<div class="glass-panel p-6 rounded-2xl border border-white/15 text-center">
-            <h3 class="text-xl text-white serif-font font-bold mb-2">×¢×“×™×™×Ÿ ××™×Ÿ ×¡×©× ×™× ×©×ž×•×¨×™×</h3>
-            <p class="text-gray-400 serif-font text-base">×”×ª×—×™×œ×• ×¡×©×Ÿ ×—×“×© ×›×“×™ ×œ×™×¦×•×¨ ××ª ×”×¡×©×Ÿ ×”×¨××©×•×Ÿ ×©×œ×›×.</p>
+            <h3 class="text-xl text-white serif-font font-bold mb-2">עדיין אין סשנים שמורים</h3>
+            <p class="text-gray-400 serif-font text-base">התחילו סשן חדש כדי ליצור את הסשן הראשון שלכם.</p>
            </div>`;
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
           <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
+            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
             <h2 class="text-2xl font-bold text-white serif-font">${sessionsTitle}</h2>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
@@ -747,7 +747,7 @@
     }
     function openPlannerSummary(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
         renderPlannerSessions();
         return;
       }
@@ -755,7 +755,7 @@
     }
     function downloadPlannerSessionPdf(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
         renderPlannerSessions();
         return;
       }
@@ -779,7 +779,7 @@
     async function sharePlannerSessionSummary(sessionId) {
       const session = getPlannerSessionById(sessionId);
       if (!session) {
-        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
+        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
         renderPlannerSessions();
         return;
       }
@@ -790,7 +790,7 @@
       };
       const shareId = await createPlannerShareId(compact);
       if (!shareId) {
-        alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×™×¦×•×¨ ×§×™×©×•×¨ ×©×™×ª×•×£ ×›×¨×’×¢. × ×¡×• ×©×•×‘ ×‘×¢×•×“ ×¨×’×¢.');
+        alert('לא ניתן היה ליצור קישור שיתוף כרגע. נסו שוב בעוד רגע.');
         return;
       }
       const summaryUrl = new URL('scene-planner-embed-he.html', window.location.href);
@@ -801,7 +801,7 @@
       summaryUrl.searchParams.set('v', '2026-04-24-sharefix3');
       if (navigator.share) {
         try {
-          await navigator.share({ title: '×¡×™×›×•× ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª', url: summaryUrl.toString() });
+          await navigator.share({ title: 'סיכום מצפן התשוקות', url: summaryUrl.toString() });
           return;
         } catch (_) {}
       }
@@ -810,9 +810,9 @@
       if (!popup) {
         try {
           await navigator.clipboard.writeText(summaryUrl.toString());
-          alert('×”×œ×™× ×§ ×”×•×¢×ª×§ ×œ×œ×•×—. ××¤×©×¨ ×œ×”×“×‘×™×§ ×•×œ×©×ª×£ ×™×“× ×™×ª.');
+          alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.');
         } catch (_) {
-          alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×¤×ª×•×— ×©×™×ª×•×£ ××•×˜×•×ž×˜×™. ×”×¢×ª×™×§×• ×™×“× ×™×ª ×ž×”×©×•×¨×ª ×›×ª×•×‘×ª ×œ××—×¨ ×¤×ª×™×—×ª ×”×¡×™×›×•×.');
+          alert('לא ניתן היה לפתוח שיתוף אוטומטי. העתיקו ידנית מהשורת כתובת לאחר פתיחת הסיכום.');
         }
       }
     }
@@ -820,8 +820,8 @@
       const rows = listPlannerSessions();
       const ix = rows.findIndex(s => s.id === sessionId);
       if (ix < 0) return;
-      const current = String(rows[ix].title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
-      const next = prompt('×©× ×—×“×© ×œ×¡×©×Ÿ:', current);
+      const current = String(rows[ix].title || 'סשן ללא כותרת');
+      const next = prompt('שם חדש לסשן:', current);
       if (next === null) return;
       const clean = String(next || '').trim() || current;
       rows[ix].title = clean;
@@ -835,7 +835,7 @@
       return sessions;
     }
     function deletePlannerSession(sessionId) {
-      if (!confirm('×œ×ž×—×•×§ ××ª ×”×¡×©×Ÿ ×”×©×ž×•×¨? ×œ× × ×™×ª×Ÿ ×œ×‘×˜×œ ×¤×¢×•×œ×” ×–×•.')) return;
+      if (!confirm('למחוק את הסשן השמור? לא ניתן לבטל פעולה זו.')) return;
       deletePlannerSessionById(sessionId);
       renderPlannerSessions();
     }
@@ -872,10 +872,10 @@
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
           <div class="p-3 pt-4 md:p-4 md:pt-5 flex items-center justify-end">
-            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">×—×–×¨×” â†’</button>
+            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">חזרה →</button>
           </div>
           <div class="flex-1 min-h-0 px-2 pb-3 md:px-6 md:pb-6">
-            <iframe id="plannerFrame" src="${plannerSrc}" title="×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
+            <iframe id="plannerFrame" src="${plannerSrc}" title="מצפן התשוקות" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
           </div>
         </div>
       `;
@@ -903,7 +903,7 @@
             if (!installing) return;
             installing.addEventListener('statechange', () => {
               if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                alert('×™×© ×¢×“×›×•×Ÿ ×ž×•×›×Ÿ. ××¤×©×¨ ×œ×œ×—×•×¥ "×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•" ×ž×ª×•×š ××•×“×•×ª ×›×©×ª×¡×™×™×ž×• ××ª ×”×¡×©×Ÿ ×”× ×•×›×—×™.');
+                alert('יש עדכון מוכן. אפשר ללחוץ "כפיית עדכון עכשיו" מתוך אודות כשתסיימו את הסשן הנוכחי.');
               }
             });
           });
@@ -960,29 +960,29 @@
         if (isInstalledApp()) {
           btn.style.display = 'flex';
           btn.disabled = true;
-          btn.innerText = '×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª';
+          btn.innerText = 'האפליקציה כבר מותקנת';
         } else if (deferredInstallPrompt) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
+          btn.innerText = 'התקן אפליקציה למסך הבית';
         } else if (isIos()) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = '××™×š ×œ×”×•×¡×™×£ ×œ×ž×¡×š ×”×‘×™×ª';
+          btn.innerText = 'איך להוסיף למסך הבית';
         } else if (isAndroid()) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
+          btn.innerText = 'התקן אפליקציה למסך הבית';
         } else {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
+          btn.innerText = 'התקן אפליקציה למסך הבית';
         }
       });
     }
     async function promptInstallApp() {
       if (isInstalledApp()) {
-        alert('×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª ×‘×ž×›×©×™×¨ ×”×–×”.');
+        alert('האפליקציה כבר מותקנת במכשיר הזה.');
         return;
       }
       if (deferredInstallPrompt) {
@@ -995,14 +995,14 @@
         return;
       }
       if (isIos()) {
-        alert('×œ×”×ª×§× ×” ×‘××™×™×¤×•×Ÿ:\n1. ×œ×—×¦×• ×¢×œ Share ×‘-Safari\n2. ×‘×—×¨×• Add to Home Screen\n3. ××©×¨×• Add');
+        alert('להתקנה באייפון:\n1. לחצו על Share ב-Safari\n2. בחרו Add to Home Screen\n3. אשרו Add');
         return;
       }
       if (isAndroid()) {
-        alert('×œ×”×ª×§× ×” ×‘×× ×“×¨×•××™×“:\n1. ×¤×ª×—×• ××ª ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ (3 × ×§×•×“×•×ª)\n2. ×‘×—×¨×• Add to Home screen ××• Install app\n3. ××©×¨×• ×”×ª×§× ×”');
+        alert('להתקנה באנדרואיד:\n1. פתחו את תפריט הדפדפן (3 נקודות)\n2. בחרו Add to Home screen או Install app\n3. אשרו התקנה');
         return;
       }
-      alert('×—×œ×•×Ÿ ×”×ª×§× ×” ×¢×“×™×™×Ÿ ×œ× ×–×ž×™×Ÿ ×‘×“×¤×“×¤×Ÿ ×–×”. × ×¡×• Chrome/Edge ××• ×”×•×¡×¤×” ×“×¨×š ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ ×œ×ž×¡×š ×”×‘×™×ª.');
+      alert('חלון התקנה עדיין לא זמין בדפדפן זה. נסו Chrome/Edge או הוספה דרך תפריט הדפדפן למסך הבית.');
     }
     async function forceUpdateApp() {
       try {
@@ -1035,19 +1035,19 @@
         'archetype_he_prefs_v1'
       ];
       keys.forEach(k => localStorage.removeItem(k));
-      alert('×”×ž×™×“×¢ ×”×ž×§×•×ž×™ ×©×œ ×”×ž×•×“×•×œ ×”×¢×‘×¨×™ × ×•×§×”.');
+      alert('המידע המקומי של המודול העברי נוקה.');
     }
 
     function clearPlannerLocalData() {
       const keys = ['planner_sessions_v1'];
       keys.forEach(k => localStorage.removeItem(k));
-      alert('× ×ª×•× ×™ ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª × ×•×§×•.');
+      alert('נתוני מצפן התשוקות נוקו.');
     }
 
     function clearHypnoLocalData() {
       const keys = ['he_favorites_v4', 'he_recordings_v4'];
       keys.forEach(k => localStorage.removeItem(k));
-      alert('× ×ª×•× ×™ ×“×¤×•×¡×™ ×”×©×¤×” × ×•×§×•.');
+      alert('נתוני דפוסי השפה נוקו.');
     }
     function refreshStudio() {
       diagnosticsCache = null;
@@ -1064,7 +1064,7 @@
         'he_recordings_v4'
       ];
       keys.forEach(k => localStorage.removeItem(k));
-      alert('×›×œ ×”× ×ª×•× ×™× ×”×ž×§×•×ž×™×™× × ×ž×—×§×• ×ž×”××¤×œ×™×§×¦×™×”.');
+      alert('כל הנתונים המקומיים נמחקו מהאפליקציה.');
       renderWelcome();
     }
 
@@ -1088,23 +1088,23 @@
         currentIdx += 1;
         frame.src = srcWithBust();
         status.classList.remove('hidden');
-        status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
+        status.textContent = 'טוען מודול...';
         armWatchdog();
         return true;
       }
       function showFallback(reason) {
         if (tryNextCandidate()) return;
         settled = false;
-        const offlineHint = navigator.onLine ? '' : '<br><strong>× ×¨××” ×©×”×ž×›×©×™×¨ ××•×¤×œ×™×™×Ÿ ×›×¨×’×¢.</strong>';
+        const offlineHint = navigator.onLine ? '' : '<br><strong>נראה שהמכשיר אופליין כרגע.</strong>';
         const reasonText = reason === 'error'
-          ? '××™×¨×¢×” ×©×’×™××” ×‘×˜×¢×™× ×ª ×”×ž×•×“×•×œ.'
-          : '×”×ž×•×“×•×œ × ×˜×¢×Ÿ ×™×•×ª×¨ ×ž×”×¨×’×™×œ.';
+          ? 'אירעה שגיאה בטעינת המודול.'
+          : 'המודול נטען יותר מהרגיל.';
         status.innerHTML = `
           ${reasonText}<br>
-          ×× ×”×ž×¡×š × ×©××¨ ×¨×™×§, × ×¡×• ×˜×¢×™× ×” ×ž×—×“×©.${offlineHint}
+          אם המסך נשאר ריק, נסו טעינה מחדש.${offlineHint}
           <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
-            <button class="secondary-btn" type="button" id="${frameId}-retry">×˜×¢×™× ×” ×ž×—×“×©</button>
-            <button class="secondary-btn" type="button" id="${frameId}-open">×¤×ª×™×—×” ×‘×—×œ×•×Ÿ × ×¤×¨×“</button>
+            <button class="secondary-btn" type="button" id="${frameId}-retry">טעינה מחדש</button>
+            <button class="secondary-btn" type="button" id="${frameId}-open">פתיחה בחלון נפרד</button>
           </div>
           <small style="display:block; margin-top:0.55rem; direction:ltr;">${currentSrc()}</small>
         `;
@@ -1112,7 +1112,7 @@
         const openBtn = document.getElementById(`${frameId}-open`);
         if (retryBtn) retryBtn.addEventListener('click', () => {
           status.classList.remove('hidden');
-          status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
+          status.textContent = 'טוען מודול...';
           armWatchdog();
           frame.src = srcWithBust();
         });
@@ -1151,9 +1151,9 @@
       const checks = await Promise.all(scopedChecks.map(async item => {
         try {
           const res = await fetch(item.path, { cache: 'no-store' });
-          return { ...item, ok: res.ok, status: res.status, note: res.ok ? '×–×ž×™×Ÿ' : `HTTP ${res.status}` };
+          return { ...item, ok: res.ok, status: res.status, note: res.ok ? 'זמין' : `HTTP ${res.status}` };
         } catch {
-          return { ...item, ok: false, status: 0, note: '×œ× × ×’×™×© (network/error)' };
+          return { ...item, ok: false, status: 0, note: 'לא נגיש (network/error)' };
         }
       }));
       checks.push(await checkArchetypesAssetCoverage());
@@ -1186,7 +1186,7 @@
     async function checkArchetypesAssetCoverage() {
       const baseRow = {
         id: 'archetypesAssetCoverage',
-        name: '×›×™×¡×•×™ × ×›×¡×™× ××¨×›×™×˜×™×¤×™× (×ž×–×•×”×”)',
+        name: 'כיסוי נכסים ארכיטיפים (מזוהה)',
         path: './archetypes-he/images/*'
       };
       try {
@@ -1214,17 +1214,17 @@
           ...baseRow,
           ok: missing === 0,
           status: 200,
-          note: `×–×•×”×• ${detected}/${expected} â€¢ ×—×¡×¨×™× ${missing}`
+          note: `זוהו ${detected}/${expected} • חסרים ${missing}`
         };
       } catch {
-        return { ...baseRow, ok: false, status: 0, note: '×‘×“×™×§×ª ×›×™×¡×•×™ × ×›×©×œ×”' };
+        return { ...baseRow, ok: false, status: 0, note: 'בדיקת כיסוי נכשלה' };
       }
     }
 
     async function checkArchetypesBaselineConsistency() {
       const row = {
         id: 'archetypesBaselineConsistency',
-        name: '×¢×§×‘×™×•×ª baseline ××¨×›×™×˜×™×¤×™×',
+        name: 'עקביות baseline ארכיטיפים',
         path: './archetypes-he/parity-baseline.json'
       };
       try {
@@ -1234,7 +1234,7 @@
           fetch('./archetypes-he/image-map.json', { cache: 'no-store' })
         ]);
         if (!baselineRes.ok || !cardsRes.ok || !mapRes.ok) {
-          return { ...row, ok: false, status: 0, note: '× ×›×©×œ ×‘×˜×¢×™× ×ª baseline/cards/map' };
+          return { ...row, ok: false, status: 0, note: 'נכשל בטעינת baseline/cards/map' };
         }
         const baseline = await baselineRes.json();
         const cardsData = await cardsRes.json();
@@ -1247,10 +1247,10 @@
           ...row,
           ok,
           status: 200,
-          note: `baselineCards=${baselineCards} â€¢ HE cards=${heCards} â€¢ HE mapped=${heMapped}`
+          note: `baselineCards=${baselineCards} • HE cards=${heCards} • HE mapped=${heMapped}`
         };
       } catch {
-        return { ...row, ok: false, status: 0, note: '×‘×“×™×§×ª ×¢×§×‘×™×•×ª baseline × ×›×©×œ×”' };
+        return { ...row, ok: false, status: 0, note: 'בדיקת עקביות baseline נכשלה' };
       }
     }
 
@@ -1261,11 +1261,11 @@
       const okCount = payload.checks.filter(c => c.ok).length;
       const total = payload.checks.length;
       const netClass = payload.online ? 'ok' : 'warn';
-      const netLabel = payload.online ? '××•× ×œ×™×™×Ÿ' : '××•×¤×œ×™×™×Ÿ';
-      summary.innerHTML = `<span class="diag-chip net-badge ${netClass}">${netLabel}</span>×‘×“×™×§×•×ª: ${okCount}/${total} â€¢ ×¢×•×“×›×Ÿ: ${payload.checkedAt}`;
+      const netLabel = payload.online ? 'אונליין' : 'אופליין';
+      summary.innerHTML = `<span class="diag-chip net-badge ${netClass}">${netLabel}</span>בדיקות: ${okCount}/${total} • עודכן: ${payload.checkedAt}`;
       grid.innerHTML = payload.checks.map(row => {
         const chipClass = row.ok ? 'ok' : 'bad';
-        const chipText = row.ok ? '×–×ž×™×Ÿ' : '×œ× ×–×ž×™×Ÿ';
+        const chipText = row.ok ? 'זמין' : 'לא זמין';
         return `
           <div class="diag-row">
             <div>
@@ -1295,7 +1295,7 @@
       const paths = [
         './archetypes_he_data.json',
         './archetypes-he/index.html',
-        './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html'
+        './דפוסי שפה עברית/index.html'
       ];
       await Promise.all(paths.map(path =>
         fetch(path, { cache: 'no-store' }).catch(() => null)
@@ -1344,4 +1344,3 @@
   </script>
 </body>
 </html>
-
