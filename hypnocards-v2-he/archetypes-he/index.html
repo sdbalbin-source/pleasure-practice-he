@@ -248,6 +248,9 @@
       favorites = new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'));
       selectedDeckKeys = JSON.parse(localStorage.getItem(DECK_KEY) || '[]');
       const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+      const qp = new URLSearchParams(window.location.search);
+      const requestedView = qp.get('initialView');
+      const autoplayShuffle = qp.get('autoplayShuffle') === '1';
       const cardsResp = await fetch('../archetypes_he_data.json', { cache: 'no-store' }).catch(() => null);
       const mapResp = await fetch('./image-map.json', { cache: 'no-store' }).catch(() => null);
       const aboutResp = await fetch('./about-copy-he.json', { cache: 'no-store' }).catch(() => null);
@@ -255,7 +258,15 @@
       if (mapResp && mapResp.ok) { const m = await mapResp.json(); const rows = Array.isArray(m.images) ? m.images : []; IMAGE_MAP = rows.reduce((a,r) => { if (r && r.id && r.image) a[r.id] = r.image; return a; }, {}); }
       if (aboutResp && aboutResp.ok) ABOUT_COPY = await aboutResp.json();
       await resolveBack();
-      setView(['draw','custom','all','about'].includes(prefs.currentView) ? prefs.currentView : 'draw');
+      const initialView = autoplayShuffle
+        ? 'draw'
+        : (['draw','custom','all','about'].includes(requestedView)
+          ? requestedView
+          : (['draw','custom','all','about'].includes(prefs.currentView) ? prefs.currentView : 'draw'));
+      setView(initialView);
+      if (autoplayShuffle && initialView === 'draw') {
+        setTimeout(() => startSpreadDraw(randomPool(), 'random'), 120);
+      }
     }
     boot();
   </script>
