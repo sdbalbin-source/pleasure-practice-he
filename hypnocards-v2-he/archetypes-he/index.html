@@ -477,21 +477,14 @@
     }
 
     function startShuffleAndDraw(poolOverride = null, fromView = 'random') {
-      setChromeVisible(false);
-      if (!CARDS.length) {
-        setChromeVisible(true);
-        notify('הקלפים עדיין נטענים. נסו שוב בעוד רגע.');
+      const pool = Array.isArray(poolOverride) ? poolOverride : getRandomDrawPool();
+      if (!pool || !pool.length) {
+        notify('לא נמצאו קלפים לבחירה הזו. בחרו לפחות ממלכה אחת או מועדפים.');
         return;
       }
-      archetypeView = { cardId: null, fromView, flipped: false };
-      const deck = Array.isArray(poolOverride) ? poolOverride : getRandomDrawPool();
-      if (!deck.length) {
-        setChromeVisible(true);
-        notify('אין קלפים זמינים כרגע. נסו שוב בעוד רגע.');
-        return;
-      }
-      pendingSpreadPoolIds = deck.map(card => card.id);
+      pendingSpreadPoolIds = pool.map(card => card.id);
       pendingSpreadSourceView = fromView;
+      archetypeView = { cardId: null, fromView, flipped: false };
       playArchetypeShuffleThen(openArchetypeTarotSpread);
     }
 
@@ -531,18 +524,14 @@
     }
 
     function openArchetypeTarotSpread() {
-      setChromeVisible(false);
-      const spreadCards = pickArchetypeSpreadCards(15);
-      if (!spreadCards.length) {
-        setChromeVisible(true);
-        notify('אין קלפים זמינים לשליפה כרגע.');
-        return;
-      }
       const app = document.getElementById('app');
       if (!app) return;
       const layer = document.createElement('div');
       layer.className = 'archetype-spread-overlay';
       layer.setAttribute('dir', 'ltr');
+      const spreadCards = pickArchetypeSpreadCards(15);
+      if (!spreadCards.length) return;
+      setChromeVisible(false);
       const viewportWidth = Math.max(320, window.innerWidth || 360);
       const viewportHeight = Math.max(560, window.innerHeight || 640);
       const stageWidth = Math.min(440, viewportWidth - 32);
@@ -574,9 +563,7 @@
         return `
           <div class="archetype-spread-card is-not-ready" data-index="${i}" data-card-id="${escapeHtml(card.id)}" data-x="${x.toFixed(2)}" data-y="${y.toFixed(2)}" data-rot="${rot.toFixed(2)}" style="--z:${60 + i}; transform: translate3d(${dealStartX}px, ${dealStartY}px, 0) rotate(${dealStartRot}deg);">
             <div class="archetype-spread-inner">
-              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}'); background-color:#120b1d;">
-                <div style="position:absolute; inset:6px; border:1px solid rgba(245, 220, 170, 0.42); border-radius:4px;"></div>
-              </div>
+              <div class="archetype-spread-face back" style="background-image:url('${ARCHETYPE_CARD_BACK}')"></div>
               <div class="archetype-spread-face front"></div>
             </div>
           </div>
