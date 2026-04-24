@@ -325,6 +325,12 @@
     let favoritesOnly = false;
     let favorites = new Set();
     const ARCHETYPE_CARD_BACK = './archetype-card-back.webp';
+    const SHUFFLE_OVERLAY_MS = 1780;
+    const SPREAD_SELECT_THRESHOLD_MOBILE = 44;
+    const SPREAD_SELECT_THRESHOLD_DESKTOP = 56;
+    const SPREAD_DISTANCE_BONUS = 18;
+    const SPREAD_FLIP_DELAY_MS = 260;
+    const SPREAD_REVEAL_EXIT_MS = 1280;
     const toastEl = document.getElementById('toast');
     let toastTimer = null;
 
@@ -468,6 +474,12 @@
 
     function startShuffleAndDraw(poolOverride = null, fromView = 'random') {
       setChromeVisible(false);
+      if (!CARDS.length) {
+        setChromeVisible(true);
+        notify('הקלפים עדיין נטענים. נסו שוב בעוד רגע.');
+        return;
+      }
+      archetypeView = { cardId: null, fromView, flipped: false };
       const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
       if (!deck.length) {
         setChromeVisible(true);
@@ -503,7 +515,7 @@
       window.setTimeout(() => {
         layer.remove();
         callback();
-      }, 1780);
+      }, SHUFFLE_OVERLAY_MS);
     }
 
     function pickArchetypeSpreadCards(count) {
@@ -517,7 +529,11 @@
     function openArchetypeTarotSpread() {
       setChromeVisible(false);
       const spreadCards = pickArchetypeSpreadCards(15);
-      if (!spreadCards.length) return;
+      if (!spreadCards.length) {
+        setChromeVisible(true);
+        notify('אין קלפים זמינים לשליפה כרגע.');
+        return;
+      }
       const app = document.getElementById('app');
       if (!app) return;
       const layer = document.createElement('div');
@@ -650,18 +666,18 @@
           const targetX = targetLeft - anchorX - ((1 - targetScale) * cardWidthPx / 2);
           const targetY = targetTop - anchorY - ((1 - targetScale) * cardHeightPx / 2);
           el.style.transform = `translate3d(${targetX.toFixed(2)}px, ${targetY.toFixed(2)}px, 0) rotate(0deg) scale(${targetScale.toFixed(3)})`;
-          window.setTimeout(() => el.classList.add('is-flipping'), 260);
+          window.setTimeout(() => el.classList.add('is-flipping'), SPREAD_FLIP_DELAY_MS);
           window.setTimeout(() => {
             layer.remove();
             if (card) renderArchetypeCard(card.id, pendingSpreadSourceView || 'random');
-          }, 1280);
+          }, SPREAD_REVEAL_EXIT_MS);
         };
         const onUp = (ev) => {
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
           el.classList.remove('is-dragging');
-          const threshold = viewportWidth <= 640 ? 44 : 56;
+          const threshold = viewportWidth <= 640 ? SPREAD_SELECT_THRESHOLD_MOBILE : SPREAD_SELECT_THRESHOLD_DESKTOP;
           const dragDistance = Math.hypot(dx, dy);
-          if (outShift > threshold || dragDistance > threshold + 18) {
+          if (outShift > threshold || dragDistance > threshold + SPREAD_DISTANCE_BONUS) {
             chooseCard();
           } else {
             el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.2,1)';
