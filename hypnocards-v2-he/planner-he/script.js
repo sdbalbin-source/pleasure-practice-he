@@ -127,8 +127,9 @@ function buildPortablePlannerState(){
   return pruneObject(compact) || {};
 }
 function buildSharePayload(){
+  const fullState = JSON.parse(JSON.stringify(state));
   return {
-    plannerState: buildPortablePlannerState()
+    plannerState: fullState
   };
 }
 
