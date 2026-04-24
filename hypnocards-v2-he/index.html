@@ -532,12 +532,17 @@
             s &&
             typeof s === 'object' &&
             typeof s.id === 'string' &&
-            typeof s.title === 'string' &&
             typeof s.createdAt === 'string' &&
             typeof s.updatedAt === 'string' &&
             s.plannerState &&
             typeof s.plannerState === 'object'
           )
+          .map(s => {
+            const sessionName = s?.plannerState?.session?.sessionName || '';
+            const nickname = s?.plannerState?.session?.nickname || '';
+            const fallbackTitle = String(sessionName || nickname || 'סשן ללא כותרת');
+            return { ...s, title: String(s.title || fallbackTitle) };
+          })
           .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
       } catch {
         return [];

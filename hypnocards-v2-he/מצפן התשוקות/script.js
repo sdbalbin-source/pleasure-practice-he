@@ -256,6 +256,7 @@ function saveActiveSession(){
   const payload = {
     id: activeSessionId,
     schemaVersion: SESSION_SCHEMA_VERSION,
+    title: (state.session.sessionName || state.session.nickname || 'סשן ללא כותרת').trim(),
     sessionName: (state.session.sessionName || '').trim(),
     nickname: (state.session.nickname || '').trim(),
     role: state.session.role || null,
@@ -863,7 +864,7 @@ function setupRefinements(){
 }
 
 /* ========== SUMMARY (now shows YES/MAYBE/NO) ========== */
-let sortMode = 'alpha';
+let sortMode = 'power';
 function getSummaryFilterOptions(){
   const activeValues = Array.from(document.querySelectorAll('.chip-group[data-field="summaryFilter"] .chip.active'))
     .map(el => el.dataset.value);
@@ -947,10 +948,8 @@ function renderSummary(){
   ];
 
   function sortRows(rows){
-    const sorter = sortMode==='power'
-      ? (a,b)=> (b.intensity||0)-(a.intensity||0) || a.name.localeCompare(b.name,'he')
-      : (a,b)=> a.name.localeCompare(b.name,'he');
-    return rows.sort(sorter);
+    if (sortMode === 'questionnaire') return rows;
+    return rows.sort((a,b)=> (b.intensity||0)-(a.intensity||0) || a.name.localeCompare(b.name,'he'));
   }
 
   // collect with status grouping (yes -> maybe -> no)
@@ -1090,10 +1089,11 @@ function setupSummaryControls(){
   });
   const sortBtn = $('#sortToggle');
   sortBtn.addEventListener('click', ()=>{
-    sortMode = (sortMode==='alpha') ? 'power' : 'alpha';
-    sortBtn.textContent = sortMode==='alpha' ? 'מיין לפי עוצמה' : 'מיין לפי א-ת';
+    sortMode = (sortMode==='power') ? 'questionnaire' : 'power';
+    sortBtn.textContent = sortMode==='power' ? 'מיין לפי סדר שאלות' : 'מיין לפי עוצמה';
     renderSummary();
   });
+  sortBtn.textContent = sortMode==='power' ? 'מיין לפי סדר שאלות' : 'מיין לפי עוצמה';
 }
 
 /* ========== SIGNATURE PAD ========== */
