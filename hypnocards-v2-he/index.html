@@ -710,7 +710,22 @@
       }
       renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
     }
-    function sharePlannerSessionSummary(sessionId) {
+    async function createPlannerShareId(payload) {
+      try {
+        const endpoint = new URL('./api/planner-share', window.location.href);
+        const resp = await fetch(endpoint.toString(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload })
+        });
+        if (!resp.ok) return '';
+        const data = await resp.json().catch(() => null);
+        return data && typeof data.id === 'string' ? data.id : '';
+      } catch (_) {
+        return '';
+      }
+    }
+    async function sharePlannerSessionSummary(sessionId) {
       const session = getPlannerSessionById(sessionId);
       if (!session) {
         alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
@@ -754,7 +769,11 @@
       } catch (_) {
         shared = '';
       }
-      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&v=2026-04-24-sharefix2${shared ? `#shared=${shared}` : ''}`;
+      let summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&v=2026-04-24-sharefix2${shared ? `#shared=${shared}` : ''}`;
+      const shareId = await createPlannerShareId(compact);
+      if (shareId) {
+        summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing&shareId=${encodeURIComponent(shareId)}&v=2026-04-24-sharefix3`;
+      }
       if (navigator.share) {
         navigator.share({ title: 'סיכום מצפן התשוקות', url: summaryUrl }).catch(() => {});
         return;

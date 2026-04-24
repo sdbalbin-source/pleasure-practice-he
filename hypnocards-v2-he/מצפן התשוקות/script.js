@@ -27,6 +27,7 @@ const autoShareFromUrl = urlParams.get('autoShare') || '';
 const modeFromUrl = urlParams.get('mode') || '';
 const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
 const sharedPayloadFromUrl = urlParams.get('shared') || hashParams.get('shared') || '';
+const shareIdFromUrl = urlParams.get('shareId') || '';
 let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /* ========== HELPERS ========== */
@@ -47,6 +48,34 @@ function decodeSharePayload(raw){
     const input = String(raw).replace(/-/g, '+').replace(/_/g, '/');
     const padded = input + '='.repeat((4 - (input.length % 4)) % 4);
     return JSON.parse(decodeURIComponent(escape(atob(padded))));
+  } catch {
+    return null;
+  }
+}
+async function createServerShareId(payload){
+  try {
+    const endpoint = new URL('../api/planner-share', window.location.href);
+    const resp = await fetch(endpoint.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payload })
+    });
+    if (!resp.ok) return '';
+    const data = await resp.json().catch(() => null);
+    return data && typeof data.id === 'string' ? data.id : '';
+  } catch {
+    return '';
+  }
+}
+async function fetchSharedPayloadById(shareId){
+  if (!shareId) return null;
+  try {
+    const endpoint = new URL('../api/planner-share', window.location.href);
+    endpoint.searchParams.set('id', shareId);
+    const resp = await fetch(endpoint.toString(), { method: 'GET' });
+    if (!resp.ok) return null;
+    const data = await resp.json().catch(() => null);
+    return data && data.payload && typeof data.payload === 'object' ? data.payload : null;
   } catch {
     return null;
   }
@@ -1260,13 +1289,20 @@ function initializeSignaturePad(forceResize = false) {
 
 /* ========== TOP ACTIONS ========== */
 function setupTopActions(){
-  function buildSummaryShareUrl(){
+  async function buildSummaryShareUrl(){
     const base = new URL('../scene-planner-embed-he.html', window.location.href);
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
     base.searchParams.set('mode', 'existing');
+    const payload = buildSharePayload();
+    const shareId = await createServerShareId(payload);
+    if (shareId) {
+      base.searchParams.set('shareId', shareId);
+      base.searchParams.set('v', '2026-04-24-sharefix3');
+      return base.toString();
+    }
     base.searchParams.set('v', '2026-04-24-sharefix2');
-    const shared = encodeSharePayload(buildSharePayload());
+    const shared = encodeSharePayload(payload);
     if (shared) base.hash = `shared=${shared}`;
     return base.toString();
   }
@@ -1291,12 +1327,13 @@ function setupTopActions(){
   if (whatsappBtn) whatsappBtn.addEventListener('click', ()=>{
     runWithBusyState(whatsappBtn, 'פותח שיתוף...', 'לא ניתן היה לפתוח שיתוף ל-WhatsApp.', () => {
       saveActiveSession();
-      const shareUrl = buildSummaryShareUrl();
-      if (navigator.share) {
-        return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {});
-      }
-      const encoded = encodeURIComponent(shareUrl);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      return buildSummaryShareUrl().then((shareUrl) => {
+        if (navigator.share) {
+          return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {});
+        }
+        const encoded = encodeURIComponent(shareUrl);
+        window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      });
     });
   });
   const downloadPdfBtn = $('#downloadPdf');
@@ -1328,7 +1365,7 @@ function currentDateDDMMYYYY(){
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function init(){
+async function init(){
   setupStepper();
   setupPrevNext();
   setupInfoButtons();
@@ -1337,7 +1374,7 @@ function init(){
   setupChipGroups();
   buildActivities();
   setupCollapsibleSubsections();
-  if (sessionIdFromUrl) {
+  if (sessionIdFromUrl || sharedPayloadFromUrl || shareIdFromUrl) {
     const saved = loadSessionById(sessionIdFromUrl);
     if (saved && saved.plannerState) {
       activeSessionId = saved.id;
@@ -1346,6 +1383,16 @@ function init(){
       const shared = decodeSharePayload(sharedPayloadFromUrl);
       if (shared && shared.plannerState) {
         mergeStateFromSaved(shared.plannerState);
+      } else if (shareIdFromUrl) {
+        const remote = await fetchSharedPayloadById(shareIdFromUrl);
+        if (remote && remote.plannerState) {
+          mergeStateFromSaved(remote.plannerState);
+        } else {
+          const isExistingSessionFlow = modeFromUrl === 'existing';
+          if (isExistingSessionFlow) {
+            console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+          }
+        }
       } else {
       const isExistingSessionFlow = modeFromUrl === 'existing';
       if (isExistingSessionFlow) {
