@@ -348,6 +348,8 @@
     let IMAGE_RESOLVED = {};
     let current = null;
     let pendingSpreadPoolIds = [];
+    let pendingSpreadSourceView = 'random';
+    let archetypeView = { cardId: null, fromView: 'random', flipped: false };
     let currentView = 'draw';
     let allCardsQuery = '';
     let selectedRealms = new Set();
@@ -504,13 +506,14 @@
       return a;
     }
 
-    function startShuffleAndDraw(poolOverride = null) {
+    function startShuffleAndDraw(poolOverride = null, fromView = 'random') {
       const deck = Array.isArray(poolOverride) ? poolOverride : getDeckCards();
       if (!deck.length) {
         notify('אין קלפים בדק הנוכחי. עדכן בחירה ב-Custom Deck.');
         return;
       }
       pendingSpreadPoolIds = deck.map(card => card.id);
+      pendingSpreadSourceView = fromView;
       playArchetypeShuffleThen(openArchetypeTarotSpread);
     }
 
@@ -685,7 +688,7 @@
           window.setTimeout(() => el.classList.add('is-flipping'), 260);
           window.setTimeout(() => {
             layer.remove();
-            if (card) renderCard(card);
+            if (card) renderArchetypeCard(card.id, pendingSpreadSourceView || 'random');
           }, 1280);
         };
         const onUp = (ev) => {
@@ -715,6 +718,81 @@
       else favorites.add(id);
       saveState();
       setView(currentView);
+    }
+
+    function toggleArchetypeFlip() {
+      if (!archetypeView.cardId) return;
+      archetypeView.flipped = !archetypeView.flipped;
+      renderArchetypeCard(archetypeView.cardId, archetypeView.fromView);
+    }
+
+    function reshuffleArchetypeDraw() {
+      if (archetypeView.fromView === 'custom') {
+        startShuffleAndDraw(getCustomDeckPool(), 'custom');
+      } else {
+        startShuffleAndDraw(getDeckCards(), 'random');
+      }
+    }
+
+    function renderArchetypeCard(cardId, fromView = 'random') {
+      const card = CARDS.find(c => String(c.id) === String(cardId));
+      if (!card) return;
+      if (archetypeView.cardId !== cardId) {
+        archetypeView = { cardId, fromView, flipped: false };
+      } else {
+        archetypeView.fromView = fromView;
+      }
+      current = card;
+      const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
+      const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
+      const isFav = favorites.has(card.id);
+      const backAction = fromView === 'all'
+        ? "setView('all')"
+        : fromView === 'custom'
+          ? "setView('custom')"
+          : "setView('draw')";
+      const reshuffleBtn = fromView === 'random'
+        ? `<button class="btn" style="display:block; width:100%; max-width:320px; margin:0.75rem auto 0;" onclick="reshuffleArchetypeDraw()">שליפה נוספת</button>`
+        : '';
+      const host = document.getElementById('view');
+      if (!host) return;
+      host.innerHTML = `
+        <div class="panel" style="min-height:100%;">
+          <div class="filter-row" style="justify-content:space-between;">
+            <button class="btn" onclick="${backAction}">חזרה</button>
+            <button class="btn" onclick="toggleFavorite('${escapeHtml(card.id)}'); renderArchetypeCard('${escapeHtml(card.id)}','${escapeHtml(fromView)}')">
+              ${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}
+            </button>
+          </div>
+          <div style="max-width:420px; margin:0.35rem auto 0;">
+            <div class="flip" role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}">
+              <div class="flip-inner ${archetypeView.flipped ? 'flipped' : ''}" id="flipInner">
+                <article class="face front">
+                  ${artHtml}
+                  <div class="front-overlay"></div>
+                  <div class="front-text">
+                    <h2>${escapeHtml(card.name || 'ללא שם')}</h2>
+                    <p>${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</p>
+                  </div>
+                </article>
+                <article class="face back">
+                  <div class="back-scroll">
+                    <h3>${escapeHtml(card.name || 'ללא שם')}</h3>
+                    <div class="meta">${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</div>
+                    ${renderItem('המהות', card.essence)}
+                    ${renderItem('המתנה', card.gift)}
+                    ${renderItem('הצל', card.shadow)}
+                    ${renderItem('הפרקטיקה', card.practice)}
+                    ${renderItem('השאלה', card.question)}
+                  </div>
+                </article>
+              </div>
+            </div>
+            <p class="meta" style="text-align:center; margin-top:0.6rem;">לחיצה על הקלף חושפת את הצד השני</p>
+            ${reshuffleBtn}
+          </div>
+        </div>
+      `;
     }
 
     function setView(view) {
@@ -850,10 +928,7 @@
       const dt = Date.now() - archetypeListTapState.t;
       archetypeListTapState = null;
       if (dx > 10 || dy > 10 || dt > 450) return;
-      const card = CARDS.find(c => String(c.id) === String(cardId));
-      if (!card) return;
-      current = card;
-      setView('draw');
+      renderArchetypeCard(cardId, 'all');
     }
 
     function renderCustomDeckView(host) {
@@ -921,7 +996,7 @@
       }
       if (customDrawBtn) {
         customDrawBtn.addEventListener('click', () => {
-          startShuffleAndDraw(getCustomDeckPool());
+          startShuffleAndDraw(getCustomDeckPool(), 'custom');
         });
       }
     }
