@@ -748,7 +748,8 @@
           }
         };
         if (compact.plannerState) {
-          shared = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(compact)))));
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
+          shared = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
         }
       } catch (_) {
         shared = '';

@@ -34,7 +34,8 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
 function encodeSharePayload(payload){
   try {
-    return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   } catch {
     return '';
   }
@@ -42,7 +43,9 @@ function encodeSharePayload(payload){
 function decodeSharePayload(raw){
   if (!raw) return null;
   try {
-    return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))));
+    const input = String(raw).replace(/-/g, '+').replace(/_/g, '/');
+    const padded = input + '='.repeat((4 - (input.length % 4)) % 4);
+    return JSON.parse(decodeURIComponent(escape(atob(padded))));
   } catch {
     return null;
   }
