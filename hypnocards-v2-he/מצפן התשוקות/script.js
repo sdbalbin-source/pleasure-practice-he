@@ -399,31 +399,36 @@ function setupPainSliders(){
   const tolerableOut = document.querySelector('.intensity-value[data-for="painTolerable"]');
   if (!desired || !tolerable || !desiredOut || !tolerableOut) return;
 
-  function updateOutputs(){
-    const d = parseInt(desired.value || '0', 10);
-    const t = parseInt(tolerable.value || '0', 10);
+  desired.min = '0'; desired.max = '10';
+  tolerable.min = '0'; tolerable.max = '10';
+  desired.value = String(clamp(parseInt(state.safety.painDesired || 0, 10), 0, 10));
+  tolerable.value = String(clamp(parseInt(state.safety.painTolerable || 0, 10), 0, 10));
+
+  function syncDesired(){
+    const d = clamp(parseInt(desired.value || '0', 10), 0, 10);
+    desired.value = String(d);
     desiredOut.textContent = `${d}/10`;
-    tolerableOut.textContent = `${t}/10`;
     state.safety.painDesired = d;
+    const t = clamp(parseInt(tolerable.value || '0', 10), 0, 10);
+    if (d > t) {
+      tolerable.value = String(d);
+      tolerableOut.textContent = `${d}/10`;
+      state.safety.painTolerable = d;
+    }
+  }
+  function syncTolerable(){
+    const d = clamp(parseInt(desired.value || '0', 10), 0, 10);
+    let t = clamp(parseInt(tolerable.value || '0', 10), 0, 10);
+    if (t < d) t = d;
+    tolerable.value = String(t);
+    tolerableOut.textContent = `${t}/10`;
     state.safety.painTolerable = t;
   }
 
-  desired.addEventListener('input', () => {
-    const d = parseInt(desired.value || '0', 10);
-    if (parseInt(tolerable.value || '0', 10) < d) {
-      tolerable.value = String(d);
-    }
-    tolerable.min = String(d);
-    updateOutputs();
-  });
-  tolerable.addEventListener('input', () => {
-    const d = parseInt(desired.value || '0', 10);
-    const t = parseInt(tolerable.value || '0', 10);
-    if (t < d) tolerable.value = String(d);
-    updateOutputs();
-  });
-  tolerable.min = String(parseInt(desired.value || '0', 10));
-  updateOutputs();
+  desired.addEventListener('input', syncDesired);
+  tolerable.addEventListener('input', syncTolerable);
+  syncDesired();
+  syncTolerable();
 }
 
 /* ========== CHIPS (incl. Other -> active) ========== */
@@ -1227,7 +1232,12 @@ function setupTopActions(){
   if (finishBtn) finishBtn.addEventListener('click', ()=> {
     runWithBusyState(finishBtn, 'שומר ומסיים...', 'השמירה נכשלה. נסו שוב.', () => {
       saveActiveSession();
-      window.parent?.postMessage?.({ type: 'planner_session_finished', sessionId: activeSessionId }, window.location.origin);
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'planner_session_finished', sessionId: activeSessionId }, window.location.origin);
+        window.parent.postMessage({ type: 'planner_open_sessions', sessionId: activeSessionId }, window.location.origin);
+      } else {
+        window.location.href = '../index.html';
+      }
     });
   });
 }
