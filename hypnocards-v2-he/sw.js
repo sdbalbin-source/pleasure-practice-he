@@ -1,19 +1,17 @@
-const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v9';
+﻿const CACHE_PREFIX = 'pleasure-he-v';
+const CACHE = 'pleasure-he-v17';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
   './archetypes_he_data.json',
   './archetypes-he/index.html',
   './archetypes-he/image-map.json',
-  './archetypes-he/backside.png',
-  './דפוסי שפה עברית/index.html',
-  './מצפן התשוקות/index.html',
-  './מצפן התשוקות/style.css',
-  './מצפן התשוקות/script.js',
+  './archetypes-he/archetype-card-back.webp',
+  './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/index.html',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/style.css',
+  './×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª/script.js',
   './scene-planner-embed-he.html',
   './planner-he/index.html',
   './planner-he/style.css',
@@ -43,7 +41,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  const isArchetypeAsset = url.pathname.includes('/archetypes-he/images/') || url.pathname.endsWith('/archetypes-he/backside.png');
+  const isArchetypeAsset = url.pathname.includes('/archetypes-he/images/') || url.pathname.endsWith('/archetypes-he/archetype-card-back.webp');
   event.respondWith(
     (isArchetypeAsset
       ? caches.match(event.request).then(cached => {
@@ -66,3 +64,4 @@ self.addEventListener('fetch', event => {
     )
   );
 });
+

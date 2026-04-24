@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -29,7 +29,7 @@
     }
     .hypno-spiral {
       position: absolute; top: 50%; left: 50%;
-      width: 150vmax; height: 150vmax;
+      width: 120vmax; height: 120vmax;
       transform-origin: center;
       transform: translate(-50%, -50%);
       animation: spin 13s linear infinite;
@@ -40,6 +40,26 @@
       background: radial-gradient(circle, transparent 25%, #000 90%);
       pointer-events: none;
     }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.8);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.2s ease;
+    }
+    button.glass-panel:hover {
+      border-color: rgba(168, 85, 247, 0.5);
+      box-shadow: 0 15px 50px 0 rgba(0,0,0,0.8), 0 0 30px rgba(147, 51, 234, 0.15);
+    }
+    .module-home-card {
+      text-align: center;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.07) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .module-home-card h3 { letter-spacing: 0.01em; }
+    .module-home-card p { max-width: 28ch; margin: 0.35rem auto 0; }
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(-360deg); }
@@ -246,55 +266,58 @@
     const ABOUT_TEMPLATE = `
         <div class="flex flex-col h-full bg-[#050408] md:max-w-[1240px] md:mx-auto md:w-full">
           <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font">אודות Pleasure Practice Studio</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
+            <h2 class="text-2xl font-bold text-white serif-font">××•×“×•×ª Pleasure Practice Studio</h2>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">לשם מה הסטודיו קיים</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio הוא מרחב שקט לחקירה אירוטית מכוונת - מקום לגלות מה את/ה רוצה, למצוא לזה מילים מדויקות, ולעצב חוויות שמרגישות בטוחות, חיות ובאמת שלך.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×œ×©× ×ž×” ×”×¡×˜×•×“×™×• ×§×™×™×</h3>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">Pleasure Practice Studio ×”×•× ×ž×¨×—×‘ ×©×§×˜ ×œ×—×§×™×¨×” ××™×¨×•×˜×™×ª ×ž×›×•×•× ×ª - ×ž×§×•× ×œ×’×œ×•×ª ×ž×” ××ª/×” ×¨×•×¦×”, ×œ×ž×¦×•× ×œ×–×” ×ž×™×œ×™× ×ž×“×•×™×§×•×ª, ×•×œ×¢×¦×‘ ×—×•×•×™×•×ª ×©×ž×¨×’×™×©×•×ª ×‘×˜×•×—×•×ª, ×—×™×•×ª ×•×‘××ž×ª ×©×œ×š.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">שלושה כלים, סטודיו אחד</h3>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-3">×©×œ×•×©×” ×›×œ×™×, ×¡×˜×•×“×™×• ××—×“</h3>
               <div class="space-y-4 text-gray-300 serif-font text-base leading-relaxed">
-                <p><span class="text-white font-bold">דפוסי שפה היפנוטיים</span><br>חבילת תרגול לטון, קצב וניסוח היפנוטי-אירוטי. למי שרוצה להרחיב את טווח השפה, להעמיק דמיון אירוטי, או לחקור מצבים מודרכים דרך מילים.</p>
-                <p><span class="text-white font-bold">ארכיטיפים של עונג</span><br>חבילת קלפים חזותית-סמלית לחקירה רגשית ואנרגטית. לזהות איזה ארכיטיפ של מצב רוח רצוי לך לגלם, להזמין או להבין - בעצמך או בדינמיקה עם פרטנר/ית.</p>
-                <p><span class="text-white font-bold">מצפן התשוקות</span><br>מרחב מובנה להסכמות ותקשורת בין פרטנרים. לדייק רצונות, גבולות, עוצמה ואפטרקר לפני סשן, כדי להיכנס אליו בביטחון, בהירות ודאגה הדדית.</p>
+                <p><span class="text-white font-bold">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</span><br>×—×‘×™×œ×ª ×ª×¨×’×•×œ ×œ×˜×•×Ÿ, ×§×¦×‘ ×•× ×™×¡×•×— ×”×™×¤× ×•×˜×™-××™×¨×•×˜×™. ×œ×ž×™ ×©×¨×•×¦×” ×œ×”×¨×—×™×‘ ××ª ×˜×•×•×— ×”×©×¤×”, ×œ×”×¢×ž×™×§ ×“×ž×™×•×Ÿ ××™×¨×•×˜×™, ××• ×œ×—×§×•×¨ ×ž×¦×‘×™× ×ž×•×“×¨×›×™× ×“×¨×š ×ž×™×œ×™×.</p>
+                <p><span class="text-white font-bold">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</span><br>×—×‘×™×œ×ª ×§×œ×¤×™× ×—×–×•×ª×™×ª-×¡×ž×œ×™×ª ×œ×—×§×™×¨×” ×¨×’×©×™×ª ×•×× ×¨×’×˜×™×ª. ×œ×–×”×•×ª ××™×–×” ××¨×›×™×˜×™×¤ ×©×œ ×ž×¦×‘ ×¨×•×— ×¨×¦×•×™ ×œ×š ×œ×’×œ×, ×œ×”×–×ž×™×Ÿ ××• ×œ×”×‘×™×Ÿ - ×‘×¢×¦×ž×š ××• ×‘×“×™× ×ž×™×§×” ×¢× ×¤×¨×˜× ×¨/×™×ª.</p>
+                <p><span class="text-white font-bold">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</span><br>×ž×¨×—×‘ ×ž×•×‘× ×” ×œ×”×¡×›×ž×•×ª ×•×ª×§×©×•×¨×ª ×‘×™×Ÿ ×¤×¨×˜× ×¨×™×. ×œ×“×™×™×§ ×¨×¦×•× ×•×ª, ×’×‘×•×œ×•×ª, ×¢×•×¦×ž×” ×•××¤×˜×¨×§×¨ ×œ×¤× ×™ ×¡×©×Ÿ, ×›×“×™ ×œ×”×™×›× ×¡ ××œ×™×• ×‘×‘×™×˜×—×•×Ÿ, ×‘×”×™×¨×•×ª ×•×“××’×” ×”×“×“×™×ª.</p>
               </div>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">על סשה</h3>
-              <p class="text-gray-300 serif-font text-base leading-relaxed">סשה בלבין הוא מחנך לאמנויות אירוטיות ויוצר Pleasure Practice Studio. העבודה שלו מחברת בין תשוקה, עומק והסכמה דרך כלים מעשיים שאפשר ליישם בחיים עצמם - לבד או יחד. הגישה משלבת שפה היפנוטית, דמיון ארכיטיפי ועיצוב תקשורת כדי לתמוך בחוויות אינטימיות מדויקות, בטוחות ומשמעותיות יותר.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¢×œ ×¡×©×”</h3>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">×¡×©×” ×‘×œ×‘×™×Ÿ ×”×•× ×ž×—× ×š ×œ××ž× ×•×™×•×ª ××™×¨×•×˜×™×•×ª ×•×™×•×¦×¨ Pleasure Practice Studio. ×”×¢×‘×•×“×” ×©×œ×• ×ž×—×‘×¨×ª ×‘×™×Ÿ ×ª×©×•×§×”, ×¢×•×ž×§ ×•×”×¡×›×ž×” ×“×¨×š ×›×œ×™× ×ž×¢×©×™×™× ×©××¤×©×¨ ×œ×™×™×©× ×‘×—×™×™× ×¢×¦×ž× - ×œ×‘×“ ××• ×™×—×“. ×”×’×™×©×” ×ž×©×œ×‘×ª ×©×¤×” ×”×™×¤× ×•×˜×™×ª, ×“×ž×™×•×Ÿ ××¨×›×™×˜×™×¤×™ ×•×¢×™×¦×•×‘ ×ª×§×©×•×¨×ª ×›×“×™ ×œ×ª×ž×•×š ×‘×—×•×•×™×•×ª ××™× ×˜×™×ž×™×•×ª ×ž×“×•×™×§×•×ª, ×‘×˜×•×—×•×ª ×•×ž×©×ž×¢×•×ª×™×•×ª ×™×•×ª×¨.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">חיבור</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">אפשר לעקוב אחרי <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> לתרגולים מתמשכים, תובנות ועדכונים על הצעות חדשות.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×—×™×‘×•×¨</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">××¤×©×¨ ×œ×¢×§×•×‘ ××—×¨×™ <a href="https://www.instagram.com/sasha_balabin_erotic.arts/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">@sasha_balabin_erotic.arts</a> ×œ×ª×¨×’×•×œ×™× ×ž×ª×ž×©×›×™×, ×ª×•×‘× ×•×ª ×•×¢×“×›×•× ×™× ×¢×œ ×”×¦×¢×•×ª ×—×“×©×•×ª.</p>
             </div>
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
-              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">פרטיות</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">הנתונים נשמרים מקומית בדפדפן/מכשיר שלך כברירת מחדל. אם משתמשים במכשיר משותף - מומלץ למחוק נתונים לאחר שימוש.</p>
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">×¤×¨×˜×™×•×ª</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ/×ž×›×©×™×¨ ×©×œ×š ×›×‘×¨×™×¨×ª ×ž×—×“×œ. ×× ×ž×©×ª×ž×©×™× ×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ - ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×œ××—×¨ ×©×™×ž×•×©.</p>
             </div>
             <div class="pt-2">
               <button onclick="promptInstallApp()" class="install-app-btn w-full py-3 rounded-2xl border border-purple-500/30 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font">
-                <i data-lucide="download"></i> התקן אפליקציה למסך הבית
+                <i data-lucide="download"></i> ×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª
               </button>
               <button onclick="forceUpdateApp()" class="mt-2 w-full py-2 rounded-xl border border-blue-500/30 text-blue-200 text-xs hover:bg-blue-500/10 transition flex items-center justify-center gap-2 font-mono">
-                <i data-lucide="refresh-cw"></i> כפיית עדכון עכשיו
+                <i data-lucide="refresh-cw"></i> ×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•
               </button>
             </div>
           </div>
         </div>
       `;
     const MODULE_HEALTH_CHECKS = [
-      { id: 'shell', name: 'מעטפת עברית', path: './index.html' },
+      { id: 'shell', name: '×ž×¢×˜×¤×ª ×¢×‘×¨×™×ª', path: './index.html' },
       { id: 'manifest', name: 'Manifest', path: './manifest.json' },
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
-      { id: 'archetypes', name: 'מודול ארכיטיפים', path: './archetypes-he/index.html' },
-      { id: 'archetypesData', name: 'דאטה ארכיטיפים', path: './archetypes_he_data.json' },
-      { id: 'hypno', name: 'מודול דפוסי שפה', path: './דפוסי שפה עברית/index.html' },
-      { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
+      { id: 'archetypes', name: '×ž×•×“×•×œ ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/index.html' },
+      { id: 'archetypesData', name: '×“××˜×” ××¨×›×™×˜×™×¤×™×', path: './archetypes_he_data.json' },
+      { id: 'archetypesImageMap', name: '×ž×™×¤×•×™ ×ª×ž×•× ×•×ª ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/image-map.json' },
+      { id: 'archetypesAboutCopy', name: '×˜×§×¡×˜ About ××¨×›×™×˜×™×¤×™×', path: './archetypes-he/about-copy-he.json' },
+      { id: 'archetypesParityBaseline', name: 'Archetypes parity baseline', path: './archetypes-he/parity-baseline.json' },
+      { id: 'hypno', name: '×ž×•×“×•×œ ×“×¤×•×¡×™ ×©×¤×”', path: './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html' },
+      { id: 'planner', name: '×ž×•×“×•×œ ×ž×¦×¤×Ÿ ×ª×©×•×§×•×ª', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-23-he-2';
+    const SW_BUILD = '2026-04-24-he-5';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -328,7 +351,7 @@
       }
       AppState.themes = THEME_ORDER.slice();
     }
-    function renderWelcome() {
+    function renderWelcome(pushHistory = true) {
       if (AppState.cards.length === 0) {
         fetch('cards_data.json')
           .then(r => r.json())
@@ -351,81 +374,109 @@
             <div class="absolute inset-0 bg-purple-500 blur-3xl opacity-20 rounded-full animate-pulse"></div>
             <h1 class="text-5xl font-bold serif-font text-white mb-2 tracking-tight relative z-10">Pleasure Practice</h1>
             <h1 class="text-5xl font-bold serif-font text-purple-400 mb-4 tracking-tight relative z-10">Studio</h1>
-            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">שלושה כלים משולבים לתרגול</p>
+            <p class="text-gray-400 mt-2 text-xs tracking-[0.25em] uppercase" style="font-family:'DM Mono',monospace">×©×œ×•×©×” ×›×œ×™× ×ž×©×•×œ×‘×™× ×œ×ª×¨×’×•×œ</p>
           </div>
 
           <button onclick="renderModeSelect()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            דפוסי שפה היפנוטיים
+            ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
           </button>
-          <button onclick="renderArchetypesHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            ארכיטיפים של עונג
+          <button onclick="renderArchetypesHome(true)" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-violet-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
+            ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’
           </button>
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
-            מצפן התשוקות
+            ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª
           </button>
 
           <button onclick="showAbout()" class="w-full max-w-xs py-3 rounded-2xl border border-purple-500/20 text-purple-300 text-base hover:bg-purple-500/10 transition flex items-center justify-center serif-font">
-            אודות כלליות
+            ××•×“×•×ª ×›×œ×œ×™×•×ª
           </button>
 
           <button onclick="clearData()" class="absolute bottom-6 text-xs text-gray-600 hover:text-red-400 transition opacity-60 hover:opacity-100">
-            איפוס כל הנתונים
+            ××™×¤×•×¡ ×›×œ ×”× ×ª×•× ×™×
           </button>
         </div>
       `;
       lucide.createIcons();
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('module');
+        url.searchParams.delete('view');
+        history.pushState({ screen: 'welcome' }, '', url.toString());
+      }
     }
     function showAbout() {
       document.getElementById('app').innerHTML = ABOUT_TEMPLATE;
       lucide.createIcons();
       updateInstallButtons();
     }
-    function openArchetypes() {
-      renderEmbeddedModule('ארכיטיפים של עונג', './archetypes-he/index.html', 'ארכיטיפים של עונג');
+    function openArchetypes(initialView = 'draw', pushHistory = true, autoplayShuffle = false) {
+      const allowedViews = new Set(['draw', 'custom', 'all', 'about']);
+      const view = allowedViews.has(initialView) ? initialView : 'draw';
+      const autoParam = autoplayShuffle ? '&autoplayShuffle=1' : '';
+      const src = `./archetypes-he/index.html?initialView=${encodeURIComponent(view)}${autoParam}&v=${encodeURIComponent(SW_BUILD)}`;
+      renderEmbeddedModule('××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’', src, '××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’');
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'archetypes');
+        url.searchParams.set('view', view);
+        history.pushState({ screen: 'archetypes', view }, '', url.toString());
+      }
     }
-    function renderArchetypesHome() {
+    function renderArchetypesHome(pushHistory = false) {
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
           <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font">ארכיטיפים של עונג</h2>
+            <button onclick="renderWelcome()" class="p-3 bg-white/5 rounded-full hover:bg-white/10 transition" aria-label="×—×–×¨×”">
+              <i data-lucide="arrow-left"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-white serif-font">××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h2>
             <div class="w-10"></div>
           </div>
-          <div class="grid gap-4">
-            <button onclick="drawRandomArchetype()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">ערבוב ושליפה</h3>
-              <p class="text-gray-400 serif-font text-base">ערבוב ויזואלי ולאחריו שליפת קלף.</p>
+          <div class="grid gap-4 w-full max-w-3xl mx-auto">
+            <button onclick="drawRandomArchetype()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
+              <h3 class="text-xl font-bold text-white serif-font mb-1">×¢×¨×‘×•×‘ ×•×©×œ×™×¤×”</h3>
+              <p class="text-gray-400 serif-font text-base">×¢×¨×‘×•×‘ ×ž×•× ×¤×©, ×•×œ××—×¨×™×• ×—×©×™×¤×ª ××¨×›×™×˜×™×¤ ××—×“.</p>
             </button>
-            <button onclick="renderArchetypeDeckBuilder()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">חבילה מותאמת</h3>
-              <p class="text-gray-400 serif-font text-base">בחירת ממלכות ו/או מועדפים ואז שליפה.</p>
+            <button onclick="renderArchetypeDeckBuilder()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
+              <h3 class="text-xl font-bold text-white serif-font mb-1">×“×§ ×ž×•×ª××</h3>
+              <p class="text-gray-400 serif-font text-base">×‘×—×™×¨×ª ×ž×ž×œ×›×•×ª ×•/××• ×¡×˜ ×ž×•×¢×“×¤×™×, ×•××– ×©×œ×™×¤×”.</p>
             </button>
-            <button onclick="renderArchetypesList()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">כל הקלפים</h3>
-              <p class="text-gray-400 serif-font text-base">תצוגה מלאה לפי ממלכות עם סימון מועדפים.</p>
+            <button onclick="renderArchetypesList()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
+              <h3 class="text-xl font-bold text-white serif-font mb-1">×›×œ ×”×§×œ×¤×™×</h3>
+              <p class="text-gray-400 serif-font text-base">×ž×™×•×Ÿ ×œ×¤×™ ×ž×ž×œ×›×•×ª ×¢× ×¡×™×ž×•×Ÿ ×ž×•×¢×“×¤×™× ×œ×›×œ ×§×œ×£.</p>
             </button>
-            <button onclick="showArchetypesAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">אודות ארכיטיפים של עונג</h3>
-              <p class="text-gray-400 serif-font text-base">רקע והנחיות שימוש במודול.</p>
+            <button onclick="showArchetypesAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition text-center">
+              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ××¨×›×™×˜×™×¤×™× ×©×œ ×¢×•× ×’</h3>
+              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© ×‘×ž×•×“×•×œ.</p>
             </button>
           </div>
         </div>
       `;
+      lucide.createIcons();
+      if (pushHistory) syncArchetypesHomeRoute(false);
+    }
+    function syncArchetypesHomeRoute(replace = false) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('module', 'archetypes');
+      url.searchParams.delete('view');
+      const state = { screen: 'archetypes-home' };
+      if (replace) history.replaceState(state, '', url.toString());
+      else history.pushState(state, '', url.toString());
     }
     async function openDiagnostics() {
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
-            <h2 class="screen-title">מצב מערכת</h2>
+            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
+            <h2 class="screen-title">×ž×¦×‘ ×ž×¢×¨×›×ª</h2>
           </div>
           <div class="panel">
-            <p>בדיקות זמינות מודולים וקבצי תשתית בריצה מקומית.</p>
+            <p>×‘×“×™×§×•×ª ×–×ž×™× ×•×ª ×ž×•×“×•×œ×™× ×•×§×‘×¦×™ ×ª×©×ª×™×ª ×‘×¨×™×¦×” ×ž×§×•×ž×™×ª.</p>
             <div class="utility-row" style="justify-content:flex-start;">
               <button class="secondary-btn" onclick="runDiagnostics(true)">Recheck App State</button>
             </div>
-            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">טוען בדיקות...</div>
+            <div id="diagSummary" class="muted" style="margin-top:0.6rem;">×˜×•×¢×Ÿ ×‘×“×™×§×•×ª...</div>
             <div id="diagGrid" class="diag-grid"></div>
           </div>
         </div>
@@ -437,19 +488,19 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
+            <button class="back-btn" onclick="renderWelcome()">×—×–×¨×” â†’</button>
             <h2 class="screen-title">${title}</h2>
           </div>
           <div class="frame-wrap">
             <iframe id="${frameId}" src="${src}" title="${iframeTitle}" ${extraAttrs}></iframe>
-            <div id="${frameId}-status" class="embed-status">טוען מודול...</div>
+            <div id="${frameId}-status" class="embed-status">×˜×•×¢×Ÿ ×ž×•×“×•×œ...</div>
           </div>
         </div>
       `;
       wireEmbedFrame(frameId, src);
     }
     function openHypno() {
-      renderEmbeddedModule('דפוסי שפה היפנוטיים', './דפוסי שפה עברית/index.html', 'דפוסי שפה עברית');
+      renderEmbeddedModule('×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×', './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html', '×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª');
     }
     function listHypnoRecordings() {
       try {
@@ -466,34 +517,34 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-5 bg-black/10">
           <div class="flex items-center justify-between mb-6 pt-3 gap-3">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font text-center">דפוסי שפה היפנוטיים</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
+            <h2 class="text-2xl font-bold text-white serif-font text-center">×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×</h2>
             <div class="w-10"></div>
           </div>
           <div class="flex-1 min-h-0 flex flex-col justify-between">
             <div class="grid gap-4">
               <button onclick="startSession('all')" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה בסיסית</h3>
+                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×‘×¡×™×¡×™×ª</h3>
                 <p class="serif-font text-gray-300 text-base font-light leading-relaxed">
-                  חבילה מאוזנת בלי נושאים מתקדמים, לתרגול שוטף.
+                  ×—×‘×™×œ×” ×ž××•×–× ×ª ×‘×œ×™ × ×•×©××™× ×ž×ª×§×“×ž×™×, ×œ×ª×¨×’×•×œ ×©×•×˜×£.
                 </p>
               </button>
               <button onclick="renderCategorySelect()" class="glass-panel module-home-card p-5 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
-                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">חבילה מותאמת</h3>
-                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">בחירה לפי קטגוריות ממוקדות.</p>
+                <h3 class="text-[1.7rem] font-bold text-white mb-1 serif-font leading-tight">×—×‘×™×œ×” ×ž×•×ª××ž×ª</h3>
+                <p class="serif-font text-gray-300 text-base font-light leading-relaxed">×‘×—×™×¨×” ×œ×¤×™ ×§×˜×’×•×¨×™×•×ª ×ž×ž×•×§×“×•×ª.</p>
               </button>
               <button onclick="renderRecordings()" class="glass-panel module-home-card p-4 rounded-3xl hover:border-purple-500/50 transition relative overflow-hidden group">
                 <div class="flex items-center justify-center gap-4">
                   <div>
-                    <h3 class="text-lg font-bold text-white serif-font">ההקלטות שלי</h3>
-                    <p class="text-gray-400 text-xs text-center">${recordingsCount} סשנים שמורים</p>
+                    <h3 class="text-lg font-bold text-white serif-font">×”×”×§×œ×˜×•×ª ×©×œ×™</h3>
+                    <p class="text-gray-400 text-xs text-center">${recordingsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
                   </div>
                 </div>
               </button>
             </div>
             <div class="pt-3">
               <button onclick="showHypnoAbout()" class="w-full py-3 rounded-2xl border border-purple-500/35 bg-black/40 text-purple-200 text-sm hover:bg-purple-500/10 transition flex items-center justify-center gap-2 serif-font shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-                אודות דפוסי שפה היפנוטיים
+                ××•×“×•×ª ×“×¤×•×¡×™ ×©×¤×” ×”×™×¤× ×•×˜×™×™×
               </button>
             </div>
           </div>
@@ -513,16 +564,16 @@
       openHypno();
     }
     function drawRandomArchetype() {
-      openArchetypes();
+      openArchetypes('draw', true, true);
     }
     function renderArchetypeDeckBuilder() {
-      openArchetypes();
+      openArchetypes('custom');
     }
     function renderArchetypesList() {
-      openArchetypes();
+      openArchetypes('all');
     }
     function showArchetypesAbout() {
-      openArchetypes();
+      openArchetypes('about');
     }
     function openPlanner() { renderKinkyScenePlannerHome(); }
     function listPlannerSessions() {
@@ -543,7 +594,7 @@
           .map(s => {
             const sessionName = s?.plannerState?.session?.sessionName || '';
             const nickname = s?.plannerState?.session?.nickname || '';
-            const fallbackTitle = String(sessionName || nickname || 'סשן ללא כותרת');
+            const fallbackTitle = String(sessionName || nickname || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
             return { ...s, title: String(s.title || fallbackTitle) };
           })
           .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
@@ -565,11 +616,11 @@
     function plannerSessionMeta(s) {
       const snap = s && s.summarySnapshot && typeof s.summarySnapshot === 'object' ? s.summarySnapshot : {};
       const roleRaw = String(snap.role || '').trim().toLowerCase();
-      const roleMap = { dom: 'דום', sub: 'סאב', switch: 'סוויץ׳' };
-      const role = roleRaw ? (roleMap[roleRaw] || roleRaw) : '—';
+      const roleMap = { dom: '×“×•×', sub: '×¡××‘', switch: '×¡×•×•×™×¥×³' };
+      const role = roleRaw ? (roleMap[roleRaw] || roleRaw) : 'â€”';
       const durationNum = Number(snap.duration || 0);
-      const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} דק׳` : '—';
-      return `${role} • ${duration}`;
+      const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} ×“×§×³` : 'â€”';
+      return `${role} â€¢ ${duration}`;
     }
     function renderKinkyScenePlannerHome() {
       const savedSessionsCount = listPlannerSessions().length;
@@ -577,23 +628,23 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
           <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-2xl font-bold text-white serif-font">מצפן התשוקות</h2>
+            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">×—×–×¨×” â†’</button>
+            <h2 class="text-2xl font-bold text-white serif-font">×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
             <div class="w-10"></div>
           </div>
           <div class="grid gap-4">
             <button onclick="startPlannerSession()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">סשן הסכמות חדש</h3>
-              <p class="text-gray-400 serif-font text-base">פתיחת תהליך חדש לבירור גבולות, רצונות והסכמות לפני מפגש.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">×¡×©×Ÿ ×”×¡×›×ž×•×ª ×—×“×©</h3>
+              <p class="text-gray-400 serif-font text-base">×¤×ª×™×—×ª ×ª×”×œ×™×š ×—×“×© ×œ×‘×™×¨×•×¨ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª ×•×”×¡×›×ž×•×ª ×œ×¤× ×™ ×ž×¤×’×©.</p>
             </button>
             <button onclick="renderPlannerSessions()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">הסשנים שלי</h3>
-                <p class="text-gray-400 serif-font text-base">צפייה, המשך וניהול של סשנים שנשמרו.</p>
-              <p class="text-gray-400 text-xs text-center mt-2">${savedSessionsCount} סשנים שמורים</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">×”×¡×©× ×™× ×©×œ×™</h3>
+                <p class="text-gray-400 serif-font text-base">×¦×¤×™×™×”, ×”×ž×©×š ×•× ×™×”×•×œ ×©×œ ×¡×©× ×™× ×©× ×©×ž×¨×•.</p>
+              <p class="text-gray-400 text-xs text-center mt-2">${savedSessionsCount} ×¡×©× ×™× ×©×ž×•×¨×™×</p>
             </button>
             <button onclick="showPlannerAbout()" class="glass-panel module-home-card p-6 rounded-3xl hover:border-purple-500/50 transition">
-              <h3 class="text-xl font-bold text-white serif-font mb-1">אודות מצפן התשוקות</h3>
-              <p class="text-gray-400 serif-font text-base">רקע והנחיות שימוש נכונות במודול.</p>
+              <h3 class="text-xl font-bold text-white serif-font mb-1">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h3>
+              <p class="text-gray-400 serif-font text-base">×¨×§×¢ ×•×”× ×—×™×•×ª ×©×™×ž×•×© × ×›×•× ×•×ª ×‘×ž×•×“×•×œ.</p>
             </button>
           </div>
         </div>
@@ -604,44 +655,44 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderPlannerHome()">חזרה →</button>
-            <h2 class="screen-title">אודות מצפן התשוקות</h2>
+            <button class="back-btn" onclick="renderPlannerHome()">×—×–×¨×” â†’</button>
+            <h2 class="screen-title">××•×“×•×ª ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</h2>
           </div>
           <div class="panel">
-            <p><strong>מצפן התשוקות</strong> הוא כלי עבודה לשיחה מינית־רגשית לפני סשן, ולא תחליף לשיקול דעת, תקשורת בזמן אמת או אחריות הדדית.</p>
+            <p><strong>×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª</strong> ×”×•× ×›×œ×™ ×¢×‘×•×“×” ×œ×©×™×—×” ×ž×™× ×™×ªÖ¾×¨×’×©×™×ª ×œ×¤× ×™ ×¡×©×Ÿ, ×•×œ× ×ª×—×œ×™×£ ×œ×©×™×§×•×œ ×“×¢×ª, ×ª×§×©×•×¨×ª ×‘×–×ž×Ÿ ××ž×ª ××• ××—×¨×™×•×ª ×”×“×“×™×ª.</p>
             <details open>
-              <summary><strong>למה להשתמש במצפן?</strong></summary>
+              <summary><strong>×œ×ž×” ×œ×”×©×ª×ž×© ×‘×ž×¦×¤×Ÿ?</strong></summary>
               <ul class="list">
-                <li>לייצר שיחה ברורה על גבולות, רצונות, עצימות ואפטר־קר לפני שמתחילים.</li>
-                <li>להפוך הסכמות לאסופה כתובה שאפשר לחזור אליה לפני/אחרי הסשן.</li>
-                <li>לזהות מראש נקודות רגישות, טריגרים, ומסלולי עצירה בטוחים.</li>
+                <li>×œ×™×™×¦×¨ ×©×™×—×” ×‘×¨×•×¨×” ×¢×œ ×’×‘×•×œ×•×ª, ×¨×¦×•× ×•×ª, ×¢×¦×™×ž×•×ª ×•××¤×˜×¨Ö¾×§×¨ ×œ×¤× ×™ ×©×ž×ª×—×™×œ×™×.</li>
+                <li>×œ×”×¤×•×š ×”×¡×›×ž×•×ª ×œ××¡×•×¤×” ×›×ª×•×‘×” ×©××¤×©×¨ ×œ×—×–×•×¨ ××œ×™×” ×œ×¤× ×™/××—×¨×™ ×”×¡×©×Ÿ.</li>
+                <li>×œ×–×”×•×ª ×ž×¨××© × ×§×•×“×•×ª ×¨×’×™×©×•×ª, ×˜×¨×™×’×¨×™×, ×•×ž×¡×œ×•×œ×™ ×¢×¦×™×¨×” ×‘×˜×•×—×™×.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>מסגרות הסכמה מומלצות</strong></summary>
+              <summary><strong>×ž×¡×’×¨×•×ª ×”×¡×›×ž×” ×ž×•×ž×œ×¦×•×ª</strong></summary>
               <ul class="list">
-                <li><strong>SSC</strong> - בטוח, שפוי ובהסכמה.</li>
-                <li><strong>RACK</strong> - מודעות לסיכון והסכמה מודעת.</li>
-                <li><strong>FRIES</strong> - הסכמה חופשית, הפיכה, מודעת, נלהבת וספציפית.</li>
+                <li><strong>SSC</strong> - ×‘×˜×•×—, ×©×¤×•×™ ×•×‘×”×¡×›×ž×”.</li>
+                <li><strong>RACK</strong> - ×ž×•×“×¢×•×ª ×œ×¡×™×›×•×Ÿ ×•×”×¡×›×ž×” ×ž×•×“×¢×ª.</li>
+                <li><strong>FRIES</strong> - ×”×¡×›×ž×” ×—×•×¤×©×™×ª, ×”×¤×™×›×”, ×ž×•×“×¢×ª, × ×œ×”×‘×ª ×•×¡×¤×¦×™×¤×™×ª.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>תקשורת ובטיחות בזמן סשן</strong></summary>
+              <summary><strong>×ª×§×©×•×¨×ª ×•×‘×˜×™×—×•×ª ×‘×–×ž×Ÿ ×¡×©×Ÿ</strong></summary>
               <ul class="list">
-                <li>הגדירו מילת ביטחון ומחוות עצירה לפני כל משחק.</li>
-                <li>תקשרו תוך כדי - גם כש״הכול נראה בסדר״.</li>
-                <li>אפשר לשנות, לעצור או למשוך הסכמה בכל שלב.</li>
+                <li>×”×’×“×™×¨×• ×ž×™×œ×ª ×‘×™×˜×—×•×Ÿ ×•×ž×—×•×•×ª ×¢×¦×™×¨×” ×œ×¤× ×™ ×›×œ ×ž×©×—×§.</li>
+                <li>×ª×§×©×¨×• ×ª×•×š ×›×“×™ - ×’× ×›×©×´×”×›×•×œ × ×¨××” ×‘×¡×“×¨×´.</li>
+                <li>××¤×©×¨ ×œ×©× ×•×ª, ×œ×¢×¦×•×¨ ××• ×œ×ž×©×•×š ×”×¡×›×ž×” ×‘×›×œ ×©×œ×‘.</li>
               </ul>
             </details>
             <details>
-              <summary><strong>מה חשוב לזכור לגבי נתונים ופרטיות</strong></summary>
+              <summary><strong>×ž×” ×—×©×•×‘ ×œ×–×›×•×¨ ×œ×’×‘×™ × ×ª×•× ×™× ×•×¤×¨×˜×™×•×ª</strong></summary>
               <ul class="list">
-                <li>הנתונים נשמרים מקומית בדפדפן של המכשיר הנוכחי.</li>
-                <li>במכשיר משותף מומלץ למחוק נתונים בסיום.</li>
-                <li>שיתוף PDF/קישור הוא באחריות המשתמש/ת בלבד.</li>
+                <li>×”× ×ª×•× ×™× × ×©×ž×¨×™× ×ž×§×•×ž×™×ª ×‘×“×¤×“×¤×Ÿ ×©×œ ×”×ž×›×©×™×¨ ×”× ×•×›×—×™.</li>
+                <li>×‘×ž×›×©×™×¨ ×ž×©×•×ª×£ ×ž×•×ž×œ×¥ ×œ×ž×—×•×§ × ×ª×•× ×™× ×‘×¡×™×•×.</li>
+                <li>×©×™×ª×•×£ PDF/×§×™×©×•×¨ ×”×•× ×‘××—×¨×™×•×ª ×”×ž×©×ª×ž×©/×ª ×‘×œ×‘×“.</li>
               </ul>
             </details>
-            <p class="muted">הסכמה היא תהליך מתמשך - לא אירוע חד־פעמי. מומלץ לבצע צ׳ק־אין גם במהלך הסשן וגם אחריו.</p>
+            <p class="muted">×”×¡×›×ž×” ×”×™× ×ª×”×œ×™×š ×ž×ª×ž×©×š - ×œ× ××™×¨×•×¢ ×—×“Ö¾×¤×¢×ž×™. ×ž×•×ž×œ×¥ ×œ×‘×¦×¢ ×¦×³×§Ö¾××™×Ÿ ×’× ×‘×ž×”×œ×š ×”×¡×©×Ÿ ×•×’× ××—×¨×™×•.</p>
           </div>
         </div>
       `;
@@ -659,32 +710,32 @@
     function renderPlannerSessions() {
       const app = document.getElementById('app');
       const sessions = listPlannerSessions();
-      const sessionsTitle = `הסשנים שלי (${sessions.length})`;
+      const sessionsTitle = `×”×¡×©× ×™× ×©×œ×™ (${sessions.length})`;
       const rows = sessions.length
         ? sessions.map(s => `
           <div class="glass-panel p-4 rounded-2xl border border-white/15 space-y-3">
             <div>
-              <div class="text-white serif-font text-[1.14rem] leading-tight font-semibold">${escapeHtml(s.title || 'סשן ללא כותרת')}</div>
+              <div class="text-white serif-font text-[1.14rem] leading-tight font-semibold">${escapeHtml(s.title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª')}</div>
               <div class="text-[0.92rem] text-gray-300/90 serif-font mt-1">${escapeHtml(plannerSessionDate(s))}</div>
               <div class="text-[0.84rem] text-gray-400 serif-font mt-1">${escapeHtml(plannerSessionMeta(s))}</div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">פתיחה</button>
-              <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">שינוי שם</button>
-              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">הורדה PDF</button>
-              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition" aria-label="מחיקת סשן">🗑️</button>
-              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition" aria-label="שיתוף סיכום">🔗</button>
+              <button onclick="openPlannerSummary('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-purple-300/35 text-purple-100 text-[0.82rem] serif-font hover:bg-purple-500/10 transition">×¤×ª×™×—×”</button>
+              <button onclick="renamePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-white/15 text-gray-200 text-[0.82rem] serif-font hover:bg-white/10 transition">×©×™× ×•×™ ×©×</button>
+              <button onclick="downloadPlannerSessionPdf('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-sky-400/35 text-sky-100 text-[0.82rem] serif-font hover:bg-sky-500/10 transition">×”×•×¨×“×” PDF</button>
+              <button onclick="deletePlannerSession('${escapeHtmlArchetype(String(s.id))}')" class="py-2 rounded-xl border border-rose-400/35 text-rose-100 text-[0.82rem] serif-font hover:bg-rose-500/10 transition" aria-label="×ž×—×™×§×ª ×¡×©×Ÿ">ðŸ—‘ï¸</button>
+              <button onclick="sharePlannerSessionSummary('${escapeHtmlArchetype(String(s.id))}')" class="col-span-2 py-2 rounded-xl border border-emerald-400/35 text-emerald-100 text-[0.82rem] serif-font hover:bg-emerald-500/10 transition" aria-label="×©×™×ª×•×£ ×¡×™×›×•×">ðŸ”—</button>
             </div>
           </div>
         `).join('')
         : `<div class="glass-panel p-6 rounded-2xl border border-white/15 text-center">
-            <h3 class="text-xl text-white serif-font font-bold mb-2">עדיין אין סשנים שמורים</h3>
-            <p class="text-gray-400 serif-font text-base">התחילו סשן חדש כדי ליצור את הסשן הראשון שלכם.</p>
+            <h3 class="text-xl text-white serif-font font-bold mb-2">×¢×“×™×™×Ÿ ××™×Ÿ ×¡×©× ×™× ×©×ž×•×¨×™×</h3>
+            <p class="text-gray-400 serif-font text-base">×”×ª×—×™×œ×• ×¡×©×Ÿ ×—×“×© ×›×“×™ ×œ×™×¦×•×¨ ××ª ×”×¡×©×Ÿ ×”×¨××©×•×Ÿ ×©×œ×›×.</p>
            </div>`;
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
           <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
+            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">×—×–×¨×” â†’</button>
             <h2 class="text-2xl font-bold text-white serif-font">${sessionsTitle}</h2>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
@@ -696,7 +747,7 @@
     }
     function openPlannerSummary(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
-        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
         renderPlannerSessions();
         return;
       }
@@ -704,28 +755,73 @@
     }
     function downloadPlannerSessionPdf(sessionId) {
       if (!getPlannerSessionById(sessionId)) {
-        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
         renderPlannerSessions();
         return;
       }
       renderPlannerEmbed('existing', sessionId, 'chapter-8', 'pdf', 'sessions');
     }
-    function sharePlannerSessionSummary(sessionId) {
-      if (!getPlannerSessionById(sessionId)) {
-        alert('הסשן לא נמצא. ייתכן שנמחק מהמכשיר.');
+    async function createPlannerShareId(payload) {
+      try {
+        const endpoint = new URL('./api/planner-share', window.location.href);
+        const resp = await fetch(endpoint.toString(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload })
+        });
+        if (!resp.ok) return '';
+        const data = await resp.json().catch(() => null);
+        return data && typeof data.id === 'string' ? data.id : '';
+      } catch (_) {
+        return '';
+      }
+    }
+    async function sharePlannerSessionSummary(sessionId) {
+      const session = getPlannerSessionById(sessionId);
+      if (!session) {
+        alert('×”×¡×©×Ÿ ×œ× × ×ž×¦×. ×™×™×ª×›×Ÿ ×©× ×ž×—×§ ×ž×”×ž×›×©×™×¨.');
         renderPlannerSessions();
         return;
       }
-      const summaryUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/,'')}scene-planner-embed-he.html?sessionId=${encodeURIComponent(sessionId)}&startChapter=chapter-8&mode=existing`;
-      const encoded = encodeURIComponent(summaryUrl);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      const compact = {
+        plannerState: (session.plannerState && typeof session.plannerState === 'object')
+          ? session.plannerState
+          : {}
+      };
+      const shareId = await createPlannerShareId(compact);
+      if (!shareId) {
+        alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×™×¦×•×¨ ×§×™×©×•×¨ ×©×™×ª×•×£ ×›×¨×’×¢. × ×¡×• ×©×•×‘ ×‘×¢×•×“ ×¨×’×¢.');
+        return;
+      }
+      const summaryUrl = new URL('scene-planner-embed-he.html', window.location.href);
+      summaryUrl.searchParams.set('sessionId', sessionId);
+      summaryUrl.searchParams.set('startChapter', 'chapter-8');
+      summaryUrl.searchParams.set('mode', 'existing');
+      summaryUrl.searchParams.set('shareId', shareId);
+      summaryUrl.searchParams.set('v', '2026-04-24-sharefix3');
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: '×¡×™×›×•× ×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª', url: summaryUrl.toString() });
+          return;
+        } catch (_) {}
+      }
+      const encoded = encodeURIComponent(summaryUrl.toString());
+      const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+      if (!popup) {
+        try {
+          await navigator.clipboard.writeText(summaryUrl.toString());
+          alert('×”×œ×™× ×§ ×”×•×¢×ª×§ ×œ×œ×•×—. ××¤×©×¨ ×œ×”×“×‘×™×§ ×•×œ×©×ª×£ ×™×“× ×™×ª.');
+        } catch (_) {
+          alert('×œ× × ×™×ª×Ÿ ×”×™×” ×œ×¤×ª×•×— ×©×™×ª×•×£ ××•×˜×•×ž×˜×™. ×”×¢×ª×™×§×• ×™×“× ×™×ª ×ž×”×©×•×¨×ª ×›×ª×•×‘×ª ×œ××—×¨ ×¤×ª×™×—×ª ×”×¡×™×›×•×.');
+        }
+      }
     }
     function renamePlannerSession(sessionId) {
       const rows = listPlannerSessions();
       const ix = rows.findIndex(s => s.id === sessionId);
       if (ix < 0) return;
-      const current = String(rows[ix].title || 'סשן ללא כותרת');
-      const next = prompt('שם חדש לסשן:', current);
+      const current = String(rows[ix].title || '×¡×©×Ÿ ×œ×œ× ×›×•×ª×¨×ª');
+      const next = prompt('×©× ×—×“×© ×œ×¡×©×Ÿ:', current);
       if (next === null) return;
       const clean = String(next || '').trim() || current;
       rows[ix].title = clean;
@@ -739,7 +835,7 @@
       return sessions;
     }
     function deletePlannerSession(sessionId) {
-      if (!confirm('למחוק את הסשן השמור? לא ניתן לבטל פעולה זו.')) return;
+      if (!confirm('×œ×ž×—×•×§ ××ª ×”×¡×©×Ÿ ×”×©×ž×•×¨? ×œ× × ×™×ª×Ÿ ×œ×‘×˜×œ ×¤×¢×•×œ×” ×–×•.')) return;
       deletePlannerSessionById(sessionId);
       renderPlannerSessions();
     }
@@ -773,15 +869,13 @@
     function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
       const app = document.getElementById('app');
       const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}${mode ? `&mode=${encodeURIComponent(mode)}` : ''}`;
-      const subtitle = mode === 'new' ? 'סשן הסכמות חדש' : 'מצפן התשוקות';
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-4 pt-6 flex items-center gap-3">
-            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
-            <h2 class="text-xl font-bold text-white serif-font">${subtitle}</h2>
+          <div class="p-3 pt-4 md:p-4 md:pt-5 flex items-center justify-end">
+            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">×—×–×¨×” â†’</button>
           </div>
           <div class="flex-1 min-h-0 px-2 pb-3 md:px-6 md:pb-6">
-            <iframe id="plannerFrame" src="${plannerSrc}" title="מצפן התשוקות" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
+            <iframe id="plannerFrame" src="${plannerSrc}" title="×ž×¦×¤×Ÿ ×”×ª×©×•×§×•×ª" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
           </div>
         </div>
       `;
@@ -809,7 +903,7 @@
             if (!installing) return;
             installing.addEventListener('statechange', () => {
               if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                alert('יש עדכון מוכן. אפשר ללחוץ "כפיית עדכון עכשיו" מתוך אודות כשתסיימו את הסשן הנוכחי.');
+                alert('×™×© ×¢×“×›×•×Ÿ ×ž×•×›×Ÿ. ××¤×©×¨ ×œ×œ×—×•×¥ "×›×¤×™×™×ª ×¢×“×›×•×Ÿ ×¢×›×©×™×•" ×ž×ª×•×š ××•×“×•×ª ×›×©×ª×¡×™×™×ž×• ××ª ×”×¡×©×Ÿ ×”× ×•×›×—×™.');
               }
             });
           });
@@ -846,6 +940,9 @@
       } else if (data.type === 'planner_open_new') {
         plannerPendingReturnTo = null;
         openPlannerNewSession();
+      } else if (data.type === 'he_module_back_home') {
+        renderArchetypesHome();
+        syncArchetypesHomeRoute(true);
       }
     });
     function isIos() {
@@ -863,29 +960,29 @@
         if (isInstalledApp()) {
           btn.style.display = 'flex';
           btn.disabled = true;
-          btn.innerText = 'האפליקציה כבר מותקנת';
+          btn.innerText = '×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª';
         } else if (deferredInstallPrompt) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = 'התקן אפליקציה למסך הבית';
+          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
         } else if (isIos()) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = 'איך להוסיף למסך הבית';
+          btn.innerText = '××™×š ×œ×”×•×¡×™×£ ×œ×ž×¡×š ×”×‘×™×ª';
         } else if (isAndroid()) {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = 'התקן אפליקציה למסך הבית';
+          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
         } else {
           btn.style.display = 'flex';
           btn.disabled = false;
-          btn.innerText = 'התקן אפליקציה למסך הבית';
+          btn.innerText = '×”×ª×§×Ÿ ××¤×œ×™×§×¦×™×” ×œ×ž×¡×š ×”×‘×™×ª';
         }
       });
     }
     async function promptInstallApp() {
       if (isInstalledApp()) {
-        alert('האפליקציה כבר מותקנת במכשיר הזה.');
+        alert('×”××¤×œ×™×§×¦×™×” ×›×‘×¨ ×ž×•×ª×§× ×ª ×‘×ž×›×©×™×¨ ×”×–×”.');
         return;
       }
       if (deferredInstallPrompt) {
@@ -898,14 +995,14 @@
         return;
       }
       if (isIos()) {
-        alert('להתקנה באייפון:\n1. לחצו על Share ב-Safari\n2. בחרו Add to Home Screen\n3. אשרו Add');
+        alert('×œ×”×ª×§× ×” ×‘××™×™×¤×•×Ÿ:\n1. ×œ×—×¦×• ×¢×œ Share ×‘-Safari\n2. ×‘×—×¨×• Add to Home Screen\n3. ××©×¨×• Add');
         return;
       }
       if (isAndroid()) {
-        alert('להתקנה באנדרואיד:\n1. פתחו את תפריט הדפדפן (3 נקודות)\n2. בחרו Add to Home screen או Install app\n3. אשרו התקנה');
+        alert('×œ×”×ª×§× ×” ×‘×× ×“×¨×•××™×“:\n1. ×¤×ª×—×• ××ª ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ (3 × ×§×•×“×•×ª)\n2. ×‘×—×¨×• Add to Home screen ××• Install app\n3. ××©×¨×• ×”×ª×§× ×”');
         return;
       }
-      alert('חלון התקנה עדיין לא זמין בדפדפן זה. נסו Chrome/Edge או הוספה דרך תפריט הדפדפן למסך הבית.');
+      alert('×—×œ×•×Ÿ ×”×ª×§× ×” ×¢×“×™×™×Ÿ ×œ× ×–×ž×™×Ÿ ×‘×“×¤×“×¤×Ÿ ×–×”. × ×¡×• Chrome/Edge ××• ×”×•×¡×¤×” ×“×¨×š ×ª×¤×¨×™×˜ ×”×“×¤×“×¤×Ÿ ×œ×ž×¡×š ×”×‘×™×ª.');
     }
     async function forceUpdateApp() {
       try {
@@ -931,27 +1028,6 @@
       window.location.href = `${CANONICAL_ORIGIN}${bust}`;
     }
 
-    function clearHebrewLocalData() {
-      const keys = [
-        'archetype_he_favorites_v1',
-        'archetype_he_deck_realms_v1',
-        'archetype_he_prefs_v1'
-      ];
-      keys.forEach(k => localStorage.removeItem(k));
-      alert('המידע המקומי של המודול העברי נוקה.');
-    }
-
-    function clearPlannerLocalData() {
-      const keys = ['planner_sessions_v1'];
-      keys.forEach(k => localStorage.removeItem(k));
-      alert('נתוני מצפן התשוקות נוקו.');
-    }
-
-    function clearHypnoLocalData() {
-      const keys = ['he_favorites_v4', 'he_recordings_v4'];
-      keys.forEach(k => localStorage.removeItem(k));
-      alert('נתוני דפוסי השפה נוקו.');
-    }
     function refreshStudio() {
       diagnosticsCache = null;
       const next = `${window.location.pathname}?refresh=${Date.now()}`;
@@ -967,7 +1043,7 @@
         'he_recordings_v4'
       ];
       keys.forEach(k => localStorage.removeItem(k));
-      alert('כל הנתונים המקומיים נמחקו מהאפליקציה.');
+      alert('×›×œ ×”× ×ª×•× ×™× ×”×ž×§×•×ž×™×™× × ×ž×—×§×• ×ž×”××¤×œ×™×§×¦×™×”.');
       renderWelcome();
     }
 
@@ -991,23 +1067,23 @@
         currentIdx += 1;
         frame.src = srcWithBust();
         status.classList.remove('hidden');
-        status.textContent = 'טוען מודול...';
+        status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
         armWatchdog();
         return true;
       }
       function showFallback(reason) {
         if (tryNextCandidate()) return;
         settled = false;
-        const offlineHint = navigator.onLine ? '' : '<br><strong>נראה שהמכשיר אופליין כרגע.</strong>';
+        const offlineHint = navigator.onLine ? '' : '<br><strong>× ×¨××” ×©×”×ž×›×©×™×¨ ××•×¤×œ×™×™×Ÿ ×›×¨×’×¢.</strong>';
         const reasonText = reason === 'error'
-          ? 'אירעה שגיאה בטעינת המודול.'
-          : 'המודול נטען יותר מהרגיל.';
+          ? '××™×¨×¢×” ×©×’×™××” ×‘×˜×¢×™× ×ª ×”×ž×•×“×•×œ.'
+          : '×”×ž×•×“×•×œ × ×˜×¢×Ÿ ×™×•×ª×¨ ×ž×”×¨×’×™×œ.';
         status.innerHTML = `
           ${reasonText}<br>
-          אם המסך נשאר ריק, נסו טעינה מחדש.${offlineHint}
+          ×× ×”×ž×¡×š × ×©××¨ ×¨×™×§, × ×¡×• ×˜×¢×™× ×” ×ž×—×“×©.${offlineHint}
           <div style="margin-top:0.8rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
-            <button class="secondary-btn" type="button" id="${frameId}-retry">טעינה מחדש</button>
-            <button class="secondary-btn" type="button" id="${frameId}-open">פתיחה בחלון נפרד</button>
+            <button class="secondary-btn" type="button" id="${frameId}-retry">×˜×¢×™× ×” ×ž×—×“×©</button>
+            <button class="secondary-btn" type="button" id="${frameId}-open">×¤×ª×™×—×” ×‘×—×œ×•×Ÿ × ×¤×¨×“</button>
           </div>
           <small style="display:block; margin-top:0.55rem; direction:ltr;">${currentSrc()}</small>
         `;
@@ -1015,7 +1091,7 @@
         const openBtn = document.getElementById(`${frameId}-open`);
         if (retryBtn) retryBtn.addEventListener('click', () => {
           status.classList.remove('hidden');
-          status.textContent = 'טוען מודול...';
+          status.textContent = '×˜×•×¢×Ÿ ×ž×•×“×•×œ...';
           armWatchdog();
           frame.src = srcWithBust();
         });
@@ -1045,20 +1121,116 @@
         renderDiagnosticsResult(diagnosticsCache);
         return;
       }
-      const checks = await Promise.all(MODULE_HEALTH_CHECKS.map(async item => {
+      const scopedChecks = MODULE_HEALTH_CHECKS.filter(item =>
+        item.id === 'shell' ||
+        item.id === 'manifest' ||
+        item.id === 'sw' ||
+        item.id.startsWith('archetypes')
+      );
+      const checks = await Promise.all(scopedChecks.map(async item => {
         try {
           const res = await fetch(item.path, { cache: 'no-store' });
-          return { ...item, ok: res.ok, status: res.status, note: res.ok ? 'זמין' : `HTTP ${res.status}` };
+          return { ...item, ok: res.ok, status: res.status, note: res.ok ? '×–×ž×™×Ÿ' : `HTTP ${res.status}` };
         } catch {
-          return { ...item, ok: false, status: 0, note: 'לא נגיש (network/error)' };
+          return { ...item, ok: false, status: 0, note: '×œ× × ×’×™×© (network/error)' };
         }
       }));
+      checks.push(await checkArchetypesAssetCoverage());
+      checks.push(await checkArchetypesBaselineConsistency());
       diagnosticsCache = {
         checks,
         online: navigator.onLine,
         checkedAt: new Date().toLocaleTimeString('he-IL')
       };
       renderDiagnosticsResult(diagnosticsCache);
+    }
+
+    function assetCandidates(pathValue) {
+      const p = String(pathValue || '').trim();
+      if (!p) return [];
+      const normalized = p.startsWith('./images/') ? `./archetypes-he/${p.slice(2)}` : p;
+      const base = normalized.replace(/\.[^.]+$/, '');
+      return [`${base}.webp`, `${base}.png`, `${base}.jpg`, `${base}.jpeg`];
+    }
+
+    async function pathExists(path) {
+      try {
+        const res = await fetch(`${path}${path.includes('?') ? '&' : '?'}diagTs=${Date.now()}`, { cache: 'no-store' });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    async function checkArchetypesAssetCoverage() {
+      const baseRow = {
+        id: 'archetypesAssetCoverage',
+        name: '×›×™×¡×•×™ × ×›×¡×™× ××¨×›×™×˜×™×¤×™× (×ž×–×•×”×”)',
+        path: './archetypes-he/images/*'
+      };
+      try {
+        const mapRes = await fetch('./archetypes-he/image-map.json', { cache: 'no-store' });
+        if (!mapRes.ok) {
+          return { ...baseRow, ok: false, status: mapRes.status, note: `image-map HTTP ${mapRes.status}` };
+        }
+        const mapData = await mapRes.json();
+        const rows = Array.isArray(mapData && mapData.images) ? mapData.images : [];
+        let detected = 0;
+        for (const row of rows) {
+          const candidates = assetCandidates(row && row.image);
+          let found = false;
+          for (const candidate of candidates) {
+            if (await pathExists(candidate)) {
+              found = true;
+              break;
+            }
+          }
+          if (found) detected += 1;
+        }
+        const expected = rows.length;
+        const missing = Math.max(0, expected - detected);
+        return {
+          ...baseRow,
+          ok: missing === 0,
+          status: 200,
+          note: `×–×•×”×• ${detected}/${expected} â€¢ ×—×¡×¨×™× ${missing}`
+        };
+      } catch {
+        return { ...baseRow, ok: false, status: 0, note: '×‘×“×™×§×ª ×›×™×¡×•×™ × ×›×©×œ×”' };
+      }
+    }
+
+    async function checkArchetypesBaselineConsistency() {
+      const row = {
+        id: 'archetypesBaselineConsistency',
+        name: '×¢×§×‘×™×•×ª baseline ××¨×›×™×˜×™×¤×™×',
+        path: './archetypes-he/parity-baseline.json'
+      };
+      try {
+        const [baselineRes, cardsRes, mapRes] = await Promise.all([
+          fetch('./archetypes-he/parity-baseline.json', { cache: 'no-store' }),
+          fetch('./archetypes_he_data.json', { cache: 'no-store' }),
+          fetch('./archetypes-he/image-map.json', { cache: 'no-store' })
+        ]);
+        if (!baselineRes.ok || !cardsRes.ok || !mapRes.ok) {
+          return { ...row, ok: false, status: 0, note: '× ×›×©×œ ×‘×˜×¢×™× ×ª baseline/cards/map' };
+        }
+        const baseline = await baselineRes.json();
+        const cardsData = await cardsRes.json();
+        const mapData = await mapRes.json();
+        const baselineCards = Number(baseline && baseline.enVisualBaselineCards);
+        const heCards = Array.isArray(cardsData && cardsData.cards) ? cardsData.cards.length : 0;
+        const heMapped = Array.isArray(mapData && mapData.images) ? mapData.images.length : 0;
+        const ok = Number.isFinite(baselineCards) && baselineCards === heCards && heMapped === baselineCards;
+        return {
+          ...row,
+          ok,
+          status: 200,
+          note: `baselineCards=${baselineCards} â€¢ HE cards=${heCards} â€¢ HE mapped=${heMapped}`
+        };
+      } catch {
+        return { ...row, ok: false, status: 0, note: '×‘×“×™×§×ª ×¢×§×‘×™×•×ª baseline × ×›×©×œ×”' };
+      }
     }
 
     function renderDiagnosticsResult(payload) {
@@ -1068,11 +1240,11 @@
       const okCount = payload.checks.filter(c => c.ok).length;
       const total = payload.checks.length;
       const netClass = payload.online ? 'ok' : 'warn';
-      const netLabel = payload.online ? 'אונליין' : 'אופליין';
-      summary.innerHTML = `<span class="diag-chip net-badge ${netClass}">${netLabel}</span>בדיקות: ${okCount}/${total} • עודכן: ${payload.checkedAt}`;
+      const netLabel = payload.online ? '××•× ×œ×™×™×Ÿ' : '××•×¤×œ×™×™×Ÿ';
+      summary.innerHTML = `<span class="diag-chip net-badge ${netClass}">${netLabel}</span>×‘×“×™×§×•×ª: ${okCount}/${total} â€¢ ×¢×•×“×›×Ÿ: ${payload.checkedAt}`;
       grid.innerHTML = payload.checks.map(row => {
         const chipClass = row.ok ? 'ok' : 'bad';
-        const chipText = row.ok ? 'זמין' : 'לא זמין';
+        const chipText = row.ok ? '×–×ž×™×Ÿ' : '×œ× ×–×ž×™×Ÿ';
         return `
           <div class="diag-row">
             <div>
@@ -1096,18 +1268,13 @@
         .replace(/'/g, '&#39;');
     }
     function escapeHtmlArchetype(s) {
-      if (s == null || s === '') return '';
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return escapeHtml(s);
     }
     async function preloadShellEssentials() {
       const paths = [
         './archetypes_he_data.json',
         './archetypes-he/index.html',
-        './דפוסי שפה עברית/index.html'
+        './×“×¤×•×¡×™ ×©×¤×” ×¢×‘×¨×™×ª/index.html'
       ];
       await Promise.all(paths.map(path =>
         fetch(path, { cache: 'no-store' }).catch(() => null)
@@ -1121,9 +1288,39 @@
       diagnosticsCache = null;
     });
 
+    function bootShellRoute() {
+      const params = new URLSearchParams(window.location.search);
+      const moduleName = params.get('module');
+      const view = params.get('view') || 'draw';
+      if (moduleName === 'archetypes') {
+        if (params.has('view')) {
+          openArchetypes(view, false);
+          history.replaceState({ screen: 'archetypes', view }, '', window.location.href);
+        } else {
+          renderArchetypesHome();
+          syncArchetypesHomeRoute(true);
+        }
+      } else {
+        renderWelcome(false);
+        history.replaceState({ screen: 'welcome' }, '', window.location.href);
+      }
+    }
+
+    window.addEventListener('popstate', (ev) => {
+      const state = ev && ev.state ? ev.state : null;
+      if (state && state.screen === 'archetypes') {
+        openArchetypes(state.view || 'draw', false);
+      } else if (state && state.screen === 'archetypes-home') {
+        renderArchetypesHome();
+      } else {
+        renderWelcome(false);
+      }
+    });
+
     Promise.all([preloadShellEssentials()]).finally(() => {
-      renderWelcome();
+      bootShellRoute();
     });
   </script>
 </body>
 </html>
+
