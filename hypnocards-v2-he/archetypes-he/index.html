@@ -187,6 +187,15 @@
     .archetype-spread-face.front { transform: rotateY(180deg); background: linear-gradient(165deg, #2a152f 0%, #160b1d 55%, #0b0610 100%); border: 1px solid rgba(212, 175, 125, 0.32); display: flex; align-items: center; justify-content: center; text-align: center; padding: 0.55rem; font-family: "Cormorant Garamond", serif; color: #f5e8d4; font-size: 0.9rem; line-height: 1.15; }
     .archetype-spread-title { position: absolute; top: 8%; left: 0; right: 0; text-align: center; color: rgba(248, 234, 214, 0.92); font-family: "Cormorant Garamond", serif; font-size: 1.25rem; letter-spacing: 0.03em; padding: 0 1rem; }
     .archetype-spread-subtitle { display: block; font-family: "DM Mono", monospace; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(212, 175, 125, 0.82); margin-top: 0.35rem; }
+    .archetype-perspective { perspective: 1100px; }
+    .archetype-flip-inner { position: relative; width: 100%; aspect-ratio: 2 / 3; max-height: min(68vh, 520px); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 0.5rem; }
+    .archetype-flip-inner.is-flipped { transform: rotateY(180deg); }
+    .archetype-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(0deg) translateZ(0); border-radius: 0.5rem; overflow: hidden; }
+    .archetype-face-back { transform: rotateY(180deg) translateZ(1px); background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%); border: 1px solid rgba(201, 169, 110, 0.28); box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45); direction: rtl; text-align: center; }
+    .archetype-booklet-scroll { direction: rtl; text-align: center; }
+    .archetype-prose-p { font-family: "Cormorant Garamond", serif; font-size: 0.98rem; line-height: 1.55; color: rgba(245, 240, 235, 0.92); margin-bottom: 0.85rem; text-align: center; }
+    .archetype-section-label { font-family: "DM Mono", monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(212, 175, 125, 0.88); margin-bottom: 0.35rem; text-align: center; }
+    .archetype-question-callout { margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 0.75rem; background: rgba(88, 28, 74, 0.35); border: 1px solid rgba(168, 85, 247, 0.25); font-family: "Cormorant Garamond", serif; font-size: 1.05rem; font-style: italic; color: #f3e8ff; text-align: center; line-height: 1.45; }
     .toast {
       position: fixed;
       right: 1rem;
@@ -356,7 +365,7 @@
     let favoritesOnly = false;
     let favorites = new Set();
     const TAP_DRIFT = 10;
-    const ARCHETYPE_CARD_BACK = './archetype-card-back.png';
+    const ARCHETYPE_CARD_BACK = './archetype-card-back.webp';
     const toastEl = document.getElementById('toast');
     let toastTimer = null;
 
@@ -724,6 +733,7 @@
       if (favorites.has(id)) favorites.delete(id);
       else favorites.add(id);
       saveState();
+      if (archetypeView && archetypeView.cardId) return;
       setView(currentView);
     }
 
@@ -748,6 +758,22 @@
       }
     }
 
+    function archetypePracticeWithoutDuplicateQuestion(practice, question) {
+      const p = String(practice || '');
+      const q = String(question || '').trim();
+      if (!q) return p;
+      return p.split('\n').filter(line => String(line || '').trim() !== q).join('\n').trim();
+    }
+
+    function archetypeParagraphBlocks(text) {
+      return String(text || '')
+        .split(/\n{2,}|\n/)
+        .map(line => String(line || '').trim())
+        .filter(Boolean)
+        .map(line => `<p class="archetype-prose-p">${escapeHtml(line)}</p>`)
+        .join('');
+    }
+
     function renderArchetypeCard(cardId, fromView = 'random') {
       const card = CARDS.find(c => String(c.id) === String(cardId));
       if (!card) return;
@@ -758,7 +784,9 @@
       }
       current = card;
       const art = IMAGE_RESOLVED[card.id] || IMAGE_MAP[card.id] || '';
-      const artHtml = art ? `<img src="${escapeHtml(art)}" alt="${escapeHtml(card.name || '')}" class="front-art" onerror="this.remove()">` : '';
+      const useFaceImage = Boolean(String(art || '').trim());
+      const frontBgUrl = useFaceImage ? String(art).replace(/'/g, "\\'") : ARCHETYPE_CARD_BACK;
+      const practiceForBook = archetypePracticeWithoutDuplicateQuestion(card.practice, card.question);
       const isFav = favorites.has(card.id);
       const backTarget = fromView === 'all'
         ? 'all'
@@ -772,35 +800,55 @@
       if (!host) return;
       setChromeVisible(false);
       host.innerHTML = `
-        <div class="panel" style="min-height:100%;">
-          <div class="filter-row" style="justify-content:space-between;">
+        <div class="panel" style="min-height:100%; background:#050408;">
+          <div class="filter-row" style="justify-content:space-between; margin-bottom:0.25rem;">
             <button class="btn" onclick="leaveArchetypeCard('${backTarget}')">חזרה</button>
             <button class="btn" onclick="toggleFavorite('${escapeHtml(card.id)}'); renderArchetypeCard('${escapeHtml(card.id)}','${escapeHtml(fromView)}')">
               ${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}
             </button>
           </div>
-          <div style="max-width:420px; margin:0.35rem auto 0;">
-            <div class="flip" role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}">
-              <div class="flip-inner ${archetypeView.flipped ? 'flipped' : ''}" id="flipInner">
-                <article class="face front">
-                  ${artHtml}
-                  <div class="front-overlay"></div>
-                  <div class="front-text">
-                    <h2>${escapeHtml(card.name || 'ללא שם')}</h2>
-                    <p>${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</p>
+          <div class="archetype-perspective" style="max-width:26rem; margin:0.35rem auto 0;">
+            <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner ${archetypeView.flipped ? 'is-flipped' : ''}">
+              <div class="archetype-face bg-black">
+                <div class="absolute inset-0 bg-no-repeat bg-center bg-contain" style="background-image:url('${frontBgUrl}')"></div>
+                ${useFaceImage ? '' : '<div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>'}
+                ${useFaceImage ? '' : `<div class="absolute bottom-0 left-0 right-0 p-5 text-center"><p class="text-amber-200/90 text-[0.62rem] tracking-[0.28em] uppercase font-mono mb-1">ממלכה</p><p class="text-amber-50/95 serif-font text-base leading-snug mb-4">${escapeHtml(normalizeRealm(card.realm))}</p><h3 class="text-3xl text-white serif-font font-bold leading-tight">${escapeHtml(card.name || '')}</h3><p class="text-amber-200/90 text-[0.62rem] tracking-[0.22em] uppercase font-mono mt-4 mb-1">תדר</p><p class="text-white/80 serif-font text-sm leading-snug">${escapeHtml(cardEnergy(card) || '')}</p></div>`}
+              </div>
+              <div class="archetype-face archetype-face-back">
+                <div class="archetype-booklet-scroll h-full overflow-y-auto no-scrollbar px-5 py-4 pb-6">
+                  <div class="pt-1 pb-2 text-center border-b border-amber-900/20">
+                    <h3 class="text-3xl text-amber-50 serif-font font-semibold leading-tight">${escapeHtml(card.name || '')}</h3>
+                    <div class="mt-4 space-y-3 text-center">
+                      <div>
+                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">ממלכה</p>
+                        <p class="text-sm text-amber-50/95 serif-font leading-snug">${escapeHtml(normalizeRealm(card.realm))}</p>
+                      </div>
+                      <div>
+                        <p class="text-[0.62rem] font-mono text-amber-200/85 uppercase tracking-[0.2em] mb-1">תדר</p>
+                        <p class="text-sm text-amber-50/90 serif-font leading-snug">${escapeHtml(cardEnergy(card) || '')}</p>
+                      </div>
+                    </div>
                   </div>
-                </article>
-                <article class="face back">
-                  <div class="back-scroll">
-                    <h3>${escapeHtml(card.name || 'ללא שם')}</h3>
-                    <div class="meta">${escapeHtml(normalizeRealm(card.realm))} • ${escapeHtml(cardEnergy(card) || 'ללא תדר')}</div>
-                    ${renderItem('המהות', card.essence)}
-                    ${renderItem('המתנה', card.gift)}
-                    ${renderItem('הצל', card.shadow)}
-                    ${renderItem('הפרקטיקה', card.practice)}
-                    ${renderItem('השאלה', card.question)}
+                  <div class="pt-4">
+                    <div class="mb-5">
+                      <div class="archetype-section-label">מהות</div>
+                      ${archetypeParagraphBlocks(card.essence)}
+                    </div>
+                    <div class="mb-5">
+                      <div class="archetype-section-label">מתנה</div>
+                      ${archetypeParagraphBlocks(card.gift)}
+                    </div>
+                    <div class="mb-5">
+                      <div class="archetype-section-label">צל</div>
+                      ${archetypeParagraphBlocks(card.shadow)}
+                    </div>
+                    <div class="mb-4">
+                      <div class="archetype-section-label">פרקטיקה</div>
+                      ${archetypeParagraphBlocks(practiceForBook)}
+                    </div>
+                    <div class="archetype-question-callout">${escapeHtml(card.question || '')}</div>
                   </div>
-                </article>
+                </div>
               </div>
             </div>
             <p class="meta" style="text-align:center; margin-top:0.6rem;">לחיצה על הקלף חושפת את הצד השני</p>
