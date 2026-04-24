@@ -16,8 +16,12 @@
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
     const sharedFromHash = hashParams.get('shared') || '';
+    const shareIdFromHash = hashParams.get('shareId') || '';
     if (sharedFromHash && !params.get('shared')) {
       params.set('shared', sharedFromHash);
+    }
+    if (shareIdFromHash && !params.get('shareId')) {
+      params.set('shareId', shareIdFromHash);
     }
     const src = `./planner-he/index.html?${params.toString()}`;
     frame.src = src;

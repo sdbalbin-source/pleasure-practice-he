@@ -1388,6 +1388,17 @@ async function init(){
   buildActivities();
   setupCollapsibleSubsections();
   if (sessionIdFromUrl || sharedPayloadFromUrl || shareIdFromUrl) {
+    if (shareIdFromUrl) {
+      const remote = await fetchSharedPayloadById(shareIdFromUrl);
+      if (remote && remote.plannerState) {
+        mergeStateFromSaved(remote.plannerState);
+      } else {
+        const isExistingSessionFlow = modeFromUrl === 'existing';
+        if (isExistingSessionFlow) {
+          console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+        }
+      }
+    } else {
     const saved = loadSessionById(sessionIdFromUrl);
     if (saved && saved.plannerState) {
       activeSessionId = saved.id;
@@ -1438,6 +1449,7 @@ async function init(){
         }
       }
       }
+    }
     }
   }
   restoreDynamicRowsFromState();
