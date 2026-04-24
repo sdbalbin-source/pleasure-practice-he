@@ -25,12 +25,116 @@ const sessionIdFromUrl = urlParams.get('sessionId') || '';
 const startChapterFromUrl = urlParams.get('startChapter') || '';
 const autoShareFromUrl = urlParams.get('autoShare') || '';
 const modeFromUrl = urlParams.get('mode') || '';
-let activeSessionId = sessionIdFromUrl || `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+const sharedPayloadFromUrl = urlParams.get('shared') || hashParams.get('shared') || '';
+const shareIdFromUrl = urlParams.get('shareId') || '';
+function createLocalSessionId(){
+  return `planner-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+let activeSessionId = sessionIdFromUrl || createLocalSessionId();
 
 /* ========== HELPERS ========== */
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
+function encodeSharePayload(payload){
+  try {
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  } catch {
+    return '';
+  }
+}
+function decodeSharePayload(raw){
+  if (!raw) return null;
+  try {
+    const input = String(raw).replace(/-/g, '+').replace(/_/g, '/');
+    const padded = input + '='.repeat((4 - (input.length % 4)) % 4);
+    return JSON.parse(decodeURIComponent(escape(atob(padded))));
+  } catch {
+    return null;
+  }
+}
+async function createServerShareId(payload){
+  try {
+    const endpoint = new URL('../api/planner-share', window.location.href);
+    const resp = await fetch(endpoint.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payload })
+    });
+    if (!resp.ok) return '';
+    const data = await resp.json().catch(() => null);
+    return data && typeof data.id === 'string' ? data.id : '';
+  } catch {
+    return '';
+  }
+}
+async function fetchSharedPayloadById(shareId){
+  if (!shareId) return null;
+  try {
+    const endpoint = new URL('../api/planner-share', window.location.href);
+    endpoint.searchParams.set('id', shareId);
+    const resp = await fetch(endpoint.toString(), { method: 'GET' });
+    if (!resp.ok) return null;
+    const data = await resp.json().catch(() => null);
+    return data && data.payload && typeof data.payload === 'object' ? data.payload : null;
+  } catch {
+    return null;
+  }
+}
+function pruneObject(value){
+  if (Array.isArray(value)) {
+    const arr = value
+      .map(pruneObject)
+      .filter(v => !(v == null || v === '' || (Array.isArray(v) && v.length === 0) || (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0)));
+    return arr.length ? arr : null;
+  }
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      const pv = pruneObject(v);
+      if (pv == null || pv === '' || (Array.isArray(pv) && pv.length === 0) || (typeof pv === 'object' && !Array.isArray(pv) && Object.keys(pv).length === 0)) continue;
+      out[k] = pv;
+    }
+    return Object.keys(out).length ? out : null;
+  }
+  return value;
+}
+function buildPortablePlannerState(){
+  const compactActivities = {};
+  for (const [id, item] of Object.entries(state.activities || {})) {
+    if (!item || typeof item !== 'object') continue;
+    const status = item.status ?? null;
+    const intensity = Number(item.intensity || 0);
+    const notes = String(item.notes || '').trim();
+    if (status == null && intensity <= 0 && !notes) continue;
+    compactActivities[id] = {
+      ...(status != null ? { status } : {}),
+      ...(intensity > 0 ? { intensity } : {}),
+      ...(notes ? { notes } : {})
+    };
+  }
+  const compact = {
+    session: state.session,
+    safety: state.safety,
+    refinements: state.refinements,
+    text: state.text,
+    sets: state.sets,
+    activities: compactActivities,
+    consent: {
+      name: state.consent?.name || '',
+      date: state.consent?.date || ''
+    }
+  };
+  return pruneObject(compact) || {};
+}
+function buildSharePayload(){
+  const fullState = JSON.parse(JSON.stringify(state));
+  return {
+    plannerState: fullState
+  };
+}
 
 function perspectiveText(){
   if (state.session.role === 'dom') return '• לתת';
@@ -1189,12 +1293,19 @@ function initializeSignaturePad(forceResize = false) {
 
 /* ========== TOP ACTIONS ========== */
 function setupTopActions(){
-  function buildSummaryShareUrl(){
+  async function buildSummaryShareUrl(){
     const base = new URL('../scene-planner-embed-he.html', window.location.href);
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
     base.searchParams.set('mode', 'existing');
-    return base.toString();
+    const payload = buildSharePayload();
+    const shareId = await createServerShareId(payload);
+    if (shareId) {
+      base.searchParams.set('shareId', shareId);
+      base.searchParams.set('v', '2026-04-24-sharefix3');
+      return base.toString();
+    }
+    throw new Error('share_service_unavailable');
   }
   function runWithBusyState(button, busyText, errorText, work){
     if (!button) return Promise.resolve();
@@ -1217,8 +1328,28 @@ function setupTopActions(){
   if (whatsappBtn) whatsappBtn.addEventListener('click', ()=>{
     runWithBusyState(whatsappBtn, 'פותח שיתוף...', 'לא ניתן היה לפתוח שיתוף ל-WhatsApp.', () => {
       saveActiveSession();
-      const url = encodeURIComponent(buildSummaryShareUrl());
-      window.open(`https://wa.me/?text=${url}`, '_blank');
+      return buildSummaryShareUrl().then((shareUrl) => {
+        if (navigator.share) {
+          return navigator.share({ title: 'סיכום מצפן התשוקות', url: shareUrl }).catch(() => {
+            const encoded = encodeURIComponent(shareUrl);
+            const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+            if (!popup) {
+              return navigator.clipboard.writeText(shareUrl)
+                .then(() => alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.'))
+                .catch(() => alert('לא ניתן היה לפתוח שיתוף אוטומטי. נסו שוב.'));
+            }
+            return null;
+          });
+        }
+        const encoded = encodeURIComponent(shareUrl);
+        const popup = window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener');
+        if (!popup) {
+          return navigator.clipboard.writeText(shareUrl)
+            .then(() => alert('הלינק הועתק ללוח. אפשר להדביק ולשתף ידנית.'))
+            .catch(() => alert('לא ניתן היה לפתוח שיתוף אוטומטי. נסו שוב.'));
+        }
+        return null;
+      });
     });
   });
   const downloadPdfBtn = $('#downloadPdf');
@@ -1250,7 +1381,7 @@ function currentDateDDMMYYYY(){
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function init(){
+async function init(){
   setupStepper();
   setupPrevNext();
   setupInfoButtons();
@@ -1259,12 +1390,44 @@ function init(){
   setupChipGroups();
   buildActivities();
   setupCollapsibleSubsections();
-  if (sessionIdFromUrl) {
+  if (sessionIdFromUrl || sharedPayloadFromUrl || shareIdFromUrl) {
+    if (shareIdFromUrl) {
+      const remote = await fetchSharedPayloadById(shareIdFromUrl);
+      if (remote && remote.plannerState) {
+        mergeStateFromSaved(remote.plannerState);
+        activeSessionId = createLocalSessionId();
+      } else {
+        const local = loadSessionById(sessionIdFromUrl);
+        if (local && local.plannerState) {
+          activeSessionId = local.id;
+          mergeStateFromSaved(local.plannerState);
+        } else {
+          const isExistingSessionFlow = modeFromUrl === 'existing';
+          if (isExistingSessionFlow) {
+            console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+          }
+        }
+      }
+    } else {
     const saved = loadSessionById(sessionIdFromUrl);
     if (saved && saved.plannerState) {
       activeSessionId = saved.id;
       mergeStateFromSaved(saved.plannerState);
     } else {
+      const shared = decodeSharePayload(sharedPayloadFromUrl);
+      if (shared && shared.plannerState) {
+        mergeStateFromSaved(shared.plannerState);
+      } else if (shareIdFromUrl) {
+        const remote = await fetchSharedPayloadById(shareIdFromUrl);
+        if (remote && remote.plannerState) {
+          mergeStateFromSaved(remote.plannerState);
+        } else {
+          const isExistingSessionFlow = modeFromUrl === 'existing';
+          if (isExistingSessionFlow) {
+            console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl || shareIdFromUrl);
+          }
+        }
+      } else {
       const isExistingSessionFlow = modeFromUrl === 'existing';
       if (isExistingSessionFlow) {
         console.warn('[planner-he] session could not be loaded safely:', sessionIdFromUrl);
@@ -1295,6 +1458,8 @@ function init(){
           });
         }
       }
+      }
+    }
     }
   }
   restoreDynamicRowsFromState();
@@ -1315,7 +1480,6 @@ function init(){
       setTimeout(() => window.print(), 350);
     }, 200);
   }
-  window.addEventListener('beforeunload', saveActiveSession);
   window.addEventListener('message', (e) => {
     if (e.origin !== window.location.origin) return;
     const data = e && e.data ? e.data : null;
