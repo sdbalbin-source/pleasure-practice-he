@@ -4,7 +4,7 @@
   "dir": "rtl",
   "name": "Pleasure Practice Studio - Hebrew",
   "short_name": "Pleasure HE",
-  "description": "גרסה עברית של Pleasure Practice Studio לשלושה כלים משולבים: דפוסי שפה, ארכיטיפים ומצפן תשוקות.",
+  "description": "גרסה עברית של Pleasure Practice Studio עם דפוסי שפה ומצפן תשוקות.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

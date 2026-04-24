@@ -4,10 +4,6 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './archetypes_he_data.json',
-  './archetypes-he/index.html',
-  './archetypes-he/image-map.json',
-  './archetypes-he/archetype-card-back.webp',
   './דפוסי שפה עברית/index.html',
   './מצפן התשוקות/index.html',
   './מצפן התשוקות/style.css',
@@ -50,27 +46,14 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  const isArchetypeAsset = url.pathname.includes('/archetypes-he/images/') || url.pathname.endsWith('/archetypes-he/archetype-card-back.webp');
   event.respondWith(
-    (isArchetypeAsset
-      ? caches.match(event.request).then(cached => {
-          if (cached) return cached;
-          return fetch(event.request).then(response => {
-            if (response && response.ok) {
-              const copy = response.clone();
-              caches.open(CACHE).then(cache => cache.put(event.request, copy));
-            }
-            return response;
-          });
-        })
-      : fetch(event.request).then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then(cache => cache.put(event.request, copy));
-          }
-          return response;
-        }).catch(() => caches.match(event.request))
-    )
+    fetch(event.request).then(response => {
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+      }
+      return response;
+    }).catch(() => caches.match(event.request))
   );
 });
 
