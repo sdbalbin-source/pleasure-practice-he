@@ -1261,11 +1261,9 @@ function setupTopActions(){
     base.searchParams.set('sessionId', activeSessionId);
     base.searchParams.set('startChapter', 'chapter-8');
     base.searchParams.set('mode', 'existing');
+    base.searchParams.set('v', '2026-04-24-sharefix2');
     const shared = encodeSharePayload(buildSharePayload());
     if (shared) base.searchParams.set('shared', shared);
-    if (base.toString().length > 1900) {
-      base.searchParams.delete('shared');
-    }
     return base.toString();
   }
   function runWithBusyState(button, busyText, errorText, work){
