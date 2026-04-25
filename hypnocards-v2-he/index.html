@@ -214,6 +214,12 @@
       -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
       mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     }
+    .trance-theme-viewport {
+      overflow-x: hidden;
+      overflow-y: visible;
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+    }
     .trance-slide-out-left { animation: tranceSlideOutLeft 0.3s forwards; }
     .trance-slide-in-right { animation: tranceSlideInRight 0.3s forwards; }
     .trance-slide-out-right { animation: tranceSlideOutRight 0.3s forwards; }
@@ -616,7 +622,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-card-fit-v22';
+    const SW_BUILD = '2026-04-25-he-trance-theme-bubble-fit-v23';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -993,9 +999,9 @@
               </div>
             </div>
           </div>
-          <div class="w-full pb-6 px-6 z-20 h-16 shrink-0 flex items-center gap-2">
+          <div class="w-full pb-6 px-6 z-20 h-[4.7rem] shrink-0 flex items-center gap-2">
             <button onclick="shiftTranceTheme(-1)" class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-300 hover:bg-white/10"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>
-            <div id="tranceThemeCarousel" dir="ltr" class="flex-1 overflow-hidden no-scrollbar flex gap-3 justify-center mask-linear">
+            <div id="tranceThemeCarousel" dir="ltr" class="flex-1 trance-theme-viewport no-scrollbar flex gap-3 justify-center mask-linear">
               ${renderTranceThemeCarousel(themeOptions)}
             </div>
             <button onclick="shiftTranceTheme(1)" class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-300 hover:bg-white/10"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
