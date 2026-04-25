@@ -204,6 +204,10 @@
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
       font-weight: 700;
     }
+    .trance-mask-linear {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    }
     .trance-slide-out-left { animation: tranceSlideOutLeft 0.3s forwards; }
     .trance-slide-in-right { animation: tranceSlideInRight 0.3s forwards; }
     .trance-slide-out-right { animation: tranceSlideOutRight 0.3s forwards; }
@@ -606,7 +610,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-fixed-highlights-v17';
+    const SW_BUILD = '2026-04-25-he-trance-theme-spiral-v18';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -814,15 +818,7 @@
       const container = document.getElementById('tranceThemeCarousel');
       const active = container ? container.querySelector('.trance-carousel-item.is-active') : null;
       if (!container || !active) return;
-      const cRect = container.getBoundingClientRect();
-      const aRect = active.getBoundingClientRect();
-      const delta = (aRect.left + aRect.width / 2) - (cRect.left + cRect.width / 2);
-      if (Math.abs(delta) < 2) return;
-      const before = container.scrollLeft;
-      container.scrollLeft += delta;
-      if (Math.abs(container.scrollLeft - before) < 1) {
-        container.scrollLeft -= delta;
-      }
+      active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
     function getTranceCategoryInfo(card) {
       const infoMap = TRANCE_DATA && typeof TRANCE_DATA === 'object' ? (TRANCE_DATA.category_info || {}) : {};
@@ -908,8 +904,8 @@
               </div>
             </div>
           </div>
-          <div id="tranceThemeCarousel" class="w-full overflow-x-auto no-scrollbar pb-6 px-6 z-20 flex gap-3 snap-x h-16 shrink-0">
-            ${themeOptions.map(t => `<button onclick="setTranceTheme('${String(t).replace(/'/g, "\\'")}')" class="trance-carousel-item" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}
+          <div id="tranceThemeCarousel" dir="ltr" class="w-full overflow-x-auto no-scrollbar pb-6 px-6 z-20 flex gap-3 snap-x trance-mask-linear h-16 shrink-0">
+            ${themeOptions.map(t => `<button dir="rtl" onclick="setTranceTheme('${String(t).replace(/'/g, "\\'")}')" class="trance-carousel-item" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}
           </div>
           <div class="p-6 pb-8 flex items-center justify-center z-20 bg-gradient-to-t from-black/90 to-transparent shrink-0">
             <button class="p-5 rounded-full bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all transform hover:scale-105 active:scale-95">
