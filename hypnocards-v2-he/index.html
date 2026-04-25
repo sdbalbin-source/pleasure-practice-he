@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-v35';
+    const SW_BUILD = '2026-04-25-he-trance-recordings-controls-v36';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -681,6 +681,10 @@
     let diagnosticsCache = null;
     let plannerPendingReturnTo = null;
     let archetypeListTapState = null;
+    let tranceMediaRecorder = null;
+    let tranceMediaChunks = [];
+    let tranceAudioStream = null;
+    let trancePlayerAudio = null;
 
     function readStoredArray(key) {
       try {
@@ -689,6 +693,48 @@
       } catch {
         return [];
       }
+    }
+    function persistTranceRecordings() {
+      try { localStorage.setItem(TRANCE_RECORDINGS_KEY, JSON.stringify(AppState.tranceRecordings)); } catch (_) {}
+    }
+    function getTranceRecordingById(recordingId) {
+      const id = String(recordingId || '');
+      return (AppState.tranceRecordings || []).find(rec => String(rec.id) === id) || null;
+    }
+    function fileToDataUrl(fileBlob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('read-failed'));
+        reader.readAsDataURL(fileBlob);
+      });
+    }
+    function getAudioDurationSeconds(fileBlob) {
+      return new Promise(resolve => {
+        try {
+          const audio = new Audio();
+          const url = URL.createObjectURL(fileBlob);
+          audio.preload = 'metadata';
+          audio.onloadedmetadata = () => {
+            const value = Number(audio.duration);
+            URL.revokeObjectURL(url);
+            resolve(Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0);
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve(0);
+          };
+          audio.src = url;
+        } catch (_) {
+          resolve(0);
+        }
+      });
+    }
+    function stopTranceAudioStream() {
+      if (tranceAudioStream) {
+        tranceAudioStream.getTracks().forEach(track => track.stop());
+      }
+      tranceAudioStream = null;
     }
 
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
@@ -1079,61 +1125,183 @@
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-custom', { selectedCategories: [...selected] });
     }
+    function closeTrancePlaybackModal() {
+      const modal = document.getElementById('trance-recording-player-modal');
+      if (!modal) return;
+      if (trancePlayerAudio) {
+        try { trancePlayerAudio.pause(); } catch (_) {}
+        trancePlayerAudio = null;
+      }
+      modal.remove();
+    }
+    function openTrancePlaybackModal(rec) {
+      closeTrancePlaybackModal();
+      const host = document.createElement('div');
+      host.id = 'trance-recording-player-modal';
+      host.className = 'fixed inset-0 z-[80] bg-black/60 flex items-end justify-center p-4';
+      host.innerHTML = `
+        <div class="w-full max-w-md rounded-2xl border border-white/15 bg-[#120d1e] p-4 shadow-2xl">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-bold serif-font text-lg truncate">${escapeHtml(rec.name || '')}</h3>
+            <button onclick="closeTrancePlaybackModal()" class="h-8 w-8 rounded-full border border-white/20 text-gray-300 hover:bg-white/10">×</button>
+          </div>
+          <p class="text-xs text-gray-400 mb-3">${escapeHtml(rec.date || '')} • ${escapeHtml(rec.theme || '')}</p>
+          <audio id="trance-recording-player-audio" controls autoplay class="w-full" src="${escapeHtml(rec.audioDataUrl || '')}"></audio>
+        </div>
+      `;
+      host.addEventListener('click', e => {
+        if (e.target === host) closeTrancePlaybackModal();
+      });
+      document.body.appendChild(host);
+      const audioEl = document.getElementById('trance-recording-player-audio');
+      if (audioEl) trancePlayerAudio = audioEl;
+    }
+    function playTranceRecording(recordingId) {
+      const rec = getTranceRecordingById(recordingId);
+      if (!rec) return;
+      if (!rec.audioDataUrl) {
+        alert('לקליפ הזה אין אודיו זמין לניגון.');
+        return;
+      }
+      openTrancePlaybackModal(rec);
+    }
+    function downloadTranceRecording(recordingId) {
+      const rec = getTranceRecordingById(recordingId);
+      if (!rec || !rec.audioDataUrl) {
+        alert('אין קובץ אודיו להורדה בהקלטה הזו.');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = rec.audioDataUrl;
+      const safe = String(rec.name || 'recording').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
+      a.download = `${safe}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    function deleteTranceRecording(recordingId) {
+      const rec = getTranceRecordingById(recordingId);
+      if (!rec) return;
+      if (!confirm(`למחוק את ההקלטה "${rec.name}"?`)) return;
+      AppState.tranceRecordings = AppState.tranceRecordings.filter(item => String(item.id) !== String(recordingId));
+      persistTranceRecordings();
+      closeTrancePlaybackModal();
+      renderTranceRecordings(false);
+    }
+    function editTranceRecordingName(recordingId) {
+      const rec = getTranceRecordingById(recordingId);
+      if (!rec) return;
+      const nextName = prompt('עריכת שם ההקלטה:', rec.name || '');
+      if (!nextName) return;
+      rec.name = String(nextName).trim() || rec.name;
+      persistTranceRecordings();
+      renderTranceRecordings(false);
+    }
     function renderTranceRecordings(pushHistory = true) {
       const app = document.getElementById('app');
       const listHtml = AppState.tranceRecordings.length
         ? AppState.tranceRecordings.map(rec => `
-            <div class="bg-white/5 border border-white/10 p-4 rounded-xl flex justify-between items-center mb-3">
-              <div>
-                <div class="text-white font-bold serif-font">${escapeHtml(rec.name)}</div>
-                <div class="text-xs text-gray-500">${escapeHtml(rec.date)} • ${escapeHtml(rec.theme)}</div>
+            <div class="bg-white/5 border border-white/10 p-3 rounded-xl flex items-center justify-between gap-3 mb-3">
+              <div class="min-w-0">
+                <div class="text-white font-bold serif-font truncate">${escapeHtml(rec.name || '')}</div>
+                <div class="text-xs text-gray-500 truncate">${escapeHtml(rec.date || '')} • ${escapeHtml(rec.theme || '')}</div>
               </div>
-              <div class="p-2 bg-purple-600/20 text-purple-400 rounded-full"><i data-lucide="play" width="16"></i></div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button onclick="playTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-purple-400/40 bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 inline-flex items-center justify-center" title="נגן">
+                  <i data-lucide="play" width="14" height="14"></i>
+                </button>
+                <button onclick="downloadTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-cyan-400/35 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 inline-flex items-center justify-center" title="הורדה">
+                  <i data-lucide="download" width="14" height="14"></i>
+                </button>
+                <button onclick="editTranceRecordingName('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-amber-400/35 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 inline-flex items-center justify-center" title="עריכת שם">
+                  <i data-lucide="pencil" width="14" height="14"></i>
+                </button>
+                <button onclick="deleteTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-red-400/35 bg-red-500/10 text-red-300 hover:bg-red-500/20 inline-flex items-center justify-center" title="מחיקה">
+                  <i data-lucide="trash-2" width="14" height="14"></i>
+                </button>
+              </div>
             </div>`).join('')
         : '<div class="text-center text-gray-500 mt-10">אין עדיין הקלטות שמורות</div>';
 
       app.innerHTML = `
-        <div class="flex flex-col h-full p-6 bg-[#0f0c15]">
-          <div class="flex justify-between items-center mb-8 pt-4">
-            <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
+        <div class="flex flex-col h-full p-4 md:p-6 bg-[#0f0c15]">
+          <div class="flex justify-between items-center mb-5 pt-2">
+            <button onclick="closeTrancePlaybackModal(); renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">ההקלטות שלי</h2>
             <div class="w-8"></div>
           </div>
-          <div class="overflow-y-auto no-scrollbar pb-10">${listHtml}</div>
+          <div class="overflow-y-auto no-scrollbar pb-10 max-w-3xl w-full mx-auto">${listHtml}</div>
         </div>
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('hypno');
       if (pushHistory) pushTranceHistory('hypno-recordings');
     }
-    function toggleTranceRecording() {
-      AppState.tranceIsRecording = !AppState.tranceIsRecording;
+    async function startTranceRecordingSession() {
       const btn = document.getElementById('trance-record-btn');
       if (!btn) return;
-      if (AppState.tranceIsRecording) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+        alert('הדפדפן הנוכחי לא תומך בהקלטת אודיו.');
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        tranceAudioStream = stream;
+        tranceMediaChunks = [];
+        tranceMediaRecorder = new MediaRecorder(stream);
+        tranceMediaRecorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) tranceMediaChunks.push(e.data);
+        };
+        tranceMediaRecorder.start();
+        AppState.tranceIsRecording = true;
         btn.classList.replace('bg-purple-600', 'bg-red-500/10');
         btn.classList.add('recording-pulse', 'border', 'border-red-500');
         btn.innerHTML = '<i data-lucide="square"></i>';
         lucide.createIcons();
-      } else {
-        const card = getTranceCurrentCard();
-        const fallbackTheme = AppState.tranceView.currentTheme || 'רגיעה';
-        const name = prompt('שמור הקלטה בשם:', `${card.pattern} - ${fallbackTheme}`);
-        if (name) {
-          AppState.tranceRecordings.unshift({
-            id: Date.now(),
-            name: String(name),
-            date: new Date().toLocaleDateString(),
-            pattern: String(card.pattern || ''),
-            theme: String(fallbackTheme)
-          });
-          try { localStorage.setItem(TRANCE_RECORDINGS_KEY, JSON.stringify(AppState.tranceRecordings)); } catch (_) {}
-        }
-        btn.classList.replace('bg-red-500/10', 'bg-purple-600');
-        btn.classList.remove('recording-pulse', 'border', 'border-red-500');
-        btn.innerHTML = '<i data-lucide="mic"></i>';
-        lucide.createIcons();
+      } catch (_) {
+        alert('לא ניתן להתחיל הקלטה. בדקו הרשאת מיקרופון בדפדפן.');
       }
+    }
+    async function stopTranceRecordingSession() {
+      const btn = document.getElementById('trance-record-btn');
+      if (!btn) return;
+      const recorder = tranceMediaRecorder;
+      if (!recorder) return;
+      await new Promise(resolve => {
+        recorder.onstop = () => resolve();
+        try { recorder.stop(); } catch (_) { resolve(); }
+      });
+      const blob = tranceMediaChunks.length ? new Blob(tranceMediaChunks, { type: recorder.mimeType || 'audio/webm' }) : null;
+      const card = getTranceCurrentCard();
+      const fallbackTheme = AppState.tranceView.currentTheme || 'רגיעה';
+      const defaultName = `${String(card.pattern || 'הקלטה')} - ${fallbackTheme}`;
+      const name = prompt('שמור הקלטה בשם:', defaultName);
+      if (name && blob && blob.size > 0) {
+        const audioDataUrl = await fileToDataUrl(blob);
+        const durationSec = await getAudioDurationSeconds(blob);
+        AppState.tranceRecordings.unshift({
+          id: Date.now(),
+          name: String(name).trim() || defaultName,
+          date: new Date().toLocaleDateString(),
+          pattern: String(card.pattern || ''),
+          theme: String(fallbackTheme),
+          durationSec,
+          audioDataUrl
+        });
+        persistTranceRecordings();
+      }
+      AppState.tranceIsRecording = false;
+      tranceMediaRecorder = null;
+      tranceMediaChunks = [];
+      stopTranceAudioStream();
+      btn.classList.replace('bg-red-500/10', 'bg-purple-600');
+      btn.classList.remove('recording-pulse', 'border', 'border-red-500');
+      btn.innerHTML = '<i data-lucide="mic"></i>';
+      lucide.createIcons();
+    }
+    async function toggleTranceRecording() {
+      if (AppState.tranceIsRecording) await stopTranceRecordingSession();
+      else await startTranceRecordingSession();
     }
     let tranceCardFlipped = false;
     function renderTrancePlayer(pushHistory = true) {
@@ -1207,6 +1375,9 @@
         </div>
       `;
       AppState.tranceIsRecording = false;
+      tranceMediaRecorder = null;
+      tranceMediaChunks = [];
+      stopTranceAudioStream();
       tranceCardFlipped = false;
       AppState.tranceView.flipped = false;
       lucide.createIcons();
