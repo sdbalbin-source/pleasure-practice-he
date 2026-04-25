@@ -454,7 +454,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-edge-draw-v6';
+    const SW_BUILD = '2026-04-25-he-archetypes-edge-draw-v7';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -852,7 +852,7 @@
       const stageWidth = Math.min(Math.max(window.innerWidth - 32, 280), 440);
       const cardWidth = Math.min(stageWidth * 0.2, 92);
       const maxAngleRad = Math.max(Math.abs(angleStart), Math.abs(angleEnd)) * Math.PI / 180;
-      const sidePadding = 14;
+      const sidePadding = 28;
       // x is card top-left offset from stage center line, so keep half-card width in the bound.
       const maxRadiusForViewport = ((stageWidth / 2) - sidePadding - (cardWidth / 2)) / Math.sin(maxAngleRad);
       const radius = Math.max(96, Math.min(278, maxRadiusForViewport));
@@ -946,7 +946,7 @@
           // Edge cards are harder to pull outward on mobile screen borders,
           // so reduce threshold progressively by side angle while keeping center cards strict.
           const sideWeight = Math.min(1, Math.abs(baseRot) / 41.5);
-          const revealThreshold = Math.max(44, 66 - (sideWeight * 18));
+          const revealThreshold = Math.max(22, 66 - (sideWeight * 42));
           if (outShift > revealThreshold) {
             chooseCard();
           } else {
