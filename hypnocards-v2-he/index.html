@@ -243,6 +243,37 @@
       flex-wrap: wrap;
       margin-top: 0.5rem;
     }
+    .about-accordion-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    .about-accordion-summary::marker,
+    .about-accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+    .about-accordion-sign {
+      flex: 0 0 auto;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(183, 134, 255, 0.45);
+      color: #d8b4fe;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "DM Mono", monospace;
+      font-size: 1rem;
+      line-height: 1;
+      background: rgba(183, 134, 255, 0.12);
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    details[open] > summary .about-accordion-sign {
+      transform: rotate(180deg);
+      background: rgba(183, 134, 255, 0.2);
+      color: #f3e8ff;
+    }
   </style>
 </head>
 <body>
@@ -433,12 +464,12 @@
               <h3 class="text-purple-300 font-bold text-lg serif-font px-2 py-1">יסודות</h3>
               <div class="space-y-3 mt-2">
                 <details open class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">לפני שמתחילים</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>לפני שמתחילים</span><span class="about-accordion-sign">+</span></summary>
                   <p class="text-gray-300 serif-font text-base leading-relaxed mt-4">השתמשי באפליקציה הזו כמרחב תרגול חי לטקסט ארכיטיפים של עונג: שלפי באקראי להפתעה, בני חפיסה מותאמת אישית לפי ממלכה, או פתחי את כל הקלפים וסמני את המועדפות הפעילות שלך. הטקסט שלהלן שומר על העומק המושגי המלא של החוברת הנלווית, מותאם לקריאה בתוך האפליקציה.</p>
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">אור וצל</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>אור וצל</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>יונג לימד שכל דמות אור מטילה צל, וכל צל מסתיר אור.</p>
                     <p>למלכה הזוהרת יש משהו מהרודן שבה. לילדה התמימה יש משהו מהמפתה שבה. השדה היא בסך הכול מלאך שנדחק אל החשכה.</p>
@@ -448,7 +479,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">כוח הדימוי</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>כוח הדימוי</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>למה בכלל צריך דימויים? למה לא פשוט לעשות אהבה?</p>
                     <p>כי בני אדם הם יצורים של סיפור ודמיון. אנחנו לא רק גופים — אנחנו משמעויות. מגע פיזי הוא דבר אחד; מגע שנושא בתוכו סיפור הוא משהו אחר לגמרי.</p>
@@ -458,7 +489,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">לא תחפושת — התגלמות</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>לא תחפושת — התגלמות</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>אחד הפחדים העמוקים סביב משחקי תפקידים הוא: "אם אני מעמידה פנים שאני מישהי אחרת, האם אני לא מחוברת לעצמי?"</p>
                     <p>המחקר הפסיכולוגי מראה את ההפך המדויק.</p>
@@ -468,7 +499,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">איך להשתמש בקלפים</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>איך להשתמש בקלפים</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>הקלפים שבידיך אינם מדריכי הוראות. הם הזמנות.</p>
                     <p>כל קלף מציג ארכיטיפ — דמות שאפשר להתגלם בה, לחקור אותה, לשחק איתה.</p>
@@ -481,7 +512,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">עבודה עמוקה</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>עבודה עמוקה</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>אם אתה מוכן לצלול עמוק יותר — לבד, ביומן, או בשיחה עם חבר קרוב או שותף — הנה רשימת שאלות שיעזרו לך להפוך את הארכיטיפ מדימוי מופשט לדמות חיה ומלאה, מחוברת לגוף ולתשוקות שלך.</p>
                     <p>בחר קלף, התמקד בו, ותן לכל שאלה להדהד. כתוב, דבר בקול רם, או אפילו רקוד את התשובות — מה שמרגיש נכון.</p>
@@ -503,7 +534,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">הערה על בטיחות ומודעות</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>הערה על בטיחות ומודעות</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>עבודה עם ארכיטיפים יכולה להיות עוצמתית. חלק מהדמויות נוגעות במקומות רגישים, זיכרונות, טראומות, פחדים עמוקים. זה לא סכנה — אבל זו סיבה לגשת לעבודה הזו בכבוד.</p>
                     <p>כמה עקרונות:</p>
@@ -515,7 +546,7 @@
                 </details>
 
                 <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">הזמנה</summary>
+                  <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl"><span>הזמנה</span><span class="about-accordion-sign">+</span></summary>
                   <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
                     <p>מה שמחכה לך בקלפים האלה הוא לא רק משחק מיני. זוהי הזמנה להכיר את עצמך מחדש. לפגוש חלקים שנשכחו, לתת במה לדמויות שהושתקו, לגלות שאתה כל כך הרבה יותר ממה שחשבת.</p>
                     <p>המיטה היא במה. הארכיטיפים הם התסריט. אתה — אתה כל הדמויות בו־זמנית.</p>
