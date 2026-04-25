@@ -142,7 +142,7 @@ def build_categories(cards: list[dict]) -> list[dict]:
 def extract_legacy_meta() -> dict:
     source_html = resolve_first_existing(SOURCE_HTML_CANDIDATES)
     if not source_html:
-        return {"categories": [], "category_info": {}}
+        return {"cards": [], "categories": [], "category_info": {}}
     js = r"""
 const fs = require('fs');
 const htmlPath = process.argv[1];
@@ -150,13 +150,13 @@ const html = fs.readFileSync(htmlPath, 'utf8');
 const marker = 'const EMBEDDED_DATA = JSON.parse(`';
 const start = html.indexOf(marker);
 if (start < 0) {
-  process.stdout.write(JSON.stringify({ categories: [], category_info: {} }));
+  process.stdout.write(JSON.stringify({ cards: [], categories: [], category_info: {} }));
   process.exit(0);
 }
 const payloadStart = start + marker.length;
 const end = html.indexOf('`);', payloadStart);
 if (end < 0) {
-  process.stdout.write(JSON.stringify({ categories: [], category_info: {} }));
+  process.stdout.write(JSON.stringify({ cards: [], categories: [], category_info: {} }));
   process.exit(0);
 }
 const payload = html.slice(payloadStart, end);
@@ -166,6 +166,7 @@ if (jsonText.endsWith('`')) jsonText = jsonText.slice(0, -1);
 const decoded = Function('"use strict"; return `' + jsonText.replace(/`/g, '\\`') + '`;')();
 const data = JSON.parse(decoded);
 process.stdout.write(JSON.stringify({
+  cards: Array.isArray(data.cards) ? data.cards : [],
   categories: Array.isArray(data.categories) ? data.categories : [],
   category_info: (data.category_info && typeof data.category_info === 'object') ? data.category_info : {}
 }));
@@ -178,10 +179,11 @@ process.stdout.write(JSON.stringify({
     try:
         parsed = json.loads(out)
     except json.JSONDecodeError:
-        return {"categories": [], "category_info": {}}
+        return {"cards": [], "categories": [], "category_info": {}}
     if not isinstance(parsed, dict):
-        return {"categories": [], "category_info": {}}
+        return {"cards": [], "categories": [], "category_info": {}}
     return {
+        "cards": parsed.get("cards", []) if isinstance(parsed.get("cards", []), list) else [],
         "categories": parsed.get("categories", []) if isinstance(parsed.get("categories", []), list) else [],
         "category_info": parsed.get("category_info", {}) if isinstance(parsed.get("category_info", {}), dict) else {},
     }
@@ -199,16 +201,21 @@ def validate(cards: list[dict], categories: list[dict]) -> None:
 
 
 def main() -> None:
-    rows = load_xlsx_rows()
-    cards = build_cards(rows)
-    categories = build_categories(cards)
     legacy_meta = extract_legacy_meta()
+    legacy_cards = legacy_meta.get("cards", [])
     legacy_categories = legacy_meta.get("categories", [])
     legacy_category_info = legacy_meta.get("category_info", {})
+    if legacy_cards:
+        cards = legacy_cards
+        categories = legacy_categories if legacy_categories else build_categories(cards)
+    else:
+        rows = load_xlsx_rows()
+        cards = build_cards(rows)
+        categories = legacy_categories if legacy_categories else build_categories(cards)
 
     manifest = {
         "cards": cards,
-        "categories": legacy_categories if legacy_categories else categories,
+        "categories": categories,
         "category_info": legacy_category_info,
     }
     validate(manifest["cards"], manifest["categories"])

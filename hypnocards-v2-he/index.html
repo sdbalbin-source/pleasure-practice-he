@@ -600,7 +600,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-structural-rebuild-v14';
+    const SW_BUILD = '2026-04-25-he-trance-data-parity-v15';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -823,7 +823,7 @@
         <div id="trance-player-view" class="flex flex-col h-full relative overflow-hidden">
           <div class="flex items-center justify-between p-4 pt-6 z-20">
             <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
-            <div id="trance-counter" class="text-xs font-mono text-gray-400"></div>
+            <div id="trance-counter" dir="ltr" class="text-xs font-mono text-gray-400"></div>
             <button id="trance-fav-btn" onclick="toggleTranceFavorite()" class="p-2 transition rounded-full hover:bg-white/5 text-gray-500">
               <i data-lucide="star"></i>
             </button>
