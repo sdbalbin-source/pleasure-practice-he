@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-transparent-bg-v40';
+    const SW_BUILD = '2026-04-25-he-trance-recordings-row-transparency-v41';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1224,7 +1224,7 @@
       const app = document.getElementById('app');
       const listHtml = AppState.tranceRecordings.length
         ? AppState.tranceRecordings.map(rec => `
-            <div class="bg-white/5 border border-white/10 p-2.5 rounded-xl flex items-center justify-between gap-2.5 mb-2.5">
+            <div class="bg-white/[0.035] border border-white/10 p-2.5 rounded-xl flex items-center justify-between gap-2.5 mb-2.5">
               <div class="min-w-0">
                 <div class="text-white font-bold serif-font text-[0.98rem] leading-tight truncate">${escapeHtml(rec.name || '')}</div>
                 <div class="text-[0.7rem] text-gray-500 truncate">${escapeHtml(rec.date || '')} • ${escapeHtml(rec.theme || '')}${rec.durationSec ? ` • ${escapeHtml(String(rec.durationSec))}ש׳` : ''}</div>
