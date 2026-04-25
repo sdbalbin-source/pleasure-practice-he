@@ -407,7 +407,13 @@
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
     const ARCHETYPE_FAVORITES_KEY = 'archetype_favorites_v1';
     const ARCHETYPE_DECK_KEYS_KEY = 'archetype_deck_keys_v1';
-    const ARCHETYPE_CARD_BACK = './archetypes-he/cards/Back_2.webp';
+    const ARCHETYPE_CARD_BACK = './archetypes-he/archetype-card-back.webp';
+    const ARCHETYPE_MANIFEST_PATHS = [
+      './archetypes-he/archetypes-he-manifest.json',
+      './hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json',
+      'archetypes-he/archetypes-he-manifest.json',
+      'hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json'
+    ];
     let ARCHETYPES_DATA = [];
     const AppState = {
       plannerSessions: [],
@@ -527,17 +533,18 @@
     }
     async function ensureArchetypesDataLoaded() {
       if (ARCHETYPES_DATA.length) return true;
-      try {
-        const res = await fetch('./archetypes-he/archetypes-he-manifest.json', { cache: 'no-store' });
-        if (!res.ok) return false;
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) return false;
-        ARCHETYPES_DATA = data;
-        pruneArchetypeFavorites();
-        return true;
-      } catch {
-        return false;
+      for (const path of ARCHETYPE_MANIFEST_PATHS) {
+        try {
+          const res = await fetch(path, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (!Array.isArray(data) || data.length === 0) continue;
+          ARCHETYPES_DATA = data;
+          pruneArchetypeFavorites();
+          return true;
+        } catch (_) {}
       }
+      return false;
     }
 
     function pruneArchetypeFavorites() {
@@ -1600,7 +1607,7 @@
       return blocks.join('\n\n');
     }
     async function preloadShellEssentials() {
-      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', './archetypes-he/archetypes-he-manifest.json'];
+      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS];
       await Promise.allSettled(
         paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
       );
