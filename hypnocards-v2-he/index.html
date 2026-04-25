@@ -516,7 +516,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-mainmenu-v10';
+    const SW_BUILD = '2026-04-25-he-trance-about-full-v11';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -529,8 +529,15 @@
       'archetypes-he/archetypes-he-manifest.json',
       'hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json'
     ];
+    const TRANCE_ABOUT_PATHS = [
+      './trance-he/about-copy-he.json',
+      './hypnocards-v2-he/trance-he/about-copy-he.json',
+      'trance-he/about-copy-he.json',
+      'hypnocards-v2-he/trance-he/about-copy-he.json'
+    ];
     const ARCHETYPE_ARC_APPROVAL_MODE = false;
     let ARCHETYPES_DATA = [];
+    let TRANCE_ABOUT_DATA = null;
     const AppState = {
       plannerSessions: [],
       archetypeFavorites: [],
@@ -561,6 +568,13 @@
         const url = new URL(window.location.href);
         url.searchParams.set('module', 'archetypes');
         history.pushState({ screen, module: 'archetypes', ...extra }, '', url.toString());
+      } catch (_) {}
+    }
+    function pushTranceHistory(screen, extra = {}) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'hypno');
+        history.pushState({ screen, module: 'hypno', ...extra }, '', url.toString());
       } catch (_) {}
     }
 
@@ -614,6 +628,71 @@
         history.pushState({ screen: 'welcome' }, '', url.toString());
       }
     }
+    async function ensureTranceAboutLoaded() {
+      if (TRANCE_ABOUT_DATA) return true;
+      for (const path of TRANCE_ABOUT_PATHS) {
+        try {
+          const res = await fetch(path, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (!data || !Array.isArray(data.intro_sections) || !data.categories_section) continue;
+          TRANCE_ABOUT_DATA = data;
+          return true;
+        } catch (_) {}
+      }
+      return false;
+    }
+    function tranceSectionBodyToHtml(section) {
+      const paragraphs = Array.isArray(section.paragraphs)
+        ? section.paragraphs.map(p => `<p class="text-gray-300 serif-font text-base leading-relaxed">${escapeHtml(p)}</p>`).join('')
+        : '';
+      const bullets = Array.isArray(section.bullets)
+        ? `<ul class="list-disc pr-6 space-y-2 text-gray-300 serif-font text-base leading-relaxed">${section.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
+        : '';
+      const numbered = Array.isArray(section.numbered_items)
+        ? `<div class="space-y-3">${section.numbered_items.map((it, idx) => `<div class="rounded-xl border border-white/10 bg-white/5 p-3"><p class="text-white font-bold serif-font text-base mb-1">${idx + 1}. ${escapeHtml(it.label || '')}</p><p class="text-gray-300 serif-font text-sm leading-relaxed">${escapeHtml(it.content || '')}</p></div>`).join('')}</div>`
+        : '';
+      const methods = Array.isArray(section.methods)
+        ? `<div class="space-y-3">${section.methods.map(m => `<div class="rounded-xl border border-white/10 bg-white/5 p-3"><p class="text-white font-bold serif-font text-base mb-2">${escapeHtml(m.name || '')}</p><ol class="list-decimal pr-6 space-y-1 text-gray-300 serif-font text-sm leading-relaxed">${Array.isArray(m.steps) ? m.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('') : ''}</ol></div>`).join('')}</div>`
+        : '';
+      return `${paragraphs}${bullets}${numbered}${methods}`;
+    }
+    function tranceCategoryToHtml(cat) {
+      const examples = Array.isArray(cat.examples) ? cat.examples : [];
+      const tips = Array.isArray(cat.practitioner_tips) ? cat.practitioner_tips : [];
+      const adv = String(cat.advanced_note || '').trim();
+      return `
+        <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+          <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl">
+            <span>${escapeHtml(String(cat.number || ''))}. ${escapeHtml(cat.name_he || '')}</span>
+            <span class="about-accordion-sign">+</span>
+          </summary>
+          <div class="space-y-4 mt-4">
+            <div class="rounded-xl border border-purple-400/20 bg-purple-900/10 p-3">
+              <p class="text-[0.72rem] font-mono text-purple-200 tracking-[0.18em] mb-1">PATTERN STRUCTURE</p>
+              <p class="text-purple-100 serif-font text-base">${escapeHtml(cat.pattern_structure || '')}</p>
+            </div>
+            <div>
+              <p class="text-amber-200 font-bold serif-font mb-1">מה זה</p>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">${escapeHtml(cat.what_it_is || '')}</p>
+            </div>
+            <div>
+              <p class="text-amber-200 font-bold serif-font mb-1">איך זה עובד</p>
+              <p class="text-gray-300 serif-font text-base leading-relaxed">${escapeHtml(cat.how_it_works || '')}</p>
+            </div>
+            <div>
+              <p class="text-amber-200 font-bold serif-font mb-1">דוגמאות בתרגול</p>
+              <ul class="list-disc pr-6 space-y-1 text-gray-300 serif-font text-base leading-relaxed">${examples.map(ex => `<li>${escapeHtml(ex)}</li>`).join('')}</ul>
+            </div>
+            <div>
+              <p class="text-amber-200 font-bold serif-font mb-1">טיפים למנחה</p>
+              <ul class="list-disc pr-6 space-y-1 text-gray-300 serif-font text-base leading-relaxed">${tips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
+            </div>
+            ${adv ? `<div class="rounded-xl border border-fuchsia-400/25 bg-fuchsia-950/15 p-3"><p class="text-fuchsia-100 serif-font text-sm leading-relaxed"><strong>הערת עומק:</strong> ${escapeHtml(adv)}</p></div>` : ''}
+          </div>
+        </details>
+      `;
+    }
     function tranceMainMenuPlaceholder(actionLabel) {
       alert(`"${actionLabel}" יתחבר בשלב הבא. כרגע זהו תפריט ראשי בלבד.`);
     }
@@ -647,7 +726,7 @@
           </div>
 
           <div class="w-full max-w-4xl mx-auto pt-3">
-            <button onclick="tranceMainMenuPlaceholder('אודות שפת הטראנס הארוטי')" class="trance-about-btn">
+            <button onclick="renderTranceAbout()" class="trance-about-btn">
               <i data-lucide="info"></i>
               <span>אודות שפת הטראנס הארוטי</span>
             </button>
@@ -661,6 +740,67 @@
         url.searchParams.set('module', 'hypno');
         history.pushState({ screen: 'hypno-home', module: 'hypno' }, '', url.toString());
       }
+    }
+    async function renderTranceAbout(pushHistory = true) {
+      const loaded = await ensureTranceAboutLoaded();
+      if (!loaded || !TRANCE_ABOUT_DATA) {
+        alert('לא ניתן לטעון את תוכן האודות כרגע. נסו שוב בעוד רגע.');
+        return;
+      }
+      const introSections = Array.isArray(TRANCE_ABOUT_DATA.intro_sections) ? TRANCE_ABOUT_DATA.intro_sections : [];
+      const categories = Array.isArray(TRANCE_ABOUT_DATA.categories_section?.categories) ? TRANCE_ABOUT_DATA.categories_section.categories : [];
+      const closingParagraphs = Array.isArray(TRANCE_ABOUT_DATA.closing_note?.paragraphs) ? TRANCE_ABOUT_DATA.closing_note.paragraphs : [];
+      const links = Array.isArray(TRANCE_ABOUT_DATA.closing_note?.links) ? TRANCE_ABOUT_DATA.closing_note.links : [];
+      const introHtml = introSections.map((section, idx) => `
+        <details ${idx === 0 ? 'open' : ''} class="rounded-2xl border border-white/10 bg-black/30 p-4">
+          <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl">
+            <span>${escapeHtml(section.title || '')}</span>
+            <span class="about-accordion-sign">+</span>
+          </summary>
+          <div class="space-y-3 mt-4">
+            ${tranceSectionBodyToHtml(section)}
+          </div>
+        </details>
+      `).join('');
+      const coreHtml = categories.filter(c => Number(c.number) >= 1 && Number(c.number) <= 13).map(tranceCategoryToHtml).join('');
+      const advancedHtml = categories.filter(c => Number(c.number) >= 14).map(tranceCategoryToHtml).join('');
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="flex flex-col h-full bg-[#050408]">
+          <div class="p-6 pt-8 flex items-center gap-4">
+            <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
+            <h2 class="text-2xl font-bold text-white serif-font">אודות שפת הטראנס הארוטי</h2>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-4 no-scrollbar">
+            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-5">
+              <h3 class="text-fuchsia-300 font-bold text-lg serif-font mb-2">${escapeHtml(TRANCE_ABOUT_DATA.meta?.title || 'שפת הטראנס הארוטי')}</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">מדריך עבודה מובנה לתרגול שפת טראנס ארוטי: עקרונות, אתיקה, שיטות תרגול וקטגוריות דפוסים.</p>
+            </div>
+            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
+              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">יסודות ותרגול</h3>
+              <div class="space-y-3 mt-2">${introHtml}</div>
+            </div>
+            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
+              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">קטגוריות Core (1-13)</h3>
+              <div class="space-y-3 mt-2">${coreHtml}</div>
+            </div>
+            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
+              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">קטגוריות Advanced (14-17)</h3>
+              <div class="space-y-3 mt-2">${advancedHtml}</div>
+            </div>
+            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-5">
+              <h3 class="text-fuchsia-300 font-bold text-lg serif-font mb-2">${escapeHtml(TRANCE_ABOUT_DATA.closing_note?.title || 'סיכום והמשך תרגול')}</h3>
+              <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed">
+                ${closingParagraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+              </div>
+              ${links.length ? `<div class="mt-4 pt-4 border-t border-white/10 space-y-1">${links.map(link => `<a href="${escapeHtml(link.url || '#')}" target="_blank" rel="noopener noreferrer" class="text-fuchsia-300 underline decoration-fuchsia-400/50 hover:text-fuchsia-200">${escapeHtml(link.label || link.url || '')}</a>`).join('<br/>')}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      heShellSyncModuleQuery('hypno');
+      if (pushHistory) pushTranceHistory('hypno-about');
     }
     function showAbout() {
       document.getElementById('app').innerHTML = ABOUT_TEMPLATE;
@@ -1816,7 +1956,7 @@
       return blocks.join('\n\n');
     }
     async function preloadShellEssentials() {
-      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS];
+      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS];
       await Promise.allSettled(
         paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
       );
@@ -1889,7 +2029,8 @@
           return;
         }
       }
-      if (state.module === 'hypno' || state.screen === 'hypno-home') {
+      if (state.module === 'hypno') {
+        if (state.screen === 'hypno-about') { renderTranceAbout(false); return; }
         renderTranceLanguageHome(false);
         return;
       }
