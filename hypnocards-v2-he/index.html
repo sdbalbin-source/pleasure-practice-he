@@ -609,7 +609,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-carousel-global-v20';
+    const SW_BUILD = '2026-04-25-he-trance-carousel-5loop-v21';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -647,7 +647,7 @@
       pendingArchetypePoolIds: [],
       tranceFavorites: [],
       tranceThemes: [],
-      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '' }
+      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '', themeCursor: 0 }
     };
     let deferredInstallPrompt = null;
     let currentSwReg = null;
@@ -843,6 +843,63 @@
       if (!container || !active) return;
       active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
+    function modIndex(i, n) {
+      if (!n) return 0;
+      return ((i % n) + n) % n;
+    }
+    function syncTranceThemeCursor(themes) {
+      if (!Array.isArray(themes) || !themes.length) {
+        AppState.tranceView.themeCursor = 0;
+        return;
+      }
+      const idx = themes.indexOf(AppState.tranceView.currentTheme);
+      AppState.tranceView.themeCursor = idx >= 0 ? idx : 0;
+      if (idx < 0) AppState.tranceView.currentTheme = themes[0];
+    }
+    function getTranceThemeWindow(themes, cursor, size = 5) {
+      if (!Array.isArray(themes) || !themes.length) return [];
+      const n = themes.length;
+      const half = Math.floor(size / 2);
+      const window = [];
+      for (let offset = -half; offset <= half; offset += 1) {
+        const idx = modIndex(cursor + offset, n);
+        window.push({ theme: themes[idx], idx, isCenter: offset === 0 });
+      }
+      return window;
+    }
+    function renderTranceThemeCarousel(themes) {
+      const items = getTranceThemeWindow(themes, Number(AppState.tranceView.themeCursor || 0), 5);
+      return items.map(it => {
+        const active = it.theme === AppState.tranceView.currentTheme;
+        return `<button dir="rtl" onclick="setTranceThemeByIndex(${it.idx})" class="carousel-item ${active ? 'active' : ''}" data-theme="${escapeHtml(it.theme)}">${escapeHtml(it.theme)}</button>`;
+      }).join('');
+    }
+    function shiftTranceTheme(step) {
+      const themes = getTranceAllThemes();
+      if (!themes.length) return;
+      const n = themes.length;
+      const nextIdx = modIndex(Number(AppState.tranceView.themeCursor || 0) + Number(step || 0), n);
+      setTranceThemeByIndex(nextIdx);
+    }
+    function setupTranceThemeCarouselInteractions() {
+      const container = document.getElementById('tranceThemeCarousel');
+      if (!container) return;
+      let startX = 0;
+      let startY = 0;
+      container.ontouchstart = e => {
+        if (!e.touches || !e.touches.length) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      };
+      container.ontouchend = e => {
+        if (!e.changedTouches || !e.changedTouches.length) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
+        if (dx > 0) shiftTranceTheme(-1);
+        else shiftTranceTheme(1);
+      };
+    }
     function getTranceCategoryInfo(card) {
       const infoMap = TRANCE_DATA && typeof TRANCE_DATA === 'object' ? (TRANCE_DATA.category_info || {}) : {};
       const info = card && card.category ? infoMap[card.category] : null;
@@ -866,7 +923,8 @@
         deckIds: ids,
         index: 0,
         flipped: false,
-        currentTheme: firstThemes[0] || allThemes[0] || 'רגיעה'
+        currentTheme: firstThemes[0] || allThemes[0] || 'רגיעה',
+        themeCursor: Math.max(0, allThemes.indexOf(firstThemes[0] || allThemes[0] || 'רגיעה'))
       };
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-basic');
@@ -928,8 +986,12 @@
               </div>
             </div>
           </div>
-          <div id="tranceThemeCarousel" dir="ltr" class="w-full overflow-x-auto no-scrollbar pb-6 px-6 z-20 flex gap-3 snap-x mask-linear h-16 shrink-0">
-            ${themeOptions.map(t => `<button dir="rtl" onclick="setTranceTheme('${String(t).replace(/'/g, "\\'")}')" class="carousel-item" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}
+          <div class="w-full pb-6 px-6 z-20 h-16 shrink-0 flex items-center gap-2">
+            <button onclick="shiftTranceTheme(-1)" class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-300 hover:bg-white/10"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>
+            <div id="tranceThemeCarousel" dir="ltr" class="flex-1 overflow-hidden no-scrollbar flex gap-3 justify-center mask-linear">
+              ${renderTranceThemeCarousel(themeOptions)}
+            </div>
+            <button onclick="shiftTranceTheme(1)" class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-300 hover:bg-white/10"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
           </div>
           <div class="p-6 pb-8 flex items-center justify-center z-20 bg-gradient-to-t from-black/90 to-transparent shrink-0">
             <button class="p-5 rounded-full bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all transform hover:scale-105 active:scale-95">
@@ -943,6 +1005,7 @@
       lucide.createIcons();
       setupTranceSwipe();
       setupTranceKeyboard();
+      setupTranceThemeCarouselInteractions();
       updateTrancePlayerContent();
       heShellSyncModuleQuery('hypno');
       if (pushHistory) pushTranceHistory('hypno-basic');
@@ -950,10 +1013,8 @@
     function updateTrancePlayerContent() {
       const card = getTranceCurrentCard();
       if (!card) return;
-      const themeOptions = getTranceCurrentThemeOptions(card);
-      if (!themeOptions.includes(AppState.tranceView.currentTheme)) {
-        AppState.tranceView.currentTheme = themeOptions[0] || 'רגיעה';
-      }
+      const themeOptions = getTranceAllThemes();
+      syncTranceThemeCursor(themeOptions);
       const examples = getTranceCardContent(card, AppState.tranceView.currentTheme);
       const categoryInfo = getTranceCategoryInfo(card);
       const contentHtml = examples
@@ -991,6 +1052,10 @@
         const icon = favBtn.querySelector('svg');
         if (icon) icon.setAttribute('fill', isFav ? 'currentColor' : 'none');
       }
+      const themeContainer = document.getElementById('tranceThemeCarousel');
+      if (themeContainer) {
+        themeContainer.innerHTML = renderTranceThemeCarousel(themeOptions);
+      }
       document.querySelectorAll('#tranceThemeCarousel .carousel-item').forEach(el => {
         const theme = String(el.getAttribute('data-theme') || '').trim();
         const active = theme === AppState.tranceView.currentTheme;
@@ -1003,6 +1068,7 @@
           el.style.color = '';
         }
       });
+      setupTranceThemeCarouselInteractions();
       centerTranceActiveThemeChip();
     }
     function setupTranceKeyboard() {
@@ -1035,8 +1101,12 @@
       const inner = document.getElementById('tranceCardInner');
       if (inner) inner.style.transform = tranceCardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
     }
-    function setTranceTheme(theme) {
-      AppState.tranceView.currentTheme = String(theme || '').trim();
+    function setTranceThemeByIndex(themeIndex) {
+      const themes = getTranceAllThemes();
+      if (!themes.length) return;
+      const idx = modIndex(Number(themeIndex || 0), themes.length);
+      AppState.tranceView.themeCursor = idx;
+      AppState.tranceView.currentTheme = String(themes[idx] || '').trim();
       const contentDiv = document.getElementById('tranceCardContentText');
       if (!contentDiv) {
         updateTrancePlayerContent();
@@ -1050,6 +1120,15 @@
         contentDiv.style.opacity = '1';
         contentDiv.style.transform = 'translateY(0)';
       }, 150);
+    }
+    function setTranceTheme(theme) {
+      const themes = getTranceAllThemes();
+      const idx = themes.indexOf(String(theme || '').trim());
+      if (idx >= 0) {
+        setTranceThemeByIndex(idx);
+        return;
+      }
+      setTranceThemeByIndex(0);
     }
     function animateTranceCard(outClass, inClass, indexChange) {
       const face = document.getElementById('tranceCardFace');
