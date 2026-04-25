@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-pixelpolish-v38';
+    const SW_BUILD = '2026-04-25-he-trance-recordings-english-parity-v39';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -685,6 +685,8 @@
     let tranceMediaChunks = [];
     let tranceAudioStream = null;
     let trancePlayerAudio = null;
+    let tranceRecordingMimeType = '';
+    let tranceRecordingExtension = 'webm';
 
     function readStoredArray(key) {
       try {
@@ -695,7 +697,12 @@
       }
     }
     function persistTranceRecordings() {
-      try { localStorage.setItem(TRANCE_RECORDINGS_KEY, JSON.stringify(AppState.tranceRecordings)); } catch (_) {}
+      try {
+        localStorage.setItem(TRANCE_RECORDINGS_KEY, JSON.stringify(AppState.tranceRecordings));
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
     function getTranceRecordingById(recordingId) {
       const id = String(recordingId || '');
@@ -735,6 +742,21 @@
         tranceAudioStream.getTracks().forEach(track => track.stop());
       }
       tranceAudioStream = null;
+    }
+    function getTranceRecordingFormat() {
+      const probeAudio = document.createElement('audio');
+      const candidates = [
+        { mimeType: 'audio/webm;codecs=opus', ext: 'webm' },
+        { mimeType: 'audio/mp4', ext: 'm4a' },
+        { mimeType: 'audio/webm', ext: 'webm' },
+        { mimeType: 'audio/ogg;codecs=opus', ext: 'ogg' }
+      ];
+      for (const format of candidates) {
+        const canRecord = window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(format.mimeType);
+        const canPlay = !format.mimeType || !!probeAudio.canPlayType(format.mimeType);
+        if (canRecord && canPlay) return format;
+      }
+      return { mimeType: '', ext: 'webm' };
     }
 
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
@@ -1206,12 +1228,13 @@
               <div class="min-w-0">
                 <div class="text-white font-bold serif-font text-[0.98rem] leading-tight truncate">${escapeHtml(rec.name || '')}</div>
                 <div class="text-[0.7rem] text-gray-500 truncate">${escapeHtml(rec.date || '')} • ${escapeHtml(rec.theme || '')}${rec.durationSec ? ` • ${escapeHtml(String(rec.durationSec))}ש׳` : ''}</div>
+                ${rec.audioDataUrl ? '' : '<div class="mt-1 text-[0.68rem] text-amber-300">אין אודיו זמין לניגון בפריט זה.</div>'}
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="playTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-purple-400/40 bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 inline-flex items-center justify-center" title="נגן">
+                <button onclick="playTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-purple-400/40 bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 inline-flex items-center justify-center ${rec.audioDataUrl ? '' : 'opacity-40'}" title="נגן" ${rec.audioDataUrl ? '' : 'disabled'}>
                   <i data-lucide="play" width="14" height="14"></i>
                 </button>
-                <button onclick="downloadTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-cyan-400/35 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 inline-flex items-center justify-center" title="הורדה">
+                <button onclick="downloadTranceRecording('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-cyan-400/35 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 inline-flex items-center justify-center ${rec.audioDataUrl ? '' : 'opacity-40'}" title="הורדה" ${rec.audioDataUrl ? '' : 'disabled'}>
                   <i data-lucide="download" width="14" height="14"></i>
                 </button>
                 <button onclick="editTranceRecordingName('${escapeHtml(rec.id)}')" class="h-8 w-8 rounded-full border border-amber-400/35 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 inline-flex items-center justify-center" title="עריכת שם">
@@ -1246,14 +1269,25 @@
         return;
       }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
         tranceAudioStream = stream;
         tranceMediaChunks = [];
-        tranceMediaRecorder = new MediaRecorder(stream);
+        const format = getTranceRecordingFormat();
+        tranceRecordingMimeType = format.mimeType;
+        tranceRecordingExtension = format.ext;
+        tranceMediaRecorder = tranceRecordingMimeType
+          ? new MediaRecorder(stream, { mimeType: tranceRecordingMimeType })
+          : new MediaRecorder(stream);
         tranceMediaRecorder.ondataavailable = e => {
           if (e.data && e.data.size > 0) tranceMediaChunks.push(e.data);
         };
-        tranceMediaRecorder.start();
+        tranceMediaRecorder.start(250);
         AppState.tranceIsRecording = true;
         btn.classList.replace('bg-purple-600', 'bg-red-500/10');
         btn.classList.add('recording-pulse', 'border', 'border-red-500');
@@ -1268,11 +1302,27 @@
       if (!btn) return;
       const recorder = tranceMediaRecorder;
       if (!recorder) return;
+      if (recorder.state === 'recording') {
+        try { recorder.requestData(); } catch (_) {}
+      }
       await new Promise(resolve => {
         recorder.onstop = () => resolve();
         try { recorder.stop(); } catch (_) { resolve(); }
       });
-      const blob = tranceMediaChunks.length ? new Blob(tranceMediaChunks, { type: recorder.mimeType || 'audio/webm' }) : null;
+      const blobType = tranceRecordingMimeType || recorder.mimeType || 'audio/webm';
+      const blob = tranceMediaChunks.length ? new Blob(tranceMediaChunks, { type: blobType }) : null;
+      if (!blob || blob.size < 1024) {
+        alert('ההקלטה יצאה ריקה. בדקו הרשאות מיקרופון ונסו שוב.');
+        AppState.tranceIsRecording = false;
+        tranceMediaRecorder = null;
+        tranceMediaChunks = [];
+        stopTranceAudioStream();
+        btn.classList.replace('bg-red-500/10', 'bg-purple-600');
+        btn.classList.remove('recording-pulse', 'border', 'border-red-500');
+        btn.innerHTML = '<i data-lucide="mic"></i>';
+        lucide.createIcons();
+        return;
+      }
       const card = getTranceCurrentCard();
       const fallbackTheme = AppState.tranceView.currentTheme || 'רגיעה';
       const defaultName = `${String(card.pattern || 'הקלטה')} - ${fallbackTheme}`;
@@ -1280,20 +1330,32 @@
       if (name && blob && blob.size > 0) {
         const audioDataUrl = await fileToDataUrl(blob);
         const durationSec = await getAudioDurationSeconds(blob);
-        AppState.tranceRecordings.unshift({
+        const now = new Date();
+        const saved = {
           id: Date.now(),
           name: String(name).trim() || defaultName,
-          date: new Date().toLocaleDateString(),
+          extension: tranceRecordingExtension,
+          date: now.toLocaleDateString(),
           pattern: String(card.pattern || ''),
           theme: String(fallbackTheme),
+          mimeType: blobType,
           durationSec,
           audioDataUrl
-        });
-        persistTranceRecordings();
+        };
+        AppState.tranceRecordings.unshift(saved);
+        const persisted = persistTranceRecordings();
+        if (!persisted) {
+          const latest = AppState.tranceRecordings[0];
+          if (latest) latest.audioDataUrl = null;
+          persistTranceRecordings();
+          alert('נשמרה רשומת הקלטה, אבל אין מספיק מקום לשמירת אודיו לניגון פנימי.');
+        }
       }
       AppState.tranceIsRecording = false;
       tranceMediaRecorder = null;
       tranceMediaChunks = [];
+      tranceRecordingMimeType = '';
+      tranceRecordingExtension = 'webm';
       stopTranceAudioStream();
       btn.classList.replace('bg-red-500/10', 'bg-purple-600');
       btn.classList.remove('recording-pulse', 'border', 'border-red-500');
@@ -1379,6 +1441,8 @@
       AppState.tranceIsRecording = false;
       tranceMediaRecorder = null;
       tranceMediaChunks = [];
+      tranceRecordingMimeType = '';
+      tranceRecordingExtension = 'webm';
       stopTranceAudioStream();
       tranceCardFlipped = false;
       AppState.tranceView.flipped = false;
