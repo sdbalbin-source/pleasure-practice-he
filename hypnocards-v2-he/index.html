@@ -622,7 +622,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-customdeck-sidefix-lightbg-v33';
+    const SW_BUILD = '2026-04-25-he-trance-basicdeck-categories-v34';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -924,13 +924,39 @@
         description: String(info.description || '').trim()
       };
     }
+    function getTranceBasicCategoryNames() {
+      const declared = Array.isArray(TRANCE_DATA?.categories) ? TRANCE_DATA.categories : [];
+      const excluded = new Set(['מילות קוד']);
+      const byOrder = declared
+        .slice(0, 13)
+        .map(cat => String(cat?.name || '').trim())
+        .filter(name => name && !excluded.has(name));
+      if (byOrder.length) return byOrder;
+      return [
+        'מזרז פעולה',
+        'בניית ציפייה',
+        'הנחות',
+        'הכוונת המודעות',
+        'הפעלת הדימיון',
+        'מרככי שפה',
+        'סיבה ותוצאה',
+        'השוואה מורכבת',
+        'ספקטרום הנחיצות',
+        'דרך השלילה',
+        'העצמה',
+        'פנייה לתת מודע'
+      ];
+    }
     async function renderTranceBasicDeck(pushHistory = true) {
       const loaded = await ensureTranceDataLoaded();
       if (!loaded || !TRANCE_DATA || !Array.isArray(TRANCE_DATA.cards) || !TRANCE_DATA.cards.length) {
         alert('לא ניתן לטעון את חפיסת הטראנס כרגע. נסו שוב בעוד רגע.');
         return;
       }
-      const ids = TRANCE_DATA.cards.map(c => String(c.id)).sort(() => Math.random() - 0.5);
+      const basicCategories = new Set(getTranceBasicCategoryNames());
+      const basicCards = TRANCE_DATA.cards.filter(c => basicCategories.has(String(c.category || '').trim()));
+      const pool = basicCards.length ? basicCards : TRANCE_DATA.cards;
+      const ids = pool.map(c => String(c.id)).sort(() => Math.random() - 0.5);
       const firstCard = getTranceCardById(ids[0]);
       const allThemes = getTranceAllThemes();
       const firstThemes = getTranceCurrentThemeOptions(firstCard);
