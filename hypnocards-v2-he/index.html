@@ -454,7 +454,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-draw-complete-v3';
+    const SW_BUILD = '2026-04-25-he-archetypes-mobile-arc-v4';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -637,6 +637,12 @@
       }
       const app = document.getElementById('app');
       const realms = getArchetypeRealms();
+      const realmCounts = ARCHETYPES_DATA.reduce((acc, card) => {
+        const realm = String(card.realm || '').trim();
+        if (!realm) return acc;
+        acc[realm] = (acc[realm] || 0) + 1;
+        return acc;
+      }, {});
       const row = (key, label, subtitle) => {
         const active = AppState.selectedArchetypeDeckKeys.includes(key);
         return `
@@ -663,7 +669,7 @@
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-6 space-y-3 no-scrollbar">
             ${row('__favorites__', 'סט מועדפים', `${AppState.archetypeFavorites.length} קלפים מסומנים`)}
-            ${realms.map(r => row(r, r, 'סט ממלכה')).join('')}
+            ${realms.map(r => row(r, r, `${realmCounts[r] || 0} קלפים בממלכה`)).join('')}
           </div>
           <div class="px-6 pb-8">
             <button onclick="startArchetypeSpreadDraw(getCustomArchetypePool(), 'custom')" class="w-full py-3 rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-950/40 to-black/40 text-amber-100 text-sm font-mono tracking-wide hover:border-amber-400/50 transition-colors">
@@ -842,11 +848,14 @@
       const angleStart = -74;
       const angleEnd = 74;
       const step = spreadCards.length > 1 ? (angleEnd - angleStart) / (spreadCards.length - 1) : 0;
-      // Keep EN motion semantics, but center the arc reliably across screen sizes.
+      // Keep EN motion semantics, but fit and center arc on narrow mobile screens.
       const stageWidth = Math.min(Math.max(window.innerWidth - 32, 280), 440);
-      const radius = Math.min(278, stageWidth * 0.62);
+      const cardWidth = Math.min(window.innerWidth * 0.2, 92);
+      const maxAngleRad = Math.max(Math.abs(angleStart), Math.abs(angleEnd)) * Math.PI / 180;
+      const maxRadiusForViewport = ((stageWidth / 2) - (cardWidth / 2) - 8) / Math.sin(maxAngleRad);
+      const radius = Math.max(96, Math.min(278, maxRadiusForViewport));
       const centerX = 0;
-      const centerY = Math.min(138, Math.max(118, stageWidth * 0.31));
+      const centerY = Math.min(138, Math.max(108, radius * 0.5));
       const cardsHtml = spreadCards.map((card, i) => {
         const angle = angleStart + (step * i);
         const rad = angle * Math.PI / 180;
