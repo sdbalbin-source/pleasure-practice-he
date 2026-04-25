@@ -622,7 +622,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-customdeck-density-v26';
+    const SW_BUILD = '2026-04-25-he-trance-customdeck-density-v27';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -977,12 +977,12 @@
         const color = String(cat.color || '#a78bfa').trim();
         const selected = AppState.tranceSelectedCategories.includes(name);
         return `
-          <button onclick="toggleTranceCategory('${name.replace(/'/g, "\\'")}')" class="w-full flex items-center justify-between gap-2 rounded-xl border px-3 py-1.5 transition ${selected ? 'bg-white/12 border-purple-300/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}">
+          <button onclick="toggleTranceCategory('${name.replace(/'/g, "\\'")}')" class="w-full flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1 transition ${selected ? 'bg-white/12 border-purple-300/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}">
             <span class="flex items-center gap-2.5">
               <span class="w-3 h-3 rounded-full" style="background:${escapeHtml(color)}; box-shadow:0 0 10px ${escapeHtml(color)};"></span>
-              <span class="text-white serif-font text-[0.95rem] leading-tight">${escapeHtml(name)}</span>
+              <span class="text-white serif-font text-[0.9rem] leading-none">${escapeHtml(name)}</span>
             </span>
-            <span class="text-[0.68rem] font-mono ${selected ? 'text-purple-200' : 'text-gray-400'}">${selected ? 'נבחר' : 'בחר'}</span>
+            <span class="text-[0.62rem] leading-none font-mono ${selected ? 'text-purple-200' : 'text-gray-400'}">${selected ? 'נבחר' : 'בחר'}</span>
           </button>
         `;
       }).join('');
@@ -998,7 +998,7 @@
             <button onclick="selectAllTranceCategories()" class="px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 text-gray-200 text-xs font-mono hover:bg-white/10 transition">בחר הכל</button>
             <button onclick="clearAllTranceCategories()" class="px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 text-gray-200 text-xs font-mono hover:bg-white/10 transition">נקה הכל</button>
           </div>
-          <div class="px-4 pb-24 overflow-y-auto no-scrollbar space-y-1">${chipsHtml}</div>
+          <div class="px-4 pb-24 overflow-y-auto no-scrollbar space-y-0.5">${chipsHtml}</div>
           <div class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent">
             <button onclick="startTranceCustomDeckSession()" class="w-full py-3 rounded-2xl border border-purple-400/40 bg-purple-500/20 text-white font-bold serif-font hover:bg-purple-500/30 transition">התחל אימון מותאם</button>
           </div>
