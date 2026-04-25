@@ -609,7 +609,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-carousel-canonical-v19';
+    const SW_BUILD = '2026-04-25-he-trance-carousel-global-v20';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -646,6 +646,7 @@
       archetypeView: { cardId: null, fromView: 'all', flipped: false },
       pendingArchetypePoolIds: [],
       tranceFavorites: [],
+      tranceThemes: [],
       tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '' }
     };
     let deferredInstallPrompt = null;
@@ -780,13 +781,36 @@
       const source = (card && card.variations && typeof card.variations === 'object') ? Object.keys(card.variations) : [];
       return source.filter(Boolean);
     }
+    function getTranceAllThemes() {
+      if (Array.isArray(AppState.tranceThemes) && AppState.tranceThemes.length) return AppState.tranceThemes;
+      const set = new Set();
+      const cards = (TRANCE_DATA && Array.isArray(TRANCE_DATA.cards)) ? TRANCE_DATA.cards : [];
+      cards.forEach(card => {
+        const vars = (card && card.variations && typeof card.variations === 'object') ? card.variations : {};
+        Object.keys(vars).forEach(t => {
+          const theme = String(t || '').trim();
+          if (theme) set.add(theme);
+        });
+      });
+      const themes = Array.from(set);
+      if (themes.includes('רגיעה')) {
+        AppState.tranceThemes = ['רגיעה', ...themes.filter(t => t !== 'רגיעה')];
+      } else {
+        AppState.tranceThemes = themes;
+      }
+      return AppState.tranceThemes;
+    }
     function getTranceCardContent(card, theme) {
       if (!card) return [];
       const vars = card.variations && typeof card.variations === 'object' ? card.variations : {};
       const options = Object.keys(vars);
-      const activeTheme = vars[theme] ? theme : (options[0] || '');
-      const value = activeTheme ? vars[activeTheme] : [];
-      return Array.isArray(value) ? value : [String(value || '')];
+      if (options.length) {
+        const activeTheme = vars[theme] ? theme : (options[0] || '');
+        const value = activeTheme ? vars[activeTheme] : [];
+        return Array.isArray(value) ? value : [String(value || '')];
+      }
+      const staticContent = String(card.staticContent || '').trim();
+      return staticContent ? [staticContent] : [];
     }
     function getTrancePatternTokens(card) {
       const fromManifest = Array.isArray(card && card.highlight_tokens) ? card.highlight_tokens : [];
@@ -836,12 +860,13 @@
       }
       const ids = TRANCE_DATA.cards.map(c => String(c.id)).sort(() => Math.random() - 0.5);
       const firstCard = getTranceCardById(ids[0]);
+      const allThemes = getTranceAllThemes();
       const firstThemes = getTranceCurrentThemeOptions(firstCard);
       AppState.tranceView = {
         deckIds: ids,
         index: 0,
         flipped: false,
-        currentTheme: firstThemes[0] || 'רגיעה'
+        currentTheme: firstThemes[0] || allThemes[0] || 'רגיעה'
       };
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-basic');
@@ -854,7 +879,7 @@
         renderTranceLanguageHome(false);
         return;
       }
-      const themeOptions = getTranceCurrentThemeOptions(card);
+      const themeOptions = getTranceAllThemes();
       if (!themeOptions.includes(AppState.tranceView.currentTheme)) {
         AppState.tranceView.currentTheme = themeOptions[0] || 'רגיעה';
       }
