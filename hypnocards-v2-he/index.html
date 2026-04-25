@@ -410,7 +410,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-arc-approval-v1';
+    const SW_BUILD = '2026-04-25-he-archetypes-arc-centered-v2';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -798,9 +798,11 @@
       const angleStart = -74;
       const angleEnd = 74;
       const step = spreadCards.length > 1 ? (angleEnd - angleStart) / (spreadCards.length - 1) : 0;
-      const radius = 278;
-      const centerX = 110;
-      const centerY = 138;
+      // Keep EN motion semantics, but center the arc reliably across screen sizes.
+      const stageWidth = Math.min(Math.max(window.innerWidth - 32, 280), 440);
+      const radius = Math.min(278, stageWidth * 0.62);
+      const centerX = 0;
+      const centerY = Math.min(138, Math.max(118, stageWidth * 0.31));
       const cardsHtml = spreadCards.map((card, i) => {
         const angle = angleStart + (step * i);
         const rad = angle * Math.PI / 180;
