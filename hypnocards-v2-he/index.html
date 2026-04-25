@@ -122,6 +122,28 @@
       border-color: rgba(219, 192, 255, 0.38);
       background: rgba(183, 134, 255, 0.12);
     }
+    .trance-player-card {
+      min-height: 23rem;
+      border-radius: 1.3rem;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .trance-theme-chip {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.75rem;
+      color: rgba(231, 216, 245, 0.92);
+      background: rgba(255, 255, 255, 0.06);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .trance-theme-chip.is-active {
+      border-color: rgba(216, 180, 254, 0.52);
+      background: rgba(168, 85, 247, 0.2);
+      color: #f5ecff;
+    }
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(-360deg); }
@@ -516,12 +538,13 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-about-full-v11';
+    const SW_BUILD = '2026-04-25-he-trance-basicdeck-v12';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
     const ARCHETYPE_FAVORITES_KEY = 'archetype_favorites_v1';
     const ARCHETYPE_DECK_KEYS_KEY = 'archetype_deck_keys_v1';
+    const TRANCE_FAVORITES_KEY = 'trance_favorites_v1';
     const ARCHETYPE_CARD_BACK = './archetypes-he/archetype-card-back.webp';
     const ARCHETYPE_MANIFEST_PATHS = [
       './archetypes-he/archetypes-he-manifest.json',
@@ -535,15 +558,24 @@
       'trance-he/about-copy-he.json',
       'hypnocards-v2-he/trance-he/about-copy-he.json'
     ];
+    const TRANCE_LEGACY_HTML_PATHS = [
+      './דפוסי שפה עברית/index.html',
+      './hypnocards-v2-he/דפוסי שפה עברית/index.html',
+      'דפוסי שפה עברית/index.html',
+      'hypnocards-v2-he/דפוסי שפה עברית/index.html'
+    ];
     const ARCHETYPE_ARC_APPROVAL_MODE = false;
     let ARCHETYPES_DATA = [];
     let TRANCE_ABOUT_DATA = null;
+    let TRANCE_DATA = null;
     const AppState = {
       plannerSessions: [],
       archetypeFavorites: [],
       selectedArchetypeDeckKeys: [],
       archetypeView: { cardId: null, fromView: 'all', flipped: false },
-      pendingArchetypePoolIds: []
+      pendingArchetypePoolIds: [],
+      tranceFavorites: [],
+      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '' }
     };
     let deferredInstallPrompt = null;
     let currentSwReg = null;
@@ -562,6 +594,7 @@
 
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
     AppState.selectedArchetypeDeckKeys = readStoredArray(ARCHETYPE_DECK_KEYS_KEY);
+    AppState.tranceFavorites = readStoredArray(TRANCE_FAVORITES_KEY);
 
     function pushArchetypesHistory(screen, extra = {}) {
       try {
@@ -642,6 +675,172 @@
       }
       return false;
     }
+    function parseLegacyTranceEmbeddedData(htmlText) {
+      const match = String(htmlText || '').match(/const EMBEDDED_DATA = JSON\.parse\(`([\s\S]*?)`\);/);
+      if (!match || !match[1]) return null;
+      try {
+        return JSON.parse(match[1]);
+      } catch (_) {
+        return null;
+      }
+    }
+    async function ensureTranceDataLoaded() {
+      if (TRANCE_DATA && Array.isArray(TRANCE_DATA.cards) && TRANCE_DATA.cards.length) return true;
+      for (const path of TRANCE_LEGACY_HTML_PATHS) {
+        try {
+          const res = await fetch(path, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const html = await res.text();
+          const data = parseLegacyTranceEmbeddedData(html);
+          if (!data || !Array.isArray(data.cards) || data.cards.length === 0) continue;
+          TRANCE_DATA = data;
+          const validIds = new Set(data.cards.map(c => String(c.id)));
+          AppState.tranceFavorites = (AppState.tranceFavorites || []).filter(id => validIds.has(String(id)));
+          try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
+          return true;
+        } catch (_) {}
+      }
+      return false;
+    }
+    function getTranceCardById(cardId) {
+      if (!TRANCE_DATA || !Array.isArray(TRANCE_DATA.cards)) return null;
+      return TRANCE_DATA.cards.find(c => String(c.id) === String(cardId)) || null;
+    }
+    function getTranceCurrentCard() {
+      const ids = Array.isArray(AppState.tranceView.deckIds) ? AppState.tranceView.deckIds : [];
+      if (!ids.length) return null;
+      const i = Math.max(0, Math.min(ids.length - 1, Number(AppState.tranceView.index || 0)));
+      return getTranceCardById(ids[i]);
+    }
+    function getTranceCurrentThemeOptions(card) {
+      const source = (card && card.variations && typeof card.variations === 'object') ? Object.keys(card.variations) : [];
+      return source.filter(Boolean);
+    }
+    function getTranceCardContent(card, theme) {
+      if (!card) return [];
+      const vars = card.variations && typeof card.variations === 'object' ? card.variations : {};
+      const options = Object.keys(vars);
+      const activeTheme = vars[theme] ? theme : (options[0] || '');
+      const value = activeTheme ? vars[activeTheme] : [];
+      return Array.isArray(value) ? value : [String(value || '')];
+    }
+    async function renderTranceBasicDeck(pushHistory = true) {
+      const loaded = await ensureTranceDataLoaded();
+      if (!loaded || !TRANCE_DATA || !Array.isArray(TRANCE_DATA.cards) || !TRANCE_DATA.cards.length) {
+        alert('לא ניתן לטעון את חפיסת הטראנס כרגע. נסו שוב בעוד רגע.');
+        return;
+      }
+      const ids = TRANCE_DATA.cards.map(c => String(c.id)).sort(() => Math.random() - 0.5);
+      const firstCard = getTranceCardById(ids[0]);
+      const firstThemes = getTranceCurrentThemeOptions(firstCard);
+      AppState.tranceView = {
+        deckIds: ids,
+        index: 0,
+        flipped: false,
+        currentTheme: firstThemes[0] || 'רגיעה'
+      };
+      renderTrancePlayer(false);
+      if (pushHistory) pushTranceHistory('hypno-basic');
+    }
+    function renderTrancePlayer(pushHistory = true) {
+      const card = getTranceCurrentCard();
+      if (!card) {
+        alert('לא נמצאו קלפים להצגה.');
+        renderTranceLanguageHome(false);
+        return;
+      }
+      const themeOptions = getTranceCurrentThemeOptions(card);
+      if (!themeOptions.includes(AppState.tranceView.currentTheme)) {
+        AppState.tranceView.currentTheme = themeOptions[0] || AppState.tranceView.currentTheme || 'רגיעה';
+      }
+      const contentRows = getTranceCardContent(card, AppState.tranceView.currentTheme)
+        .map(line => `<p class="text-gray-200 serif-font text-base leading-relaxed mb-3">${escapeHtml(line)}</p>`)
+        .join('');
+      const total = AppState.tranceView.deckIds.length;
+      const current = Number(AppState.tranceView.index || 0) + 1;
+      const isFav = AppState.tranceFavorites.includes(String(card.id));
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="flex flex-col h-full bg-[#050408] min-h-0">
+          <div class="p-4 pt-6 flex items-center justify-between gap-3">
+            <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
+            <div class="text-gray-300 text-xs font-mono">${current} / ${total}</div>
+            <button onclick="toggleTranceFavorite()" class="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-200 text-xs font-mono touch-manipulation">${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}</button>
+          </div>
+          <div class="px-4 pb-3 flex flex-wrap gap-2 justify-center">
+            ${themeOptions.map(theme => `<button onclick="setTranceTheme('${String(theme).replace(/'/g, "\\'")}')" class="trance-theme-chip ${AppState.tranceView.currentTheme === theme ? 'is-active' : ''}">${escapeHtml(theme)}</button>`).join('')}
+          </div>
+          <div class="flex-1 min-h-0 px-4 pb-4">
+            <div class="trance-player-card h-full flex flex-col">
+              <button onclick="toggleTranceFlip()" class="w-full h-full text-right p-5 overflow-y-auto no-scrollbar">
+                ${AppState.tranceView.flipped ? `
+                  <div class="mb-3">
+                    <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-1">תמה: ${escapeHtml(AppState.tranceView.currentTheme || '')}</p>
+                    <h3 class="text-2xl text-white serif-font font-bold leading-tight">${escapeHtml(card.pattern || '')}</h3>
+                    <p class="text-sm text-purple-200 mt-1">${escapeHtml(card.category || '')}</p>
+                  </div>
+                  <div class="pt-2">${contentRows}</div>
+                ` : `
+                  <div class="h-full flex flex-col items-center justify-center text-center">
+                    <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-2">מבנה הדפוס</p>
+                    <h3 class="text-3xl text-white serif-font font-bold leading-tight max-w-[22ch]">${escapeHtml(card.pattern || '')}</h3>
+                    <p class="text-purple-200 mt-4 text-sm">${escapeHtml(card.category || '')}</p>
+                    <p class="text-gray-400 mt-5 text-xs font-mono">לחצו כדי לפתוח דוגמאות</p>
+                  </div>
+                `}
+              </button>
+            </div>
+          </div>
+          <div class="px-4 pb-6 grid grid-cols-2 gap-2">
+            <button onclick="prevTranceCard()" class="py-3 rounded-2xl border border-white/15 text-gray-200 text-sm font-mono hover:bg-white/10 transition">הקודם</button>
+            <button onclick="nextTranceCard()" class="py-3 rounded-2xl border border-white/15 text-gray-200 text-sm font-mono hover:bg-white/10 transition">הבא</button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      heShellSyncModuleQuery('hypno');
+      if (pushHistory) pushTranceHistory('hypno-basic');
+    }
+    function toggleTranceFlip() {
+      AppState.tranceView.flipped = !AppState.tranceView.flipped;
+      renderTrancePlayer(false);
+    }
+    function setTranceTheme(theme) {
+      AppState.tranceView.currentTheme = String(theme || '').trim();
+      AppState.tranceView.flipped = true;
+      renderTrancePlayer(false);
+    }
+    function nextTranceCard() {
+      const total = (AppState.tranceView.deckIds || []).length;
+      if (!total) return;
+      AppState.tranceView.index = (Number(AppState.tranceView.index || 0) + 1) % total;
+      AppState.tranceView.flipped = false;
+      const card = getTranceCurrentCard();
+      const themes = getTranceCurrentThemeOptions(card);
+      if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
+      renderTrancePlayer(false);
+    }
+    function prevTranceCard() {
+      const total = (AppState.tranceView.deckIds || []).length;
+      if (!total) return;
+      const i = Number(AppState.tranceView.index || 0) - 1;
+      AppState.tranceView.index = i < 0 ? total - 1 : i;
+      AppState.tranceView.flipped = false;
+      const card = getTranceCurrentCard();
+      const themes = getTranceCurrentThemeOptions(card);
+      if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
+      renderTrancePlayer(false);
+    }
+    function toggleTranceFavorite() {
+      const card = getTranceCurrentCard();
+      if (!card) return;
+      const id = String(card.id);
+      const idx = AppState.tranceFavorites.indexOf(id);
+      if (idx >= 0) AppState.tranceFavorites.splice(idx, 1);
+      else AppState.tranceFavorites.unshift(id);
+      try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
+      renderTrancePlayer(false);
+    }
     function tranceSectionBodyToHtml(section) {
       const paragraphs = Array.isArray(section.paragraphs)
         ? section.paragraphs.map(p => `<p class="text-gray-300 serif-font text-base leading-relaxed">${escapeHtml(p)}</p>`).join('')
@@ -708,7 +907,7 @@
 
           <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-start md:justify-center">
             <div class="space-y-3">
-              <button onclick="tranceMainMenuPlaceholder('חפיסה בסיסית')" class="trance-main-card">
+              <button onclick="renderTranceBasicDeck()" class="trance-main-card">
                 <h3 class="trance-main-card-title">חפיסה בסיסית</h3>
                 <p class="trance-main-card-note">חפיסה מאוזנת ללא נושאים מתקדמים (טריגרים, העמקות ועוד).</p>
               </button>
@@ -1956,7 +2155,7 @@
       return blocks.join('\n\n');
     }
     async function preloadShellEssentials() {
-      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS];
+      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_LEGACY_HTML_PATHS];
       await Promise.allSettled(
         paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
       );
@@ -2031,6 +2230,7 @@
       }
       if (state.module === 'hypno') {
         if (state.screen === 'hypno-about') { renderTranceAbout(false); return; }
+        if (state.screen === 'hypno-basic') { renderTrancePlayer(false); return; }
         renderTranceLanguageHome(false);
         return;
       }
