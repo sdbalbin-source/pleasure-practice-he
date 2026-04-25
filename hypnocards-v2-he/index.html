@@ -622,7 +622,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-customdeck-transparent-v30';
+    const SW_BUILD = '2026-04-25-he-trance-customdeck-halftransparent-v31';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -977,7 +977,7 @@
         const color = String(cat.color || '#a78bfa').trim();
         const selected = AppState.tranceSelectedCategories.includes(name);
         return `
-          <button onclick="toggleTranceCategory('${name.replace(/'/g, "\\'")}')" class="w-full flex items-center justify-start gap-3 rounded-lg border px-3 py-1.5 transition ${selected ? 'bg-transparent border-purple-300/70' : 'bg-transparent border-white/20 hover:border-white/40'}">
+          <button onclick="toggleTranceCategory('${name.replace(/'/g, "\\'")}')" class="inline-flex max-w-full items-center justify-start gap-3 rounded-lg border px-3 py-1.5 transition ${selected ? 'bg-black/50 border-purple-300/70' : 'bg-black/50 border-white/20 hover:border-white/40'}">
             <span class="inline-flex items-center justify-center min-w-[2.6rem] h-6 px-2 rounded-full border text-[0.72rem] leading-none font-mono ${selected ? 'text-purple-200 border-purple-300/70 bg-purple-500/10' : 'text-gray-400 border-white/20 bg-transparent'}">${selected ? 'נבחר' : 'בחר'}</span>
             <span class="flex items-center gap-2.5">
               <span class="w-3 h-3 rounded-full" style="background:${escapeHtml(color)}; box-shadow:0 0 10px ${escapeHtml(color)};"></span>
@@ -1001,7 +1001,7 @@
             </div>
           </div>
           <div class="px-4 pb-24 overflow-y-auto no-scrollbar space-y-0.5">
-            <div class="w-full max-w-3xl mx-auto space-y-0.5">${chipsHtml}</div>
+            <div class="w-full max-w-3xl mx-auto flex flex-col items-end gap-0.5">${chipsHtml}</div>
           </div>
           <div class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/70 via-black/35 to-transparent">
             <div class="w-full max-w-3xl mx-auto">
