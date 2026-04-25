@@ -494,6 +494,14 @@
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
     AppState.selectedArchetypeDeckKeys = readStoredArray(ARCHETYPE_DECK_KEYS_KEY);
 
+    function pushArchetypesHistory(screen, extra = {}) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'archetypes');
+        history.pushState({ screen, module: 'archetypes', ...extra }, '', url.toString());
+      } catch (_) {}
+    }
+
     function resolveArchetypeImageUrl(imagePath) {
       const raw = String(imagePath || '').trim();
       if (!raw) return '';
@@ -564,7 +572,7 @@
       `;
       await runDiagnostics(false);
     }
-    function renderArchetypesHome() {
+    function renderArchetypesHome(pushHistory = true) {
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
@@ -595,6 +603,7 @@
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('archetypes');
+      if (pushHistory) pushArchetypesHistory('archetypes-home');
     }
     async function ensureArchetypesDataLoaded() {
       if (ARCHETYPES_DATA.length) return true;
@@ -629,7 +638,7 @@
       }
       startArchetypeSpreadDraw(ARCHETYPES_DATA, 'random');
     }
-    async function renderArchetypeDeckBuilder() {
+    async function renderArchetypeDeckBuilder(pushHistory = true) {
       const loaded = await ensureArchetypesDataLoaded();
       if (!loaded) {
         alert('לא ניתן לטעון את נתוני הארכיטיפים כרגע. נסו שוב בעוד רגע.');
@@ -680,8 +689,9 @@
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('archetypes');
+      if (pushHistory) pushArchetypesHistory('archetypes-deck');
     }
-    async function renderArchetypesList() {
+    async function renderArchetypesList(pushHistory = true) {
       const loaded = await ensureArchetypesDataLoaded();
       if (!loaded) {
         alert('לא ניתן לטעון את נתוני הארכיטיפים כרגע. נסו שוב בעוד רגע.');
@@ -704,7 +714,7 @@
                   <button onpointerdown="startArchetypeListTap('${card.id}', event)" onpointerup="finishArchetypeListTap('${card.id}', event)" onpointercancel="cancelArchetypeListTap()" ontouchstart="startArchetypeListTap('${card.id}', event)" ontouchend="finishArchetypeListTap('${card.id}', event)" ontouchcancel="cancelArchetypeListTap()" class="text-right flex-1 touch-manipulation">
                     <div class="text-white font-bold serif-font text-lg">${escapeHtmlArchetype(card.name)}</div>
                   </button>
-                  <button onclick="event.stopPropagation(); toggleArchetypeFavorite('${card.id}'); renderArchetypesList();" class="text-2xl leading-none ${AppState.archetypeFavorites.includes(card.id) ? 'text-amber-300' : 'text-gray-500'}">
+                  <button onclick="event.stopPropagation(); toggleArchetypeFavorite('${card.id}'); renderArchetypesList(false);" class="text-2xl leading-none ${AppState.archetypeFavorites.includes(card.id) ? 'text-amber-300' : 'text-gray-500'}">
                     ${AppState.archetypeFavorites.includes(card.id) ? '&#9733;' : '&#9734;'}
                   </button>
                 </div>
@@ -724,6 +734,7 @@
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('archetypes');
+      if (pushHistory) pushArchetypesHistory('archetypes-list');
     }
 
     function toggleArchetypeFavorite(cardId) {
@@ -779,19 +790,19 @@
         AppState.selectedArchetypeDeckKeys.push(key);
       }
       try { localStorage.setItem(ARCHETYPE_DECK_KEYS_KEY, JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (_) {}
-      renderArchetypeDeckBuilder();
+      renderArchetypeDeckBuilder(false);
     }
 
     function selectAllArchetypeDeckKeys() {
       AppState.selectedArchetypeDeckKeys = ['__favorites__', ...getArchetypeRealms()];
       try { localStorage.setItem(ARCHETYPE_DECK_KEYS_KEY, JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (_) {}
-      renderArchetypeDeckBuilder();
+      renderArchetypeDeckBuilder(false);
     }
 
     function clearAllArchetypeDeckKeys() {
       AppState.selectedArchetypeDeckKeys = [];
       try { localStorage.setItem(ARCHETYPE_DECK_KEYS_KEY, JSON.stringify(AppState.selectedArchetypeDeckKeys)); } catch (_) {}
-      renderArchetypeDeckBuilder();
+      renderArchetypeDeckBuilder(false);
     }
 
     function getCustomArchetypePool() {
@@ -818,7 +829,7 @@
 
     function toggleArchetypeFlip() {
       AppState.archetypeView.flipped = !AppState.archetypeView.flipped;
-      if (AppState.archetypeView.cardId) renderArchetypeCard(AppState.archetypeView.cardId, AppState.archetypeView.fromView);
+      if (AppState.archetypeView.cardId) renderArchetypeCard(AppState.archetypeView.cardId, AppState.archetypeView.fromView, false);
     }
 
     function playArchetypeShuffleThen(callback) {
@@ -839,10 +850,11 @@
       return pool.slice(0, Math.min(count, pool.length));
     }
 
-    function openArchetypeTarotSpread() {
+    function openArchetypeTarotSpread(pushHistory = true) {
       const app = document.getElementById('app');
       const layer = document.createElement('div');
       layer.className = 'archetype-spread-overlay';
+      if (pushHistory) pushArchetypesHistory('archetypes-spread', { fromView: AppState.archetypeView.fromView || 'random' });
       const spreadCards = pickArchetypeSpreadCards(15);
       if (!spreadCards.length) return;
       const angleStart = -74;
@@ -963,7 +975,7 @@
       }
     }
 
-    function renderArchetypeCard(cardId, fromView) {
+    function renderArchetypeCard(cardId, fromView, pushHistory = true) {
       const card = ARCHETYPES_DATA.find(c => c.id === cardId);
       if (!card) return;
       if (AppState.archetypeView.cardId !== cardId) AppState.archetypeView = { cardId, fromView, flipped: false };
@@ -986,7 +998,7 @@
             <div class="archetype-perspective flex-1 flex items-center justify-center min-h-0">
               <div class="w-full max-w-[26rem] mx-auto">
                 <div class="flex justify-center mb-3">
-                  <button onclick="toggleArchetypeFavorite('${card.id}'); renderArchetypeCard('${card.id}','${fromView}')" class="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-200 text-xs font-mono touch-manipulation">${isFav ? '&#9733; במועדפים' : '&#9734; הוספה למועדפים'}</button>
+                  <button onclick="toggleArchetypeFavorite('${card.id}'); renderArchetypeCard('${card.id}','${fromView}',false)" class="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-200 text-xs font-mono touch-manipulation">${isFav ? '&#9733; במועדפים' : '&#9734; הוספה למועדפים'}</button>
                 </div>
                 <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '||event.key==='Space'||event.key==='Spacebar'){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner cursor-pointer touch-manipulation ${flipped ? 'is-flipped' : ''}">
                   <div class="archetype-face bg-black">
@@ -1020,8 +1032,9 @@
           </div>
         </div>`;
       lucide.createIcons();
+      if (pushHistory) pushArchetypesHistory('archetypes-card', { cardId, fromView });
     }
-    function showArchetypesAbout() {
+    function showArchetypesAbout(pushHistory = true) {
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
@@ -1135,6 +1148,7 @@
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('archetypes');
+      if (pushHistory) pushArchetypesHistory('archetypes-about');
     }
     function openPlanner() { renderKinkyScenePlannerHome(); }
     function listPlannerSessions() {
@@ -1749,7 +1763,20 @@
       history.replaceState({ screen: 'welcome' }, '', url.toString());
     }
 
-    window.addEventListener('popstate', () => {
+    window.addEventListener('popstate', (event) => {
+      const state = event.state || {};
+      if (state.module === 'archetypes') {
+        if (state.screen === 'archetypes-home') { renderArchetypesHome(false); return; }
+        if (state.screen === 'archetypes-deck') { renderArchetypeDeckBuilder(false); return; }
+        if (state.screen === 'archetypes-list') { renderArchetypesList(false); return; }
+        if (state.screen === 'archetypes-about') { showArchetypesAbout(false); return; }
+        if (state.screen === 'archetypes-card') { renderArchetypeCard(state.cardId, state.fromView || 'random', false); return; }
+        if (state.screen === 'archetypes-spread') {
+          AppState.archetypeView.fromView = state.fromView || 'random';
+          openArchetypeTarotSpread(false);
+          return;
+        }
+      }
       const params = new URLSearchParams(window.location.search);
       const moduleName = params.get('module');
       if (moduleName === 'planner') {
@@ -1757,7 +1784,7 @@
         return;
       }
       if (moduleName === 'archetypes') {
-        renderArchetypesHome();
+        renderArchetypesHome(false);
         return;
       }
       if (moduleName === 'hypno') {
