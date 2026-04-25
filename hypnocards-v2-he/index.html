@@ -454,7 +454,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-mobile-arc-v5';
+    const SW_BUILD = '2026-04-25-he-archetypes-edge-draw-v6';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -943,7 +943,11 @@
         const onUp = (ev) => {
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
           el.classList.remove('is-dragging');
-          if (outShift > 66) {
+          // Edge cards are harder to pull outward on mobile screen borders,
+          // so reduce threshold progressively by side angle while keeping center cards strict.
+          const sideWeight = Math.min(1, Math.abs(baseRot) / 41.5);
+          const revealThreshold = Math.max(44, 66 - (sideWeight * 18));
+          if (outShift > revealThreshold) {
             chooseCard();
           } else {
             el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.2,1)';
