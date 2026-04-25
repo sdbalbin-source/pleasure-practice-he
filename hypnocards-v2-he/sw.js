@@ -1,5 +1,5 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v31';
+const CACHE = 'pleasure-he-v32';
 const ASSETS = [
   './',
   './index.html',
