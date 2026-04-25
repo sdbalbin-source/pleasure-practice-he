@@ -545,6 +545,15 @@
       background: rgba(255, 255, 255, 0.16);
       border-color: rgba(255, 255, 255, 0.34);
     }
+    .recording-pulse {
+      animation: pulseRed 1.5s infinite;
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+    @keyframes pulseRed {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+      50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    }
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
@@ -629,6 +638,7 @@
     const ARCHETYPE_FAVORITES_KEY = 'archetype_favorites_v1';
     const ARCHETYPE_DECK_KEYS_KEY = 'archetype_deck_keys_v1';
     const TRANCE_FAVORITES_KEY = 'trance_favorites_v1';
+    const TRANCE_RECORDINGS_KEY = 'he_recordings_v4';
     const ARCHETYPE_CARD_BACK = './archetypes-he/archetype-card-back.webp';
     const ARCHETYPE_MANIFEST_PATHS = [
       './archetypes-he/archetypes-he-manifest.json',
@@ -659,6 +669,8 @@
       archetypeView: { cardId: null, fromView: 'all', flipped: false },
       pendingArchetypePoolIds: [],
       tranceFavorites: [],
+      tranceRecordings: [],
+      tranceIsRecording: false,
       tranceThemes: [],
       tranceSelectedCategories: [],
       tranceMode: 'all',
@@ -682,6 +694,7 @@
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
     AppState.selectedArchetypeDeckKeys = readStoredArray(ARCHETYPE_DECK_KEYS_KEY);
     AppState.tranceFavorites = readStoredArray(TRANCE_FAVORITES_KEY);
+    AppState.tranceRecordings = readStoredArray(TRANCE_RECORDINGS_KEY);
 
     function pushArchetypesHistory(screen, extra = {}) {
       try {
@@ -1066,6 +1079,62 @@
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-custom', { selectedCategories: [...selected] });
     }
+    function renderTranceRecordings(pushHistory = true) {
+      const app = document.getElementById('app');
+      const listHtml = AppState.tranceRecordings.length
+        ? AppState.tranceRecordings.map(rec => `
+            <div class="bg-white/5 border border-white/10 p-4 rounded-xl flex justify-between items-center mb-3">
+              <div>
+                <div class="text-white font-bold serif-font">${escapeHtml(rec.name)}</div>
+                <div class="text-xs text-gray-500">${escapeHtml(rec.date)} • ${escapeHtml(rec.theme)}</div>
+              </div>
+              <div class="p-2 bg-purple-600/20 text-purple-400 rounded-full"><i data-lucide="play" width="16"></i></div>
+            </div>`).join('')
+        : '<div class="text-center text-gray-500 mt-10">אין עדיין הקלטות שמורות</div>';
+
+      app.innerHTML = `
+        <div class="flex flex-col h-full p-6 bg-[#0f0c15]">
+          <div class="flex justify-between items-center mb-8 pt-4">
+            <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
+            <h2 class="text-2xl font-bold text-white serif-font">ההקלטות שלי</h2>
+            <div class="w-8"></div>
+          </div>
+          <div class="overflow-y-auto no-scrollbar pb-10">${listHtml}</div>
+        </div>
+      `;
+      lucide.createIcons();
+      heShellSyncModuleQuery('hypno');
+      if (pushHistory) pushTranceHistory('hypno-recordings');
+    }
+    function toggleTranceRecording() {
+      AppState.tranceIsRecording = !AppState.tranceIsRecording;
+      const btn = document.getElementById('trance-record-btn');
+      if (!btn) return;
+      if (AppState.tranceIsRecording) {
+        btn.classList.replace('bg-purple-600', 'bg-red-500/10');
+        btn.classList.add('recording-pulse', 'border', 'border-red-500');
+        btn.innerHTML = '<i data-lucide="square"></i>';
+        lucide.createIcons();
+      } else {
+        const card = getTranceCurrentCard();
+        const fallbackTheme = AppState.tranceView.currentTheme || 'רגיעה';
+        const name = prompt('שמור הקלטה בשם:', `${card.pattern} - ${fallbackTheme}`);
+        if (name) {
+          AppState.tranceRecordings.unshift({
+            id: Date.now(),
+            name: String(name),
+            date: new Date().toLocaleDateString(),
+            pattern: String(card.pattern || ''),
+            theme: String(fallbackTheme)
+          });
+          try { localStorage.setItem(TRANCE_RECORDINGS_KEY, JSON.stringify(AppState.tranceRecordings)); } catch (_) {}
+        }
+        btn.classList.replace('bg-red-500/10', 'bg-purple-600');
+        btn.classList.remove('recording-pulse', 'border', 'border-red-500');
+        btn.innerHTML = '<i data-lucide="mic"></i>';
+        lucide.createIcons();
+      }
+    }
     let tranceCardFlipped = false;
     function renderTrancePlayer(pushHistory = true) {
       const card = getTranceCurrentCard();
@@ -1131,12 +1200,13 @@
             <button onclick="shiftTranceTheme(1)" class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-gray-300 hover:bg-white/10"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
           </div>
           <div class="p-6 pb-8 flex items-center justify-center z-20 bg-gradient-to-t from-black/90 to-transparent shrink-0">
-            <button class="p-5 rounded-full bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all transform hover:scale-105 active:scale-95">
+            <button id="trance-record-btn" onclick="toggleTranceRecording()" data-tip="סמן לתרגול" class="p-5 rounded-full bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all transform hover:scale-105 active:scale-95">
               <i data-lucide="mic"></i>
             </button>
           </div>
         </div>
       `;
+      AppState.tranceIsRecording = false;
       tranceCardFlipped = false;
       AppState.tranceView.flipped = false;
       lucide.createIcons();
@@ -1370,9 +1440,9 @@
                 <p class="trance-main-card-note">בחירת קטגוריות ממוקדות לתרגול, למשל: טריגר וורדס או משכנעים.</p>
               </button>
 
-              <button onclick="alert('ההקלטות שלי יתחברו בשלב הבא.')" class="trance-main-card">
+              <button onclick="renderTranceRecordings()" class="trance-main-card">
                 <h3 class="trance-main-card-title">ההקלטות שלי</h3>
-                <p class="trance-main-card-note">גישה מהירה להקלטות שמורות מתוך המודול.</p>
+                <p class="trance-main-card-note">גישה מהירה להקלטות שמורות מתוך המודול (${AppState.tranceRecordings.length}).</p>
               </button>
             </div>
           </div>
@@ -2683,6 +2753,7 @@
       }
       if (state.module === 'hypno') {
         if (state.screen === 'hypno-about') { renderTranceAbout(false); return; }
+        if (state.screen === 'hypno-recordings') { renderTranceRecordings(false); return; }
         if (state.screen === 'hypno-custom-builder') { renderTranceCustomDeckBuilder(false); return; }
         if (state.screen === 'hypno-custom') { renderTrancePlayer(false); return; }
         if (state.screen === 'hypno-basic') { renderTrancePlayer(false); return; }
