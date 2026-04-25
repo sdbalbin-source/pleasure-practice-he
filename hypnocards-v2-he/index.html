@@ -928,7 +928,7 @@
           <div class="flex-1 flex flex-col min-h-0 px-4 pb-6">
             <div class="archetype-perspective flex-1 flex items-center justify-center min-h-0">
               <div class="w-full max-w-[26rem] mx-auto">
-                <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner cursor-pointer touch-manipulation ${flipped ? 'is-flipped' : ''}">
+                <div role="button" tabindex="0" onclick="toggleArchetypeFlip()" onkeydown="if(event.key==='Enter'||event.key===' '||event.key==='Space'||event.key==='Spacebar'){event.preventDefault();toggleArchetypeFlip();}" class="archetype-flip-inner cursor-pointer touch-manipulation ${flipped ? 'is-flipped' : ''}">
                   <div class="archetype-face bg-black">
                     <div class="absolute inset-0 bg-no-repeat bg-center bg-contain" style="background-image:url('${frontBgUrl}')"></div>
                     ${useFaceImage ? '' : '<div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>'}
