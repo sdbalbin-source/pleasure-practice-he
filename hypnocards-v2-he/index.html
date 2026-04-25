@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-english-parity-v39';
+    const SW_BUILD = '2026-04-25-he-trance-recordings-transparent-bg-v40';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1248,7 +1248,7 @@
         : '<div class="text-center text-gray-500 mt-10">אין עדיין הקלטות שמורות</div>';
 
       app.innerHTML = `
-        <div class="flex flex-col h-full p-4 md:p-6 bg-[#0f0c15]">
+        <div class="flex flex-col h-full p-4 md:p-6 bg-transparent">
           <div class="flex justify-between items-center mb-4 pt-2">
             <button onclick="closeTrancePlaybackModal(); renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">ההקלטות שלי</h2>
