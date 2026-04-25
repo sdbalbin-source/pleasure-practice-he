@@ -454,7 +454,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-edge-draw-v7';
+    const SW_BUILD = '2026-04-25-he-archetypes-edge-draw-v8';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -871,9 +871,6 @@
       app.appendChild(layer);
       const stage = layer.querySelector('.archetype-spread-stage');
       let selected = false;
-      const stageRect = layer.getBoundingClientRect();
-      const originX = stageRect.left + stageRect.width / 2;
-      const originY = stageRect.top + stageRect.height * 0.7;
       const cards = Array.from(layer.querySelectorAll('.archetype-spread-card'));
       cards.forEach((el, i) => {
         const targetX = Number(el.dataset.x || 0);
@@ -891,7 +888,7 @@
         let pointerId = null;
         let startX = 0;
         let startY = 0;
-        let outShift = 0;
+        let pullDistance = 0;
         const applyTransform = (offsetX, offsetY, lift = 0, twist = 0) => {
           el.style.transform = `translate3d(${baseX + offsetX}px, ${baseY + offsetY - lift}px, 0) rotate(${baseRot + twist}deg)`;
         };
@@ -900,7 +897,7 @@
           pointerId = ev.pointerId;
           startX = ev.clientX;
           startY = ev.clientY;
-          outShift = 0;
+          pullDistance = 0;
           el.classList.add('is-dragging');
           el.setPointerCapture(pointerId);
         };
@@ -908,19 +905,10 @@
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
           const dx = ev.clientX - startX;
           const dy = ev.clientY - startY;
-          const cardCenterX = originX + baseX;
-          const cardCenterY = originY + baseY;
-          const vx = cardCenterX - originX;
-          const vy = cardCenterY - originY;
-          const vlen = Math.hypot(vx, vy) || 1;
-          const ux = vx / vlen;
-          const uy = vy / vlen;
-          outShift = Math.max(0, dx * ux + dy * uy);
-          const damp = Math.min(outShift, 125);
-          const offsetX = dx * 0.18 + (ux * damp);
-          const offsetY = dy * 0.18 + (uy * damp);
-          const twist = (dx * 0.02) + (baseRot > 0 ? 2 : -2);
-          applyTransform(offsetX, offsetY, 6 + (damp * 0.07), twist);
+          // Make the card follow finger/mouse directly for reliable edge pulls.
+          pullDistance = Math.hypot(dx, dy);
+          const twist = dx * 0.035;
+          applyTransform(dx, dy, 8, twist);
         };
         const chooseCard = () => {
           selected = true;
@@ -943,11 +931,10 @@
         const onUp = (ev) => {
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
           el.classList.remove('is-dragging');
-          // Edge cards are harder to pull outward on mobile screen borders,
-          // so reduce threshold progressively by side angle while keeping center cards strict.
+          // Side cards need a lower threshold on narrow mobile screens.
           const sideWeight = Math.min(1, Math.abs(baseRot) / 41.5);
-          const revealThreshold = Math.max(22, 66 - (sideWeight * 42));
-          if (outShift > revealThreshold) {
+          const revealThreshold = Math.max(28, 52 - (sideWeight * 20));
+          if (pullDistance > revealThreshold) {
             chooseCard();
           } else {
             el.style.transition = 'transform 0.28s cubic-bezier(0.2,0.8,0.2,1)';
