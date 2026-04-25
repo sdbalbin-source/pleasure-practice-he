@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-controls-v36';
+    const SW_BUILD = '2026-04-25-he-trance-recordings-parity-v37';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1198,6 +1198,7 @@
       renderTranceRecordings(false);
     }
     function renderTranceRecordings(pushHistory = true) {
+      closeTrancePlaybackModal();
       const app = document.getElementById('app');
       const listHtml = AppState.tranceRecordings.length
         ? AppState.tranceRecordings.map(rec => `
@@ -1230,7 +1231,7 @@
             <h2 class="text-2xl font-bold text-white serif-font">ההקלטות שלי</h2>
             <div class="w-8"></div>
           </div>
-          <div class="overflow-y-auto no-scrollbar pb-10 max-w-3xl w-full mx-auto">${listHtml}</div>
+          <div class="overflow-y-auto no-scrollbar pb-10 max-w-2xl w-full mx-auto">${listHtml}</div>
         </div>
       `;
       lucide.createIcons();
@@ -1305,6 +1306,7 @@
     }
     let tranceCardFlipped = false;
     function renderTrancePlayer(pushHistory = true) {
+      closeTrancePlaybackModal();
       const card = getTranceCurrentCard();
       if (!card) {
         alert('לא נמצאו קלפים להצגה.');
@@ -1590,6 +1592,7 @@
       `;
     }
     function renderTranceLanguageHome(pushHistory = true) {
+      closeTrancePlaybackModal();
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="trance-main-shell">
