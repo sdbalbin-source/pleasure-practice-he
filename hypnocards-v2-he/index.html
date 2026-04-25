@@ -122,28 +122,90 @@
       border-color: rgba(219, 192, 255, 0.38);
       background: rgba(183, 134, 255, 0.12);
     }
-    .trance-player-card {
-      min-height: 23rem;
-      border-radius: 1.3rem;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
-      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      overflow: hidden;
+    .trance-card-shell { perspective: 1200px; width: 100%; height: 100%; padding: 0 2.5rem 2rem; position: relative; }
+    .trance-card-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .trance-theme-chip {
-      border: 1px solid rgba(255, 255, 255, 0.18);
+    .trance-card-face,
+    .trance-card-face-back {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 1.5rem;
+      display: flex; flex-direction: column; overflow: hidden;
+      border: 2px solid transparent;
+    }
+    .trance-card-face-back {
+      transform: rotateY(180deg);
+      background: rgba(20, 10, 40, 0.97);
+      box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.8);
+    }
+    .trance-card-header-fixed {
+      min-height: 6.6rem;
+      text-align: center;
+      padding: 1.25rem 1rem 0.8rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+    .trance-card-scroll-area {
+      flex: 1; min-height: 0;
+      overflow-y: auto;
+      padding: 1rem 1.25rem 1.2rem;
+      text-align: center;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    }
+    .trance-card-scroll-area::-webkit-scrollbar { width: 6px; }
+    .trance-card-scroll-area::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.22); border-radius: 10px; }
+    .trance-example-divider {
+      display: block;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.15), transparent);
+      margin: 1.1rem auto;
+      width: 60%;
+    }
+    .trance-info-btn {
+      position: absolute; top: 12px; inset-inline-end: 12px;
+      width: 30px; height: 30px; border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(15, 12, 24, 0.8);
+      color: #d1d5db; font-size: 0.95rem; font-family: "DM Mono", monospace;
+      display: grid; place-items: center;
+      z-index: 15;
+    }
+    .trance-carousel-item {
+      scroll-snap-align: center;
+      flex: 0 0 auto;
+      transition: all 0.3s ease;
+      opacity: 0.55;
+      transform: scale(0.92);
+      padding: 0.5rem 1.05rem;
       border-radius: 999px;
-      padding: 0.35rem 0.8rem;
-      font-size: 0.75rem;
-      color: rgba(231, 216, 245, 0.92);
-      background: rgba(255, 255, 255, 0.06);
-      transition: border-color 0.2s ease, background 0.2s ease;
+      font-size: 0.82rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      color: #fff;
+      white-space: nowrap;
+      background: rgba(20, 20, 30, 0.55);
     }
-    .trance-theme-chip.is-active {
-      border-color: rgba(216, 180, 254, 0.52);
-      background: rgba(168, 85, 247, 0.2);
-      color: #f5ecff;
+    .trance-carousel-item.is-active {
+      opacity: 1;
+      transform: scale(1.05);
+      border-color: currentColor;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+      font-weight: 700;
     }
+    .trance-slide-out-left { animation: tranceSlideOutLeft 0.3s forwards; }
+    .trance-slide-in-right { animation: tranceSlideInRight 0.3s forwards; }
+    .trance-slide-out-right { animation: tranceSlideOutRight 0.3s forwards; }
+    .trance-slide-in-left { animation: tranceSlideInLeft 0.3s forwards; }
+    @keyframes tranceSlideOutLeft { to { transform: translateX(-60px) rotate(-5deg); opacity: 0; } }
+    @keyframes tranceSlideInRight { from { transform: translateX(60px) rotate(5deg); opacity: 0; } to { transform: translateX(0) rotate(0); opacity: 1; } }
+    @keyframes tranceSlideOutRight { to { transform: translateX(60px) rotate(5deg); opacity: 0; } }
+    @keyframes tranceSlideInLeft { from { transform: translateX(-60px) rotate(-5deg); opacity: 0; } to { transform: translateX(0) rotate(0); opacity: 1; } }
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(-360deg); }
@@ -538,7 +600,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-categoryinfo-v13';
+    const SW_BUILD = '2026-04-25-he-trance-structural-rebuild-v14';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -575,7 +637,7 @@
       archetypeView: { cardId: null, fromView: 'all', flipped: false },
       pendingArchetypePoolIds: [],
       tranceFavorites: [],
-      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '', backMode: 'examples' }
+      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '' }
     };
     let deferredInstallPrompt = null;
     let currentSwReg = null;
@@ -739,12 +801,12 @@
         deckIds: ids,
         index: 0,
         flipped: false,
-        currentTheme: firstThemes[0] || 'רגיעה',
-        backMode: 'examples'
+        currentTheme: firstThemes[0] || 'רגיעה'
       };
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-basic');
     }
+    let tranceCardFlipped = false;
     function renderTrancePlayer(pushHistory = true) {
       const card = getTranceCurrentCard();
       if (!card) {
@@ -754,124 +816,193 @@
       }
       const themeOptions = getTranceCurrentThemeOptions(card);
       if (!themeOptions.includes(AppState.tranceView.currentTheme)) {
-        AppState.tranceView.currentTheme = themeOptions[0] || AppState.tranceView.currentTheme || 'רגיעה';
+        AppState.tranceView.currentTheme = themeOptions[0] || 'רגיעה';
       }
-      const contentRows = getTranceCardContent(card, AppState.tranceView.currentTheme)
-        .map(line => `<p class="text-gray-200 serif-font text-base leading-relaxed mb-3">${escapeHtml(line)}</p>`)
-        .join('');
-      const categoryInfo = getTranceCategoryInfo(card);
-      const showCategoryInfo = AppState.tranceView.backMode === 'category';
-      const total = AppState.tranceView.deckIds.length;
-      const current = Number(AppState.tranceView.index || 0) + 1;
-      const isFav = AppState.tranceFavorites.includes(String(card.id));
       const app = document.getElementById('app');
       app.innerHTML = `
-        <div class="flex flex-col h-full bg-[#050408] min-h-0">
-          <div class="p-4 pt-6 flex items-center justify-between gap-3">
+        <div id="trance-player-view" class="flex flex-col h-full relative overflow-hidden">
+          <div class="flex items-center justify-between p-4 pt-6 z-20">
             <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
-            <div class="text-gray-300 text-xs font-mono">${current} / ${total}</div>
-            <button onclick="toggleTranceFavorite()" class="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-200 text-xs font-mono touch-manipulation">${isFav ? '★ במועדפים' : '☆ הוספה למועדפים'}</button>
+            <div id="trance-counter" class="text-xs font-mono text-gray-400"></div>
+            <button id="trance-fav-btn" onclick="toggleTranceFavorite()" class="p-2 transition rounded-full hover:bg-white/5 text-gray-500">
+              <i data-lucide="star"></i>
+            </button>
           </div>
-          <div class="px-4 pb-3 flex flex-wrap gap-2 justify-center">
-            ${themeOptions.map(theme => `<button onclick="setTranceTheme('${String(theme).replace(/'/g, "\\'")}')" class="trance-theme-chip ${AppState.tranceView.currentTheme === theme ? 'is-active' : ''}">${escapeHtml(theme)}</button>`).join('')}
-          </div>
-          <div class="flex-1 min-h-0 px-4 pb-4">
-            <div class="trance-player-card h-full flex flex-col">
-              <button onclick="toggleTranceFlip()" class="w-full h-full text-right p-5 overflow-y-auto no-scrollbar">
-                ${AppState.tranceView.flipped ? `
-                  <div class="mb-3">
-                    <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-1">תמה: ${escapeHtml(AppState.tranceView.currentTheme || '')}</p>
-                    <h3 class="text-2xl text-white serif-font font-bold leading-tight">${escapeHtml(card.pattern || '')}</h3>
-                    <p class="text-sm text-purple-200 mt-1">${escapeHtml(card.category || '')}</p>
+          <div class="flex-1 flex items-center justify-center p-4 relative z-10 w-full max-w-lg mx-auto min-h-0">
+            <button onclick="prevTranceCard()" class="absolute right-0 z-20 p-3 text-gray-500 hover:text-white transition active:scale-90" style="top:50%;transform:translateY(-50%)">
+              <i data-lucide="chevron-right" style="width:28px;height:28px"></i>
+            </button>
+            <button onclick="nextTranceCard()" class="absolute left-0 z-20 p-3 text-gray-500 hover:text-white transition active:scale-90" style="top:50%;transform:translateY(-50%)">
+              <i data-lucide="chevron-left" style="width:28px;height:28px"></i>
+            </button>
+            <div class="trance-card-shell">
+              <div id="tranceCardInner" class="trance-card-inner">
+                <div id="tranceCardFace" class="trance-card-face glass-panel">
+                  <button class="trance-info-btn" onclick="event.stopPropagation(); toggleTranceFlip()" title="מידע על הקטגוריה">i</button>
+                  <div class="trance-card-header-fixed">
+                    <h2 id="tranceCardPattern" class="text-4xl font-bold serif-font text-white drop-shadow-md leading-tight"></h2>
                   </div>
-                  <div class="flex gap-2 mb-4">
-                    <button onclick="setTranceBackMode('examples'); event.stopPropagation();" class="px-3 py-1.5 rounded-xl border text-xs font-mono ${showCategoryInfo ? 'border-white/15 text-gray-300 bg-white/5' : 'border-purple-400/40 text-purple-100 bg-purple-500/15'}">דוגמאות</button>
-                    <button onclick="setTranceBackMode('category'); event.stopPropagation();" class="px-3 py-1.5 rounded-xl border text-xs font-mono ${showCategoryInfo ? 'border-purple-400/40 text-purple-100 bg-purple-500/15' : 'border-white/15 text-gray-300 bg-white/5'}">מידע קטגוריה</button>
+                  <div id="tranceCardContentText" class="trance-card-scroll-area"></div>
+                  <div class="pb-4 pt-1 text-center">
+                    <div id="tranceCardCategory" class="text-xs font-mono tracking-[0.14em] uppercase"></div>
                   </div>
-                  <div class="pt-1">
-                    ${showCategoryInfo
-                      ? (categoryInfo
-                        ? `
-                          <div class="rounded-2xl border border-purple-400/25 bg-purple-900/10 p-4 mb-3">
-                            <p class="text-[0.68rem] font-mono tracking-[0.2em] text-purple-200/85 mb-1">מבנה דפוס</p>
-                            <p class="text-purple-100 serif-font text-base leading-relaxed">${escapeHtml(categoryInfo.pattern || 'לא זמין')}</p>
-                          </div>
-                          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-1">הסבר קטגוריה</p>
-                            <p class="text-gray-200 serif-font text-base leading-relaxed">${escapeHtml(categoryInfo.description || 'לא זמין')}</p>
-                          </div>
-                        `
-                        : `<p class="text-gray-300 serif-font text-base leading-relaxed">אין כרגע מידע קטגוריה זמין עבור הקלף הזה.</p>`)
-                      : contentRows}
+                </div>
+                <div id="tranceCardBack" class="trance-card-face-back">
+                  <button class="trance-info-btn" onclick="event.stopPropagation(); toggleTranceFlip()" title="חזרה לקלף">i</button>
+                  <div class="trance-card-header-fixed">
+                    <p class="text-[0.7rem] font-mono tracking-[0.2em] text-amber-200/85 mb-1">מידע על קטגוריה</p>
+                    <h3 id="tranceBackCategoryName" class="text-2xl font-bold serif-font text-white leading-tight"></h3>
                   </div>
-                ` : `
-                  <div class="h-full flex flex-col items-center justify-center text-center">
-                    <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-2">מבנה הדפוס</p>
-                    <h3 class="text-3xl text-white serif-font font-bold leading-tight max-w-[22ch]">${escapeHtml(card.pattern || '')}</h3>
-                    <p class="text-purple-200 mt-4 text-sm">${escapeHtml(card.category || '')}</p>
-                    <p class="text-gray-400 mt-5 text-xs font-mono">לחצו כדי לפתוח דוגמאות</p>
+                  <div class="trance-card-scroll-area text-right">
+                    <p class="text-[0.72rem] font-mono tracking-[0.18em] text-purple-200 mb-1">מבנה דפוס</p>
+                    <p id="tranceBackPattern" class="text-purple-100 serif-font text-base leading-relaxed mb-4"></p>
+                    <p class="text-[0.72rem] font-mono tracking-[0.18em] text-amber-200/85 mb-1">הסבר</p>
+                    <p id="tranceBackDescription" class="text-gray-200 serif-font text-base leading-relaxed"></p>
                   </div>
-                `}
-              </button>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="px-4 pb-6 grid grid-cols-2 gap-2">
-            <button onclick="prevTranceCard()" class="py-3 rounded-2xl border border-white/15 text-gray-200 text-sm font-mono hover:bg-white/10 transition">הקודם</button>
-            <button onclick="nextTranceCard()" class="py-3 rounded-2xl border border-white/15 text-gray-200 text-sm font-mono hover:bg-white/10 transition">הבא</button>
+          <div id="tranceThemeCarousel" class="w-full overflow-x-auto no-scrollbar pb-6 px-6 z-20 flex gap-3 snap-x h-16 shrink-0">
+            ${themeOptions.map(t => `<button onclick="setTranceTheme('${String(t).replace(/'/g, "\\'")}')" class="trance-carousel-item" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}
+          </div>
+          <div class="p-6 pb-8 flex items-center justify-center z-20 bg-gradient-to-t from-black/90 to-transparent shrink-0">
+            <button class="p-5 rounded-full bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all transform hover:scale-105 active:scale-95">
+              <i data-lucide="mic"></i>
+            </button>
           </div>
         </div>
       `;
+      tranceCardFlipped = false;
+      AppState.tranceView.flipped = false;
       lucide.createIcons();
+      setupTranceSwipe();
+      setupTranceKeyboard();
+      updateTrancePlayerContent();
       heShellSyncModuleQuery('hypno');
       if (pushHistory) pushTranceHistory('hypno-basic');
     }
+    function updateTrancePlayerContent() {
+      const card = getTranceCurrentCard();
+      if (!card) return;
+      const themeOptions = getTranceCurrentThemeOptions(card);
+      if (!themeOptions.includes(AppState.tranceView.currentTheme)) {
+        AppState.tranceView.currentTheme = themeOptions[0] || 'רגיעה';
+      }
+      const examples = getTranceCardContent(card, AppState.tranceView.currentTheme);
+      const categoryInfo = getTranceCategoryInfo(card);
+      const contentHtml = examples
+        .map((line, idx) => `<p class="text-gray-200 serif-font text-[1.65rem] leading-relaxed">${escapeHtml(line)}</p>${idx < examples.length - 1 ? '<span class="trance-example-divider"></span>' : ''}`)
+        .join('');
+      const patternEl = document.getElementById('tranceCardPattern');
+      const contentEl = document.getElementById('tranceCardContentText');
+      const categoryEl = document.getElementById('tranceCardCategory');
+      const counterEl = document.getElementById('trance-counter');
+      const backCatEl = document.getElementById('tranceBackCategoryName');
+      const backPatternEl = document.getElementById('tranceBackPattern');
+      const backDescEl = document.getElementById('tranceBackDescription');
+      const faceEl = document.getElementById('tranceCardFace');
+      const backEl = document.getElementById('tranceCardBack');
+      if (patternEl) patternEl.innerText = card.pattern || '';
+      if (contentEl) contentEl.innerHTML = contentHtml;
+      if (categoryEl) {
+        categoryEl.innerText = card.category || '';
+        categoryEl.style.color = card.color || '#d1d5db';
+      }
+      if (counterEl) counterEl.innerText = `${Number(AppState.tranceView.index || 0) + 1} / ${(AppState.tranceView.deckIds || []).length}`;
+      if (backCatEl) {
+        backCatEl.innerText = card.category || '';
+        backCatEl.style.color = card.color || '#d1d5db';
+      }
+      if (backPatternEl) backPatternEl.innerText = (categoryInfo && categoryInfo.pattern) ? categoryInfo.pattern : 'לא זמין';
+      if (backDescEl) backDescEl.innerText = (categoryInfo && categoryInfo.description) ? categoryInfo.description : 'אין מידע זמין לקטגוריה זו.';
+      if (faceEl) faceEl.style.borderColor = card.color || '#a855f7';
+      if (backEl) backEl.style.borderColor = card.color || '#a855f7';
+
+      const favBtn = document.getElementById('trance-fav-btn');
+      const isFav = AppState.tranceFavorites.includes(String(card.id));
+      if (favBtn) {
+        favBtn.className = `p-2 transition rounded-full hover:bg-white/5 ${isFav ? 'text-yellow-400' : 'text-gray-500'}`;
+        const icon = favBtn.querySelector('svg');
+        if (icon) icon.setAttribute('fill', isFav ? 'currentColor' : 'none');
+      }
+      document.querySelectorAll('#tranceThemeCarousel .trance-carousel-item').forEach(el => {
+        const theme = String(el.getAttribute('data-theme') || '').trim();
+        const active = theme === AppState.tranceView.currentTheme;
+        el.classList.toggle('is-active', active);
+        if (active) {
+          el.style.borderColor = card.color || '';
+          el.style.color = card.color || '';
+          el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } else {
+          el.style.borderColor = '';
+          el.style.color = '';
+        }
+      });
+    }
+    function setupTranceKeyboard() {
+      document.onkeydown = function(e) {
+        if (e.key === 'i' || e.key === 'I') toggleTranceFlip();
+        if (e.key === 'ArrowRight') prevTranceCard();
+        if (e.key === 'ArrowLeft') nextTranceCard();
+      };
+    }
+    function setupTranceSwipe() {
+      const area = document.getElementById('trance-player-view');
+      if (!area) return;
+      let startX = 0;
+      let startY = 0;
+      area.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+      area.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        if (dx > 0) prevTranceCard();
+        else nextTranceCard();
+      }, { passive: true });
+    }
     function toggleTranceFlip() {
-      AppState.tranceView.flipped = !AppState.tranceView.flipped;
-      renderTrancePlayer(false);
+      tranceCardFlipped = !tranceCardFlipped;
+      AppState.tranceView.flipped = tranceCardFlipped;
+      const inner = document.getElementById('tranceCardInner');
+      if (inner) inner.style.transform = tranceCardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
     }
     function setTranceTheme(theme) {
       AppState.tranceView.currentTheme = String(theme || '').trim();
-      AppState.tranceView.flipped = true;
-      AppState.tranceView.backMode = 'examples';
-      renderTrancePlayer(false);
+      updateTrancePlayerContent();
     }
-    function setTranceBackMode(mode) {
-      AppState.tranceView.backMode = mode === 'category' ? 'category' : 'examples';
-      AppState.tranceView.flipped = true;
-      renderTrancePlayer(false);
+    function animateTranceCard(outClass, inClass, indexChange) {
+      const face = document.getElementById('tranceCardFace');
+      if (!face) return;
+      face.classList.add(outClass);
+      setTimeout(() => {
+        const total = (AppState.tranceView.deckIds || []).length;
+        if (!total) return;
+        AppState.tranceView.index = (Number(AppState.tranceView.index || 0) + indexChange + total) % total;
+        tranceCardFlipped = false;
+        AppState.tranceView.flipped = false;
+        const inner = document.getElementById('tranceCardInner');
+        if (inner) inner.style.transform = 'rotateY(0deg)';
+        updateTrancePlayerContent();
+        face.classList.remove(outClass);
+        face.classList.add(inClass);
+        setTimeout(() => face.classList.remove(inClass), 300);
+      }, 250);
     }
-    function nextTranceCard() {
-      const total = (AppState.tranceView.deckIds || []).length;
-      if (!total) return;
-      AppState.tranceView.index = (Number(AppState.tranceView.index || 0) + 1) % total;
-      AppState.tranceView.flipped = false;
-      AppState.tranceView.backMode = 'examples';
-      const card = getTranceCurrentCard();
-      const themes = getTranceCurrentThemeOptions(card);
-      if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
-      renderTrancePlayer(false);
-    }
-    function prevTranceCard() {
-      const total = (AppState.tranceView.deckIds || []).length;
-      if (!total) return;
-      const i = Number(AppState.tranceView.index || 0) - 1;
-      AppState.tranceView.index = i < 0 ? total - 1 : i;
-      AppState.tranceView.flipped = false;
-      AppState.tranceView.backMode = 'examples';
-      const card = getTranceCurrentCard();
-      const themes = getTranceCurrentThemeOptions(card);
-      if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
-      renderTrancePlayer(false);
-    }
+    function nextTranceCard() { animateTranceCard('trance-slide-out-left', 'trance-slide-in-right', 1); }
+    function prevTranceCard() { animateTranceCard('trance-slide-out-right', 'trance-slide-in-left', -1); }
     function toggleTranceFavorite() {
       const card = getTranceCurrentCard();
       if (!card) return;
       const id = String(card.id);
       const idx = AppState.tranceFavorites.indexOf(id);
       if (idx >= 0) AppState.tranceFavorites.splice(idx, 1);
-      else AppState.tranceFavorites.unshift(id);
+      else AppState.tranceFavorites.push(id);
       try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
-      renderTrancePlayer(false);
+      updateTrancePlayerContent();
     }
     function tranceSectionBodyToHtml(section) {
       const paragraphs = Array.isArray(section.paragraphs)
