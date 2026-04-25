@@ -415,7 +415,121 @@
     function drawRandomArchetype() {}
     function renderArchetypeDeckBuilder() {}
     function renderArchetypesList() {}
-    function showArchetypesAbout() {}
+    function showArchetypesAbout() {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="flex flex-col h-full bg-[#050408]">
+          <div class="p-6 pt-8 flex items-center gap-4">
+            <button onclick="renderArchetypesHome()" class="p-2 bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
+            <h2 class="text-2xl font-bold text-white serif-font">אודות ארכיטיפים של עונג</h2>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-4 no-scrollbar">
+            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
+              <h3 class="text-purple-300 font-bold text-lg serif-font mb-2">אודות ארכיטיפים של עונג</h3>
+              <p class="text-gray-300 serif-font text-sm leading-relaxed">חקירה של מדריך הארכיטיפים דרך מקטעים נפתחים, עם מבנה קריאה שמותאם לתרגול בתוך האפליקציה.</p>
+            </div>
+
+            <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-3">
+              <h3 class="text-purple-300 font-bold text-lg serif-font px-2 py-1">יסודות</h3>
+              <div class="space-y-3 mt-2">
+                <details open class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">לפני שמתחילים</summary>
+                  <p class="text-gray-300 serif-font text-base leading-relaxed mt-4">השתמשי באפליקציה הזו כמרחב תרגול חי לטקסט ארכיטיפים של עונג: שלפי באקראי להפתעה, בני חפיסה מותאמת אישית לפי ממלכה, או פתחי את כל הקלפים וסמני את המועדפות הפעילות שלך. הטקסט שלהלן שומר על העומק המושגי המלא של החוברת הנלווית, מותאם לקריאה בתוך האפליקציה.</p>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">אור וצל</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>יונג לימד שכל דמות אור מטילה צל, וכל צל מסתיר אור.</p>
+                    <p>למלכה הזוהרת יש משהו מהרודן שבה. לילדה התמימה יש משהו מהמפתה שבה. השדה היא בסך הכול מלאך שנדחק אל החשכה.</p>
+                    <p>עבודה עם ארכיטיפים ארוטיים היא גם עבודה עם הצל — לא כדי להשמידו, אלא כדי להכירו, לאהוב אותו, לתת לו מקום לגיטימי. הפנטזיות שאסור לנו לחשוב עליהן, הדחפים שמביישים אותנו, התשוקות שאנחנו מסתירים אפילו מעצמנו — כולם ממתינים במרתף הנפש ודופקים על הדלת.</p>
+                    <p>אנחנו יכולים להמשיך להתעלם מהדפיקות. אבל אנחנו יכולים גם לפתוח את הדלת, להזמין את הצל פנימה, ולגלות שהוא אינו מפלצת — הוא פשוט חלק מאיתנו שרעב לאור.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">כוח הדימוי</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>למה בכלל צריך דימויים? למה לא פשוט לעשות אהבה?</p>
+                    <p>כי בני אדם הם יצורים של סיפור ודמיון. אנחנו לא רק גופים — אנחנו משמעויות. מגע פיזי הוא דבר אחד; מגע שנושא בתוכו סיפור הוא משהו אחר לגמרי.</p>
+                    <p>כשמישהו קושר את ידיי — זה חבל. כשמישהו קושר את ידיי ואני האסירה שלו — זה עולם שלם.</p>
+                    <p>הדימוי מרחיב את החוויה לממדים שהגוף לבדו אינו מגיע אליהם. הוא מעיר רגשות קדומים, מתחבר לסיפורים שספגנו מילדות, מפעיל את הדמיון — שהוא השריר הארוטי החזק ביותר שיש לנו. אותו מגע פיזי בדיוק הופך למשמעותי יותר, חזק יותר, בלתי נשכח.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">לא תחפושת — התגלמות</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>אחד הפחדים העמוקים סביב משחקי תפקידים הוא: "אם אני מעמידה פנים שאני מישהי אחרת, האם אני לא מחוברת לעצמי?"</p>
+                    <p>המחקר הפסיכולוגי מראה את ההפך המדויק.</p>
+                    <p>אימוץ פרסונה ארוטית הוא טכניקה של התגלמות — דרך לגשת לחלקים אותנטיים של העצמי שפשוט לא מוצאים ביטוי בחיי היומיום. האישה שמנהלת חברה כל היום עשויה למצוא מנוחה עמוקה בארכיטיפ המריונטה, שבה היא יכולה סוף סוף לשחרר את השליטה. הגבר השקט והמופנם עשוי לגלות כוח שמעולם לא ידע בארכיטיפ החיה. אלה אינם סתירות — אלה השלמות.</p>
+                    <p>אנחנו לא מתחפשים למישהו אחר. אנחנו מאפשרים לחלקים נוספים של עצמנו לבוא אל האור.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">איך להשתמש בקלפים</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>הקלפים שבידיך אינם מדריכי הוראות. הם הזמנות.</p>
+                    <p>כל קלף מציג ארכיטיפ — דמות שאפשר להתגלם בה, לחקור אותה, לשחק איתה.</p>
+                    <p>יש קלפים שימשכו אותך מיד, כאילו חיכו לך כל חייך. יש קלפים שיפחידו אותך, ידחו אותך — ובדיוק שם, אולי, מסתתרת הזמנה לחקירה עמוקה יותר.</p>
+                    <p>אפשר להשתמש בקלפים בכמה דרכים:</p>
+                    <p><strong class="text-white">לבד:</strong> עברי על הקלפים, הסתכלי, שאלי את עצמך — מי אני כשאני X? אילו ארכיטיפים חיים בי? אילו מפחידים אותי ולמה? מה המתנה של הארכיטיפ הזה עבורי?</p>
+                    <p><strong class="text-white">כזוג:</strong> שלפו קלף והתגלמו בו יחד. או בחרו בכוונה ארכיטיפ שאתם רוצים לחקור. או שכל אחד בוחר קלף ורואים מה קורה כשהם נפגשים.</p>
+                    <p><strong class="text-white">כשיחה:</strong> השתמשו בקלפים כפותחן לדיון על תשוקות, גבולות, פנטזיות. הקלף יכול לפתוח שיחה על מה שאולי מביש או מרגש לשתף.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">עבודה עמוקה</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>אם אתה מוכן לצלול עמוק יותר — לבד, ביומן, או בשיחה עם חבר קרוב או שותף — הנה רשימת שאלות שיעזרו לך להפוך את הארכיטיפ מדימוי מופשט לדמות חיה ומלאה, מחוברת לגוף ולתשוקות שלך.</p>
+                    <p>בחר קלף, התמקד בו, ותן לכל שאלה להדהד. כתוב, דבר בקול רם, או אפילו רקוד את התשובות — מה שמרגיש נכון.</p>
+                    <p>מה היא מעוררת בך? (משיכה, דחייה, בושה, אשמה, התרגשות)</p>
+                    <p>מה היא מעוררת באחרים? (פחד, משיכה, הערצה, רחמים — מדוע?)</p>
+                    <p>מה היא לובשת? (אילו בגדים, צבעים, מרקמים, איפור — מה מחיה אותה?)</p>
+                    <p>כיצד היא נעה? (האם היא איטית ומכוונת? פרועה ובלתי צפויה? זקופה או גמישה?)</p>
+                    <p>היכן היא פורצת? (בפנים או בחוץ? ביום או בלילה? לבד או עם אנשים?)</p>
+                    <p>מה היא הכי רוצה עכשיו? (תשוקה מיידית — מגע, מילה, מקום, חופש?)</p>
+                    <p>כיצד היא עושה אהבה? (מה הקצב שלה? מה היא אוהבת? מה מדליק אותה?)</p>
+                    <p>איזה מחיר אתה משלם כשהיא נעדרת? (איזו תכונה חסרה מחייך או מערכות היחסים שלך כשאתה לא מאפשר את ביטויה? מה הולך לאיבוד?)</p>
+                    <p>איזו מתנה היא מביאה לחייך? (איזו תכונה היא מלמדת אותך — כוח, עדינות, שחרור — שחסרה לך כרגע?)</p>
+                    <p>מה היא מבקשת מהשותף שלה? (אם היא יכלה לתת הוראות, מה הייתה מבקשת שיעשו עכשיו?)</p>
+                    <p>מה ה"מרחב הבטוח" שלה? (אילו תנאים צריכים להתקיים בחדר כדי שתרגיש בנוח לחשוף את עצמה לגמרי? אור/חושך, מוזיקה, סוג מסוים של מגע?)</p>
+                    <p>מה הטקס הקטן שלה? (איזו פעולה פיזית קטנה — כמו ריסוס בושם, הרכבת תכשיט, או נשימה מסוימת — עוזרת לך "להיכנס" לדמות שלה?)</p>
+                    <p>מי הארכיטיפ המשלים שלה? (מורה-תלמיד, נמרה-טרף, ערפד-קורבן, מאלף-אריה)</p>
+                    <p>תן לעצמך זמן עם השאלות האלה — הן אינן חקירה, הן הזמנה. אם משהו עולה (רגש, זיכרון, תחושה בגוף) — תן לו מקום.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">הערה על בטיחות ומודעות</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>עבודה עם ארכיטיפים יכולה להיות עוצמתית. חלק מהדמויות נוגעות במקומות רגישים, זיכרונות, טראומות, פחדים עמוקים. זה לא סכנה — אבל זו סיבה לגשת לעבודה הזו בכבוד.</p>
+                    <p>כמה עקרונות:</p>
+                    <p><strong class="text-white">הסכמה תמיד.</strong> לפני שמתגלמים בארכיטיפ יחד — מדברים.</p>
+                    <p><strong class="text-white">מילת בטיחות תמיד.</strong> אפשר לצאת מהמשחק בכל רגע.</p>
+                    <p><strong class="text-white">עיבוד אחרי.</strong> לפעמים דברים עולים. תנו להם מקום.</p>
+                    <p><strong class="text-white">סקרנות, לא שיפוטיות.</strong> אין ארכיטיפים נכונים או לא נכונים. יש רק חקירה.</p>
+                  </div>
+                </details>
+
+                <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <summary class="cursor-pointer list-none text-white font-bold serif-font text-xl">הזמנה</summary>
+                  <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed mt-4">
+                    <p>מה שמחכה לך בקלפים האלה הוא לא רק משחק מיני. זוהי הזמנה להכיר את עצמך מחדש. לפגוש חלקים שנשכחו, לתת במה לדמויות שהושתקו, לגלות שאתה כל כך הרבה יותר ממה שחשבת.</p>
+                    <p>המיטה היא במה. הארכיטיפים הם התסריט. אתה — אתה כל הדמויות בו־זמנית.</p>
+                    <p><strong class="text-white">בואו נשחק.</strong></p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      heShellSyncModuleQuery('archetypes');
+    }
     function openPlanner() { renderKinkyScenePlannerHome(); }
     function listPlannerSessions() {
       try {
