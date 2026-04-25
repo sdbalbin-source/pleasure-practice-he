@@ -410,7 +410,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-archetypes-loader-v5';
+    const SW_BUILD = '2026-04-25-he-archetypes-arc-approval-v1';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -423,6 +423,7 @@
       'archetypes-he/archetypes-he-manifest.json',
       'hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json'
     ];
+    const ARCHETYPE_ARC_APPROVAL_MODE = true;
     let ARCHETYPES_DATA = [];
     const AppState = {
       plannerSessions: [],
@@ -871,7 +872,15 @@
           el.classList.add('is-chosen');
           el.style.transform = 'translate3d(0px, -72px, 0) rotate(0deg) scale(1.28)';
           window.setTimeout(() => el.classList.add('is-flipping'), 180);
-          window.setTimeout(() => { layer.remove(); renderArchetypeCard(cardId, AppState.archetypeView.fromView || 'random'); }, 980);
+          window.setTimeout(() => {
+            if (ARCHETYPE_ARC_APPROVAL_MODE) {
+              layer.remove();
+              renderArchetypesHome();
+              return;
+            }
+            layer.remove();
+            renderArchetypeCard(cardId, AppState.archetypeView.fromView || 'random');
+          }, 980);
         };
         const onUp = (ev) => {
           if (pointerId == null || ev.pointerId !== pointerId || selected) return;
