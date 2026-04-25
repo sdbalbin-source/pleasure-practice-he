@@ -631,7 +631,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-recordings-row-transparency-v41';
+    const SW_BUILD = '2026-04-26-he-mobile-back-hierarchy-v42';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -776,6 +776,13 @@
         const url = new URL(window.location.href);
         url.searchParams.set('module', 'hypno');
         history.pushState({ screen, module: 'hypno', ...extra }, '', url.toString());
+      } catch (_) {}
+    }
+    function pushPlannerHistory(screen, extra = {}) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'planner');
+        history.pushState({ screen, module: 'planner', ...extra }, '', url.toString());
       } catch (_) {}
     }
 
@@ -2411,7 +2418,7 @@
       const duration = Number.isFinite(durationNum) && durationNum > 0 ? `${durationNum} דק׳` : '—';
       return `${role} · ${duration}`;
     }
-    function renderKinkyScenePlannerHome() {
+    function renderKinkyScenePlannerHome(pushHistory = true) {
       const savedSessionsCount = listPlannerSessions().length;
       const app = document.getElementById('app');
       app.innerHTML = `
@@ -2439,9 +2446,10 @@
         </div>
       `;
       heShellSyncModuleQuery('planner');
+      if (pushHistory) pushPlannerHistory('planner-home');
     }
-    function renderPlannerHome() { renderKinkyScenePlannerHome(); }
-    function renderPlannerAbout() {
+    function renderPlannerHome(pushHistory = true) { renderKinkyScenePlannerHome(pushHistory); }
+    function renderPlannerAbout(pushHistory = true) {
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
@@ -2487,6 +2495,7 @@
         </div>
       `;
       heShellSyncModuleQuery('planner');
+      if (pushHistory) pushPlannerHistory('planner-about');
     }
     function showPlannerAbout() {
       renderPlannerAbout();
@@ -2498,7 +2507,7 @@
     function startPlannerSession() {
       openPlannerNewSession();
     }
-    function renderPlannerSessions() {
+    function renderPlannerSessions(pushHistory = true) {
       const app = document.getElementById('app');
       const sessions = listPlannerSessions();
       const sessionsTitle = `הסשנים שלי (${sessions.length})`;
@@ -2533,6 +2542,7 @@
         </div>
       `;
       heShellSyncModuleQuery('planner');
+      if (pushHistory) pushPlannerHistory('planner-sessions');
     }
     function getPlannerSessionById(sessionId) {
       return listPlannerSessions().find(s => s && s.id === sessionId) || null;
@@ -2658,7 +2668,7 @@
         resolvePlannerReturnTarget(target);
       }, 900);
     }
-    function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo) {
+    function renderPlannerEmbed(mode, sessionId, startChapter, autoShare, returnTo, pushHistory = true) {
       const app = document.getElementById('app');
       const plannerSrc = `scene-planner-embed-he.html?v=${SW_BUILD}${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}${startChapter ? `&startChapter=${encodeURIComponent(startChapter)}` : ''}${autoShare ? `&autoShare=${encodeURIComponent(autoShare)}` : ''}${mode ? `&mode=${encodeURIComponent(mode)}` : ''}`;
       app.innerHTML = `
@@ -2676,6 +2686,15 @@
         backBtn.addEventListener('click', () => requestPlannerSaveThenReturn(returnTo === 'sessions' ? 'sessions' : 'home'));
       }
       heShellSyncModuleQuery('planner');
+      if (pushHistory) {
+        pushPlannerHistory('planner-embed', {
+          plannerMode: mode || 'new',
+          plannerSessionId: sessionId || '',
+          plannerStartChapter: startChapter || '',
+          plannerAutoShare: autoShare || '',
+          plannerReturnTo: returnTo || ''
+        });
+      }
     }
 
     if ('serviceWorker' in navigator) {
@@ -2955,8 +2974,8 @@
       const params = new URLSearchParams(window.location.search);
       const moduleName = params.get('module');
       if (moduleName === 'planner') {
-        renderKinkyScenePlannerHome();
-        history.replaceState({ screen: 'planner-home' }, '', window.location.href);
+        renderKinkyScenePlannerHome(false);
+        history.replaceState({ screen: 'planner-home', module: 'planner' }, '', window.location.href);
         return;
       }
       if (moduleName === 'archetypes') {
@@ -2993,9 +3012,37 @@
         if (state.screen === 'hypno-about') { renderTranceAbout(false); return; }
         if (state.screen === 'hypno-recordings') { renderTranceRecordings(false); return; }
         if (state.screen === 'hypno-custom-builder') { renderTranceCustomDeckBuilder(false); return; }
-        if (state.screen === 'hypno-custom') { renderTrancePlayer(false); return; }
-        if (state.screen === 'hypno-basic') { renderTrancePlayer(false); return; }
+        if (state.screen === 'hypno-custom') {
+          AppState.tranceMode = 'custom';
+          if (Array.isArray(state.selectedCategories)) {
+            AppState.tranceSelectedCategories = [...state.selectedCategories];
+          }
+          renderTrancePlayer(false);
+          return;
+        }
+        if (state.screen === 'hypno-basic') {
+          AppState.tranceMode = 'all';
+          renderTrancePlayer(false);
+          return;
+        }
         renderTranceLanguageHome(false);
+        return;
+      }
+      if (state.module === 'planner') {
+        if (state.screen === 'planner-about') { renderPlannerAbout(false); return; }
+        if (state.screen === 'planner-sessions') { renderPlannerSessions(false); return; }
+        if (state.screen === 'planner-embed') {
+          renderPlannerEmbed(
+            state.plannerMode || 'new',
+            state.plannerSessionId || null,
+            state.plannerStartChapter || null,
+            state.plannerAutoShare || null,
+            state.plannerReturnTo || 'sessions',
+            false
+          );
+          return;
+        }
+        renderKinkyScenePlannerHome(false);
         return;
       }
       const params = new URLSearchParams(window.location.search);
