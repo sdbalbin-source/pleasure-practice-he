@@ -333,6 +333,15 @@
     .archetype-prose-p { font-family: 'Cormorant Garamond', serif; font-size: 0.98rem; line-height: 1.55; color: rgba(245, 240, 235, 0.92); margin-bottom: 0.85rem; text-align: center; }
     .archetype-section-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(212, 175, 125, 0.88); margin-bottom: 0.35rem; text-align: center; }
     .archetype-question-callout { margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 0.75rem; background: rgba(88, 28, 74, 0.35); border: 1px solid rgba(168, 85, 247, 0.25); font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: #f3e8ff; text-align: center; line-height: 1.45; }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
   </style>
 </head>
 <body>
@@ -439,6 +448,17 @@
 
     AppState.archetypeFavorites = readStoredArray(ARCHETYPE_FAVORITES_KEY);
     AppState.selectedArchetypeDeckKeys = readStoredArray(ARCHETYPE_DECK_KEYS_KEY);
+
+    function resolveArchetypeImageUrl(imagePath) {
+      const raw = String(imagePath || '').trim();
+      if (!raw) return '';
+      if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/')) return raw;
+      const clean = raw.replace(/^\.\//, '');
+      if (clean.startsWith('archetypes-he/')) return `./${clean}`;
+      if (clean.startsWith('images/')) return `./archetypes-he/${clean}`;
+      const fileName = clean.split('/').pop();
+      return fileName ? `./archetypes-he/images/${fileName}` : '';
+    }
 
     function renderWelcome(pushHistory = true) {
       document.getElementById('app').innerHTML = `
@@ -893,15 +913,16 @@
       const flipped = AppState.archetypeView.flipped;
       const isFav = AppState.archetypeFavorites.includes(card.id);
       const backNav = fromView === 'all' ? 'renderArchetypesList()' : fromView === 'custom' ? 'renderArchetypeDeckBuilder()' : 'renderArchetypesHome()';
-      const useFaceImage = card.image && String(card.image).trim();
-      const frontBgUrl = useFaceImage ? String(card.image).trim().replace(/'/g, "\\'") : ARCHETYPE_CARD_BACK;
+      const resolvedFaceImage = resolveArchetypeImageUrl(card.image);
+      const useFaceImage = Boolean(resolvedFaceImage);
+      const frontBgUrl = (useFaceImage ? resolvedFaceImage : ARCHETYPE_CARD_BACK).replace(/'/g, "\\'");
       const practiceForBook = archetypePracticeWithoutDuplicateQuestion(card.practice, card.question);
       const reshuffleBtn = fromView === 'random' ? `<button type="button" onclick="reshuffleArchetypeDraw()" class="w-full max-w-sm mx-auto mt-3 py-3 rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-950/40 to-black/40 text-amber-100 text-sm font-mono tracking-wide flex items-center justify-center gap-2 touch-manipulation hover:border-amber-400/50 transition-colors"><i data-lucide="shuffle"></i> ערבוב נוסף</button>` : '';
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408] min-h-0">
-          <div class="p-4 pt-6 flex items-center justify-between gap-3 flex-shrink-0">
-            <button onclick="${backNav}" class="p-2 bg-white/5 rounded-full touch-manipulation"><i data-lucide="arrow-left"></i></button>
+          <div class="p-4 pt-6 flex items-center justify-between gap-3 flex-shrink-0" dir="ltr">
+            <button onclick="${backNav}" class="px-3 py-2 bg-white/10 border border-white/20 rounded-full text-sm font-semibold touch-manipulation inline-flex items-center gap-2"><i data-lucide="arrow-left"></i><span>חזרה</span></button>
             <button onclick="toggleArchetypeFavorite('${card.id}'); renderArchetypeCard('${card.id}','${fromView}')" class="px-3 py-2 rounded-xl border border-purple-500/30 text-purple-200 text-xs font-mono touch-manipulation">${isFav ? '&#9733; במועדפים' : '&#9734; הוספה למועדפים'}</button>
           </div>
           <div class="flex-1 flex flex-col min-h-0 px-4 pb-6">
