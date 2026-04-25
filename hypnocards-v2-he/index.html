@@ -311,7 +311,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-strip-hypno-shell';
+    const SW_BUILD = '2026-04-25-he-archetypes-home-v2';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -705,7 +705,7 @@
       });
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(SW_BUILD)}`).then(reg => {
+        navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(SW_BUILD)}`, { updateViaCache: 'none' }).then(reg => {
           currentSwReg = reg;
           reg.addEventListener('updatefound', () => {
             const installing = reg.installing;
@@ -933,6 +933,19 @@
       } catch (_) {}
     }
 
+    function ensureFreshBuildOnce() {
+      try {
+        const markerKey = 'he_shell_last_build_v1';
+        const seenBuild = localStorage.getItem(markerKey) || '';
+        if (seenBuild === SW_BUILD) return;
+        localStorage.setItem(markerKey, SW_BUILD);
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('_refresh') === SW_BUILD) return;
+        url.searchParams.set('_refresh', SW_BUILD);
+        window.location.replace(url.toString());
+      } catch (_) {}
+    }
+
     function bootShellRoute() {
       const params = new URLSearchParams(window.location.search);
       const moduleName = params.get('module');
@@ -969,6 +982,7 @@
     });
 
     Promise.all([preloadShellEssentials()]).finally(() => {
+      ensureFreshBuildOnce();
       bootShellRoute();
     });
   </script>
