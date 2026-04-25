@@ -24,6 +24,7 @@ self.addEventListener('install', event => {
       );
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('message', event => {
@@ -53,6 +54,7 @@ self.addEventListener('fetch', event => {
     url.pathname.endsWith('/manifest.json') ||
     url.pathname.endsWith('/sw.js');
 
+  // Always prefer network for app shell files so hard refresh gets latest deploy.
   if (isNav || isShellFile) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
