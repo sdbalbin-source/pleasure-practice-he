@@ -538,7 +538,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-basicdeck-v12';
+    const SW_BUILD = '2026-04-25-he-trance-categoryinfo-v13';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -564,12 +564,6 @@
       '/cards_data.json',
       '../cards_data.json'
     ];
-    const TRANCE_LEGACY_HTML_PATHS = [
-      './דפוסי שפה עברית/index.html',
-      './hypnocards-v2-he/דפוסי שפה עברית/index.html',
-      'דפוסי שפה עברית/index.html',
-      'hypnocards-v2-he/דפוסי שפה עברית/index.html'
-    ];
     const ARCHETYPE_ARC_APPROVAL_MODE = false;
     let ARCHETYPES_DATA = [];
     let TRANCE_ABOUT_DATA = null;
@@ -581,7 +575,7 @@
       archetypeView: { cardId: null, fromView: 'all', flipped: false },
       pendingArchetypePoolIds: [],
       tranceFavorites: [],
-      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '' }
+      tranceView: { deckIds: [], index: 0, flipped: false, currentTheme: '', backMode: 'examples' }
     };
     let deferredInstallPrompt = null;
     let currentSwReg = null;
@@ -681,15 +675,6 @@
       }
       return false;
     }
-    function parseLegacyTranceEmbeddedData(htmlText) {
-      const match = String(htmlText || '').match(/const EMBEDDED_DATA = JSON\.parse\(`([\s\S]*?)`\);/);
-      if (!match || !match[1]) return null;
-      try {
-        return JSON.parse(match[1]);
-      } catch (_) {
-        return null;
-      }
-    }
     async function ensureTranceDataLoaded() {
       if (TRANCE_DATA && Array.isArray(TRANCE_DATA.cards) && TRANCE_DATA.cards.length) return true;
       for (const path of TRANCE_MANIFEST_PATHS) {
@@ -703,20 +688,6 @@
           if (!normalized || !Array.isArray(normalized.cards) || normalized.cards.length === 0) continue;
           TRANCE_DATA = normalized;
           const validIds = new Set(normalized.cards.map(c => String(c.id)));
-          AppState.tranceFavorites = (AppState.tranceFavorites || []).filter(id => validIds.has(String(id)));
-          try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
-          return true;
-        } catch (_) {}
-      }
-      for (const path of TRANCE_LEGACY_HTML_PATHS) {
-        try {
-          const res = await fetch(path, { cache: 'no-store' });
-          if (!res.ok) continue;
-          const html = await res.text();
-          const data = parseLegacyTranceEmbeddedData(html);
-          if (!data || !Array.isArray(data.cards) || data.cards.length === 0) continue;
-          TRANCE_DATA = data;
-          const validIds = new Set(data.cards.map(c => String(c.id)));
           AppState.tranceFavorites = (AppState.tranceFavorites || []).filter(id => validIds.has(String(id)));
           try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
           return true;
@@ -746,6 +717,15 @@
       const value = activeTheme ? vars[activeTheme] : [];
       return Array.isArray(value) ? value : [String(value || '')];
     }
+    function getTranceCategoryInfo(card) {
+      const infoMap = TRANCE_DATA && typeof TRANCE_DATA === 'object' ? (TRANCE_DATA.category_info || {}) : {};
+      const info = card && card.category ? infoMap[card.category] : null;
+      if (!info || typeof info !== 'object') return null;
+      return {
+        pattern: String(info.pattern || '').trim(),
+        description: String(info.description || '').trim()
+      };
+    }
     async function renderTranceBasicDeck(pushHistory = true) {
       const loaded = await ensureTranceDataLoaded();
       if (!loaded || !TRANCE_DATA || !Array.isArray(TRANCE_DATA.cards) || !TRANCE_DATA.cards.length) {
@@ -759,7 +739,8 @@
         deckIds: ids,
         index: 0,
         flipped: false,
-        currentTheme: firstThemes[0] || 'רגיעה'
+        currentTheme: firstThemes[0] || 'רגיעה',
+        backMode: 'examples'
       };
       renderTrancePlayer(false);
       if (pushHistory) pushTranceHistory('hypno-basic');
@@ -778,6 +759,8 @@
       const contentRows = getTranceCardContent(card, AppState.tranceView.currentTheme)
         .map(line => `<p class="text-gray-200 serif-font text-base leading-relaxed mb-3">${escapeHtml(line)}</p>`)
         .join('');
+      const categoryInfo = getTranceCategoryInfo(card);
+      const showCategoryInfo = AppState.tranceView.backMode === 'category';
       const total = AppState.tranceView.deckIds.length;
       const current = Number(AppState.tranceView.index || 0) + 1;
       const isFav = AppState.tranceFavorites.includes(String(card.id));
@@ -801,7 +784,26 @@
                     <h3 class="text-2xl text-white serif-font font-bold leading-tight">${escapeHtml(card.pattern || '')}</h3>
                     <p class="text-sm text-purple-200 mt-1">${escapeHtml(card.category || '')}</p>
                   </div>
-                  <div class="pt-2">${contentRows}</div>
+                  <div class="flex gap-2 mb-4">
+                    <button onclick="setTranceBackMode('examples'); event.stopPropagation();" class="px-3 py-1.5 rounded-xl border text-xs font-mono ${showCategoryInfo ? 'border-white/15 text-gray-300 bg-white/5' : 'border-purple-400/40 text-purple-100 bg-purple-500/15'}">דוגמאות</button>
+                    <button onclick="setTranceBackMode('category'); event.stopPropagation();" class="px-3 py-1.5 rounded-xl border text-xs font-mono ${showCategoryInfo ? 'border-purple-400/40 text-purple-100 bg-purple-500/15' : 'border-white/15 text-gray-300 bg-white/5'}">מידע קטגוריה</button>
+                  </div>
+                  <div class="pt-1">
+                    ${showCategoryInfo
+                      ? (categoryInfo
+                        ? `
+                          <div class="rounded-2xl border border-purple-400/25 bg-purple-900/10 p-4 mb-3">
+                            <p class="text-[0.68rem] font-mono tracking-[0.2em] text-purple-200/85 mb-1">מבנה דפוס</p>
+                            <p class="text-purple-100 serif-font text-base leading-relaxed">${escapeHtml(categoryInfo.pattern || 'לא זמין')}</p>
+                          </div>
+                          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-1">הסבר קטגוריה</p>
+                            <p class="text-gray-200 serif-font text-base leading-relaxed">${escapeHtml(categoryInfo.description || 'לא זמין')}</p>
+                          </div>
+                        `
+                        : `<p class="text-gray-300 serif-font text-base leading-relaxed">אין כרגע מידע קטגוריה זמין עבור הקלף הזה.</p>`)
+                      : contentRows}
+                  </div>
                 ` : `
                   <div class="h-full flex flex-col items-center justify-center text-center">
                     <p class="text-[0.68rem] font-mono tracking-[0.2em] text-amber-200/85 mb-2">מבנה הדפוס</p>
@@ -830,6 +832,12 @@
     function setTranceTheme(theme) {
       AppState.tranceView.currentTheme = String(theme || '').trim();
       AppState.tranceView.flipped = true;
+      AppState.tranceView.backMode = 'examples';
+      renderTrancePlayer(false);
+    }
+    function setTranceBackMode(mode) {
+      AppState.tranceView.backMode = mode === 'category' ? 'category' : 'examples';
+      AppState.tranceView.flipped = true;
       renderTrancePlayer(false);
     }
     function nextTranceCard() {
@@ -837,6 +845,7 @@
       if (!total) return;
       AppState.tranceView.index = (Number(AppState.tranceView.index || 0) + 1) % total;
       AppState.tranceView.flipped = false;
+      AppState.tranceView.backMode = 'examples';
       const card = getTranceCurrentCard();
       const themes = getTranceCurrentThemeOptions(card);
       if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
@@ -848,6 +857,7 @@
       const i = Number(AppState.tranceView.index || 0) - 1;
       AppState.tranceView.index = i < 0 ? total - 1 : i;
       AppState.tranceView.flipped = false;
+      AppState.tranceView.backMode = 'examples';
       const card = getTranceCurrentCard();
       const themes = getTranceCurrentThemeOptions(card);
       if (themes.length && !themes.includes(AppState.tranceView.currentTheme)) AppState.tranceView.currentTheme = themes[0];
@@ -2177,7 +2187,7 @@
       return blocks.join('\n\n');
     }
     async function preloadShellEssentials() {
-      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_MANIFEST_PATHS, ...TRANCE_LEGACY_HTML_PATHS];
+      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_MANIFEST_PATHS];
       await Promise.allSettled(
         paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
       );
