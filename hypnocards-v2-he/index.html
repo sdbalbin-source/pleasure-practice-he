@@ -60,6 +60,68 @@
     }
     .module-home-card h3 { letter-spacing: 0.01em; }
     .module-home-card p { max-width: 28ch; margin: 0.35rem auto 0; }
+    .trance-main-shell {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem 1rem 0.85rem;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(71, 24, 139, 0.2) 0 14%, transparent 15% 28%, rgba(71, 24, 139, 0.16) 29% 44%, transparent 45% 58%, rgba(71, 24, 139, 0.12) 59% 74%, transparent 75% 100%),
+        linear-gradient(180deg, rgba(7, 5, 14, 0.92) 0%, rgba(3, 2, 8, 0.95) 100%);
+      border-radius: 1rem;
+    }
+    .trance-main-card {
+      width: 100%;
+      border-radius: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      text-align: center;
+      padding: 1.2rem 1rem;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .trance-main-card:hover {
+      border-color: rgba(196, 136, 255, 0.46);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+      transform: translateY(-1px);
+    }
+    .trance-main-card-title {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      color: #f5ecff;
+      font-weight: 700;
+      line-height: 1.05;
+    }
+    .trance-main-card-note {
+      margin: 0.35rem auto 0;
+      max-width: 30ch;
+      color: rgba(227, 216, 245, 0.85);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      font-family: "Cormorant Garamond", serif;
+    }
+    .trance-about-btn {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(219, 192, 255, 0.22);
+      background: rgba(0, 0, 0, 0.28);
+      color: #e9d9ff;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1rem;
+      padding: 0.52rem 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .trance-about-btn:hover {
+      border-color: rgba(219, 192, 255, 0.38);
+      background: rgba(183, 134, 255, 0.12);
+    }
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(-360deg); }
@@ -527,6 +589,10 @@
             ארכיטיפים של עונג
           </button>
 
+          <button onclick="renderTranceLanguageHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-fuchsia-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-3 flex items-center justify-center shadow-lg shadow-fuchsia-900/20 serif-font text-center">
+            שפת הטראנס הארוטי
+          </button>
+
           <button onclick="renderKinkyScenePlannerHome()" class="w-full max-w-sm py-5 px-5 bg-white/10 border border-blue-300/20 rounded-2xl text-white text-xl font-bold hover:bg-white/20 transition-all mb-5 flex items-center justify-center shadow-lg shadow-purple-900/20 serif-font text-center">
             מצפן התשוקות
           </button>
@@ -546,6 +612,54 @@
         url.searchParams.delete('module');
         url.searchParams.delete('view');
         history.pushState({ screen: 'welcome' }, '', url.toString());
+      }
+    }
+    function tranceMainMenuPlaceholder(actionLabel) {
+      alert(`"${actionLabel}" יתחבר בשלב הבא. כרגע זהו תפריט ראשי בלבד.`);
+    }
+    function renderTranceLanguageHome(pushHistory = true) {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="trance-main-shell">
+          <div class="px-2 pt-2 pb-4 flex items-center justify-between">
+            <button onclick="renderWelcome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
+            <h2 class="text-2xl md:text-3xl font-semibold text-white serif-font text-center">שפת הטראנס הארוטי</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-start md:justify-center">
+            <div class="space-y-3">
+              <button onclick="tranceMainMenuPlaceholder('חפיסה בסיסית')" class="trance-main-card">
+                <h3 class="trance-main-card-title">חפיסה בסיסית</h3>
+                <p class="trance-main-card-note">חפיסה מאוזנת ללא נושאים מתקדמים (טריגרים, העמקות ועוד).</p>
+              </button>
+
+              <button onclick="tranceMainMenuPlaceholder('חפיסה מותאמת')" class="trance-main-card">
+                <h3 class="trance-main-card-title">חפיסה מותאמת</h3>
+                <p class="trance-main-card-note">בחירת קטגוריות ממוקדות לתרגול, למשל: טריגר וורדס או משכנעים.</p>
+              </button>
+
+              <button onclick="tranceMainMenuPlaceholder('ההקלטות שלי')" class="trance-main-card">
+                <h3 class="trance-main-card-title">ההקלטות שלי</h3>
+                <p class="trance-main-card-note">גישה מהירה להקלטות שמורות מתוך המודול.</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full max-w-4xl mx-auto pt-3">
+            <button onclick="tranceMainMenuPlaceholder('אודות שפת הטראנס הארוטי')" class="trance-about-btn">
+              <i data-lucide="info"></i>
+              <span>אודות שפת הטראנס הארוטי</span>
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      heShellSyncModuleQuery('hypno');
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', 'hypno');
+        history.pushState({ screen: 'hypno-home', module: 'hypno' }, '', url.toString());
       }
     }
     function showAbout() {
@@ -1751,10 +1865,8 @@
         return;
       }
       if (moduleName === 'hypno') {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('module');
-        history.replaceState({ screen: 'welcome' }, '', url.toString());
-        renderWelcome(false);
+        renderTranceLanguageHome(false);
+        history.replaceState({ screen: 'hypno-home', module: 'hypno' }, '', window.location.href);
         return;
       }
       renderWelcome(false);
@@ -1777,6 +1889,10 @@
           return;
         }
       }
+      if (state.module === 'hypno' || state.screen === 'hypno-home') {
+        renderTranceLanguageHome(false);
+        return;
+      }
       const params = new URLSearchParams(window.location.search);
       const moduleName = params.get('module');
       if (moduleName === 'planner') {
@@ -1788,7 +1904,7 @@
         return;
       }
       if (moduleName === 'hypno') {
-        renderWelcome(false);
+        renderTranceLanguageHome(false);
         return;
       }
       renderWelcome(false);
