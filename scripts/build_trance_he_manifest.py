@@ -139,6 +139,35 @@ def build_categories(cards: list[dict]) -> list[dict]:
     return [{"name": name, "color": color} for name, color in color_by_cat.items()]
 
 
+def build_highlight_tokens(pattern: str) -> list[str]:
+    text = normalize_text(pattern)
+    text = re.sub(r"[.,/#!$%^&*;:{}=\-_`~()?\"'<>[\]\\|+]+", " ", text)
+    text = text.replace("…", " ")
+    text = normalize_text(text)
+    if not text:
+        return []
+    skip = {"את", "של", "עם", "על", "עוד", "לא", "היא", "זה", "איך", "מה", "אם"}
+    tokens: list[str] = []
+    for token in text.split(" "):
+        token = token.strip()
+        if len(token) < 3 or token in skip:
+            continue
+        if token not in tokens:
+            tokens.append(token)
+        if len(tokens) >= 5:
+            break
+    return tokens
+
+
+def enrich_cards_with_highlights(cards: list[dict]) -> list[dict]:
+    enriched: list[dict] = []
+    for card in cards:
+        c = dict(card)
+        c["highlight_tokens"] = build_highlight_tokens(str(c.get("pattern", "")))
+        enriched.append(c)
+    return enriched
+
+
 def extract_legacy_meta() -> dict:
     source_html = resolve_first_existing(SOURCE_HTML_CANDIDATES)
     if not source_html:
@@ -214,7 +243,7 @@ def main() -> None:
         categories = legacy_categories if legacy_categories else build_categories(cards)
 
     manifest = {
-        "cards": cards,
+        "cards": enrich_cards_with_highlights(cards),
         "categories": categories,
         "category_info": legacy_category_info,
     }

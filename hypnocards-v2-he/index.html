@@ -606,7 +606,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-25-he-trance-highlight-center-v16';
+    const SW_BUILD = '2026-04-25-he-trance-fixed-highlights-v17';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -785,23 +785,23 @@
       const value = activeTheme ? vars[activeTheme] : [];
       return Array.isArray(value) ? value : [String(value || '')];
     }
-    function getTrancePatternTokens(pattern) {
-      const text = String(pattern || '')
+    function getTrancePatternTokens(card) {
+      const fromManifest = Array.isArray(card && card.highlight_tokens) ? card.highlight_tokens : [];
+      if (fromManifest.length) return fromManifest.map(x => String(x || '').trim()).filter(Boolean);
+      const pattern = String((card && card.pattern) || '');
+      const text = pattern
         .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'<>[\]\\|+]+/g, ' ')
         .replace(/\u2026/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
       if (!text) return [];
       const skip = new Set(['את', 'של', 'עם', 'על', 'עוד', 'לא', 'היא', 'זה', 'איך', 'מה', 'אם']);
-      const tokens = text
-        .split(' ')
-        .map(t => t.trim())
-        .filter(t => t.length >= 3 && !skip.has(t));
+      const tokens = text.split(' ').map(t => t.trim()).filter(t => t.length >= 3 && !skip.has(t));
       return Array.from(new Set(tokens)).slice(0, 5);
     }
-    function highlightTrancePatternInLine(line, pattern) {
+    function highlightTrancePatternInLine(line, card) {
       const escaped = escapeHtml(String(line || ''));
-      const tokens = getTrancePatternTokens(pattern);
+      const tokens = getTrancePatternTokens(card);
       if (!tokens.length) return escaped;
       let out = escaped;
       for (const token of tokens) {
@@ -937,7 +937,7 @@
       const examples = getTranceCardContent(card, AppState.tranceView.currentTheme);
       const categoryInfo = getTranceCategoryInfo(card);
       const contentHtml = examples
-        .map((line, idx) => `<p class="text-gray-200 serif-font text-[1.65rem] leading-relaxed">${highlightTrancePatternInLine(line, card.pattern || '')}</p>${idx < examples.length - 1 ? '<span class="trance-example-divider"></span>' : ''}`)
+        .map((line, idx) => `<p class="text-gray-200 serif-font text-[1.65rem] leading-relaxed">${highlightTrancePatternInLine(line, card)}</p>${idx < examples.length - 1 ? '<span class="trance-example-divider"></span>' : ''}`)
         .join('');
       const patternEl = document.getElementById('tranceCardPattern');
       const contentEl = document.getElementById('tranceCardContentText');
