@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-archetype-image-preload-v48';
+    const SW_BUILD = '2026-04-26-he-archetypes-webp-assets-v49';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -801,10 +801,11 @@
       if (!raw) return '';
       if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/')) return raw;
       const clean = raw.replace(/^\.\//, '');
-      if (clean.startsWith('archetypes-he/')) return `./${clean}`;
-      if (clean.startsWith('images/')) return `./archetypes-he/${clean}`;
+      const toWebp = p => p.replace(/\.png$/i, '.webp');
+      if (clean.startsWith('archetypes-he/')) return `./${toWebp(clean)}`;
+      if (clean.startsWith('images/')) return `./archetypes-he/${toWebp(clean)}`;
       const fileName = clean.split('/').pop();
-      return fileName ? `./archetypes-he/images/${fileName}` : '';
+      return fileName ? `./archetypes-he/images/${toWebp(fileName)}` : '';
     }
     function warmArchetypeImage(url) {
       const src = String(url || '').trim();
