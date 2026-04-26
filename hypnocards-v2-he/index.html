@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-planner-about-fullcopy-v45';
+    const SW_BUILD = '2026-04-26-he-planner-about-icons-v46';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1800,6 +1800,7 @@
           </div>
         </div>
       `;
+      lucide.createIcons();
       await runDiagnostics(false);
     }
     function renderArchetypesHome(pushHistory = true) {
@@ -2454,6 +2455,7 @@
           </div>
         </div>
       `;
+      lucide.createIcons();
       heShellSyncModuleQuery('planner');
       if (pushHistory) pushPlannerHistory('planner-home');
     }
@@ -2533,6 +2535,7 @@
           </div>
         </div>
       `;
+      lucide.createIcons();
       heShellSyncModuleQuery('planner');
       if (pushHistory) pushPlannerHistory('planner-about');
     }
@@ -2581,6 +2584,7 @@
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
         </div>
       `;
+      lucide.createIcons();
       heShellSyncModuleQuery('planner');
       if (pushHistory) pushPlannerHistory('planner-sessions');
     }
@@ -2725,6 +2729,7 @@
       if (backBtn) {
         backBtn.addEventListener('click', () => requestPlannerSaveThenReturn(returnTo === 'sessions' ? 'sessions' : 'home'));
       }
+      lucide.createIcons();
       heShellSyncModuleQuery('planner');
       if (pushHistory) {
         pushPlannerHistory('planner-embed', {
