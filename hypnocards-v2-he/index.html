@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-archetypes-webp-assets-v51';
+    const SW_BUILD = '2026-04-26-he-archetypes-webp-assets-v52';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1664,20 +1664,46 @@
         : '';
       return `${paragraphs}${bullets}${numbered}${methods}`;
     }
+    function tranceHexToRgba(hex, alpha) {
+      const value = String(hex || '').trim().replace('#', '');
+      if (!/^[0-9a-fA-F]{6}$/.test(value)) return `rgba(183, 134, 255, ${alpha})`;
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    function getTranceAboutCategoryColor(cat) {
+      const fallback = '#B786FF';
+      const fromIndex = (TRANCE_DATA && Array.isArray(TRANCE_DATA.categories) && Number(cat?.number) > 0)
+        ? TRANCE_DATA.categories[Number(cat.number) - 1]
+        : null;
+      if (fromIndex && typeof fromIndex.color === 'string' && fromIndex.color.trim()) return fromIndex.color.trim();
+      const normalized = String(cat?.name_he || '').replace(/\s+/g, '').replace('הדמיון', 'הדימיון').trim();
+      const fromName = (TRANCE_DATA && Array.isArray(TRANCE_DATA.categories))
+        ? TRANCE_DATA.categories.find(item => String(item?.name || '').replace(/\s+/g, '').trim() === normalized)
+        : null;
+      if (fromName && typeof fromName.color === 'string' && fromName.color.trim()) return fromName.color.trim();
+      return fallback;
+    }
     function tranceCategoryToHtml(cat) {
       const examples = Array.isArray(cat.examples) ? cat.examples : [];
       const tips = Array.isArray(cat.practitioner_tips) ? cat.practitioner_tips : [];
       const adv = String(cat.advanced_note || '').trim();
+      const accent = getTranceAboutCategoryColor(cat);
+      const borderTone = tranceHexToRgba(accent, 0.32);
+      const bgTone = tranceHexToRgba(accent, 0.09);
+      const chipBorder = tranceHexToRgba(accent, 0.38);
+      const chipBg = tranceHexToRgba(accent, 0.13);
       return `
-        <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
+        <details class="rounded-2xl border bg-black/30 p-4" style="border-color:${borderTone}; background:${bgTone};">
           <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl">
-            <span>${escapeHtml(String(cat.number || ''))}. ${escapeHtml(cat.name_he || '')}</span>
+            <span style="color:${accent};">${escapeHtml(String(cat.number || ''))}. ${escapeHtml(cat.name_he || '')}</span>
             <span class="about-accordion-sign">+</span>
           </summary>
           <div class="space-y-4 mt-4">
-            <div class="rounded-xl border border-purple-400/20 bg-purple-900/10 p-3">
-              <p class="text-[0.72rem] font-mono text-purple-200 tracking-[0.18em] mb-1">PATTERN STRUCTURE</p>
-              <p class="text-purple-100 serif-font text-base">${escapeHtml(cat.pattern_structure || '')}</p>
+            <div class="rounded-xl border p-3" style="border-color:${chipBorder}; background:${chipBg};">
+              <p class="text-[0.72rem] font-mono tracking-[0.18em] mb-1" style="color:${accent};">PATTERN STRUCTURE</p>
+              <p class="serif-font text-base" style="color:${accent};">${escapeHtml(cat.pattern_structure || '')}</p>
             </div>
             <div>
               <p class="text-amber-200 font-bold serif-font mb-1">מה זה</p>
@@ -1752,6 +1778,7 @@
         alert('לא ניתן לטעון את תוכן האודות כרגע. נסו שוב בעוד רגע.');
         return;
       }
+      await ensureTranceDataLoaded();
       const introSections = Array.isArray(TRANCE_ABOUT_DATA.intro_sections) ? TRANCE_ABOUT_DATA.intro_sections : [];
       const categories = Array.isArray(TRANCE_ABOUT_DATA.categories_section?.categories) ? TRANCE_ABOUT_DATA.categories_section.categories : [];
       const closingParagraphs = Array.isArray(TRANCE_ABOUT_DATA.closing_note?.paragraphs) ? TRANCE_ABOUT_DATA.closing_note.paragraphs : [];
