@@ -585,9 +585,10 @@
   <script>
     const ABOUT_TEMPLATE = `
         <div class="flex flex-col h-full bg-[#050408] md:max-w-[1240px] md:mx-auto md:w-full">
-          <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
+          <div class="p-6 pt-8 flex items-center justify-between">
+            <button onclick="renderWelcome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">אודות Pleasure Practice Studio</h2>
+            <div class="w-10"></div>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-6 no-scrollbar">
             <div class="bg-white/5 border border-purple-500/20 rounded-2xl p-5">
@@ -639,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-general-about-copy-v43';
+    const SW_BUILD = '2026-04-26-he-unified-back-buttons-v44';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -1786,7 +1787,7 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderWelcome()">חזרה →</button>
+            <button class="archetype-back-btn" onclick="renderWelcome()"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="screen-title">מצב מערכת</h2>
           </div>
           <div class="panel">
@@ -2432,7 +2433,7 @@
       app.innerHTML = `
         <div class="flex flex-col h-full p-6 bg-black/10">
           <div class="flex items-center justify-between mb-8 pt-4">
-            <button onclick="renderWelcome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full hover:bg-white/20 transition text-sm font-semibold">חזרה →</button>
+            <button onclick="renderWelcome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">מצפן התשוקות</h2>
             <div class="w-10"></div>
           </div>
@@ -2461,7 +2462,7 @@
       document.getElementById('app').innerHTML = `
         <div class="screen">
           <div class="back-row">
-            <button class="back-btn" onclick="renderPlannerHome()">חזרה →</button>
+            <button class="archetype-back-btn" onclick="renderPlannerHome()"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="screen-title">אודות מצפן התשוקות</h2>
           </div>
           <div class="panel">
@@ -2542,9 +2543,10 @@
            </div>`;
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-6 pt-8 flex items-center gap-4">
-            <button onclick="renderKinkyScenePlannerHome()" class="px-3 py-2 bg-white/15 border border-white/25 rounded-full text-sm font-semibold">חזרה →</button>
+          <div class="p-6 pt-8 flex items-center justify-between">
+            <button onclick="renderKinkyScenePlannerHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">${sessionsTitle}</h2>
+            <div class="w-10"></div>
           </div>
           <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-3 no-scrollbar">${rows}</div>
         </div>
@@ -2682,7 +2684,7 @@
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
           <div class="p-3 pt-4 md:p-4 md:pt-5 flex items-center justify-end">
-            <button id="plannerShellBackBtn" class="px-3 py-2 bg-white/20 border border-white/35 rounded-full hover:bg-white/30 transition text-sm font-semibold">חזרה →</button>
+            <button id="plannerShellBackBtn" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
           </div>
           <div class="flex-1 min-h-0 px-2 pb-3 md:px-6 md:pb-6">
             <iframe id="plannerFrame" src="${plannerSrc}" title="מצפן התשוקות" class="w-full h-full rounded-2xl border border-white/15 bg-black" loading="eager" allow="web-share" referrerpolicy="no-referrer"></iframe>
