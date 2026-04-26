@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-planner-about-icons-v46';
+    const SW_BUILD = '2026-04-26-he-clear-data-full-keys-v47';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -2890,7 +2890,14 @@
       window.location.replace(next);
     }
     function clearData() {
-      const keys = ['planner_sessions_v1', 'he_favorites_v4', 'he_recordings_v4'];
+      const keys = [
+        PLANNER_SESSIONS_KEY,
+        ARCHETYPE_FAVORITES_KEY,
+        ARCHETYPE_DECK_KEYS_KEY,
+        TRANCE_FAVORITES_KEY,
+        TRANCE_RECORDINGS_KEY,
+        'he_favorites_v4'
+      ];
       keys.forEach(k => localStorage.removeItem(k));
       alert('כל הנתונים המקומיים נמחקו מהאפליקציה.');
       renderWelcome();
