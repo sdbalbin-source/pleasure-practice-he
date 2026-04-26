@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-clear-data-full-keys-v47';
+    const SW_BUILD = '2026-04-26-he-archetype-image-preload-v48';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -690,6 +690,7 @@
     let diagnosticsCache = null;
     let plannerPendingReturnTo = null;
     let archetypeListTapState = null;
+    const archetypeImageWarmCache = new Set();
     let tranceMediaRecorder = null;
     let tranceMediaChunks = [];
     let tranceAudioStream = null;
@@ -804,6 +805,33 @@
       if (clean.startsWith('images/')) return `./archetypes-he/${clean}`;
       const fileName = clean.split('/').pop();
       return fileName ? `./archetypes-he/images/${fileName}` : '';
+    }
+    function warmArchetypeImage(url) {
+      const src = String(url || '').trim();
+      if (!src || archetypeImageWarmCache.has(src)) return;
+      archetypeImageWarmCache.add(src);
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+    }
+    function warmArchetypeImagesForCards(cards, limit = 36) {
+      const list = Array.isArray(cards) ? cards : [];
+      const max = Math.max(0, Number(limit) || 0);
+      for (let i = 0; i < list.length && i < max; i += 1) {
+        const face = resolveArchetypeImageUrl(list[i] && list[i].image);
+        if (face) warmArchetypeImage(face);
+      }
+      warmArchetypeImage(ARCHETYPE_CARD_BACK);
+    }
+    function warmArchetypeNeighborImages(cardId) {
+      if (!Array.isArray(ARCHETYPES_DATA) || !ARCHETYPES_DATA.length) return;
+      const idx = ARCHETYPES_DATA.findIndex(c => String(c.id) === String(cardId));
+      if (idx < 0) return;
+      const pick = [idx, idx - 1, idx + 1].filter(i => i >= 0 && i < ARCHETYPES_DATA.length);
+      pick.forEach(i => {
+        const face = resolveArchetypeImageUrl(ARCHETYPES_DATA[i] && ARCHETYPES_DATA[i].image);
+        if (face) warmArchetypeImage(face);
+      });
     }
 
     function renderWelcome(pushHistory = true) {
@@ -1846,6 +1874,7 @@
           if (!Array.isArray(data) || data.length === 0) continue;
           ARCHETYPES_DATA = data;
           pruneArchetypeFavorites();
+          warmArchetypeImagesForCards(ARCHETYPES_DATA, 48);
           return true;
         } catch (_) {}
       }
@@ -1964,6 +1993,7 @@
         </div>
       `;
       lucide.createIcons();
+      warmArchetypeImagesForCards(ARCHETYPES_DATA, 72);
       heShellSyncModuleQuery('archetypes');
       if (pushHistory) pushArchetypesHistory('archetypes-list');
     }
@@ -2216,6 +2246,8 @@
       const backNav = fromView === 'all' ? 'renderArchetypesList()' : fromView === 'custom' ? 'renderArchetypeDeckBuilder()' : 'renderArchetypesHome()';
       const resolvedFaceImage = resolveArchetypeImageUrl(card.image);
       const useFaceImage = Boolean(resolvedFaceImage);
+      if (useFaceImage) warmArchetypeImage(resolvedFaceImage);
+      warmArchetypeNeighborImages(card.id);
       const frontBgUrl = (useFaceImage ? resolvedFaceImage : ARCHETYPE_CARD_BACK).replace(/'/g, "\\'");
       const practiceForBook = archetypePracticeWithoutDuplicateQuestion(card.practice, card.question);
       const reshuffleBtn = fromView === 'random' ? `<button type="button" onclick="reshuffleArchetypeDraw()" class="w-full max-w-sm mx-auto mt-3 py-3 rounded-2xl border border-amber-500/35 bg-gradient-to-b from-amber-950/40 to-black/40 text-amber-100 text-sm font-mono tracking-wide flex items-center justify-center gap-2 touch-manipulation hover:border-amber-400/50 transition-colors"><i data-lucide="shuffle"></i> ערבוב נוסף</button>` : '';
