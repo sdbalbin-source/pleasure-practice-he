@@ -1669,9 +1669,12 @@
       const tips = Array.isArray(cat.practitioner_tips) ? cat.practitioner_tips : [];
       const adv = String(cat.advanced_note || '').trim();
       return `
-        <details class="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl">
-            <span>${escapeHtml(String(cat.number || ''))}. ${escapeHtml(cat.name_he || '')}</span>
+        <details class="rounded-2xl border border-white/10 bg-black/25 p-4">
+          <summary class="about-accordion-summary cursor-pointer list-none">
+            <span class="flex flex-col items-start gap-0.5">
+              <span class="text-[0.72rem] uppercase tracking-[0.24em] text-slate-300/85 font-mono">קטגוריה ${escapeHtml(String(cat.number || ''))}</span>
+              <span class="text-white font-semibold serif-font text-[1.95rem] leading-[1.18]">${escapeHtml(cat.name_he || '')}</span>
+            </span>
             <span class="about-accordion-sign">+</span>
           </summary>
           <div class="space-y-4 mt-4">
@@ -1752,48 +1755,23 @@
         alert('לא ניתן לטעון את תוכן האודות כרגע. נסו שוב בעוד רגע.');
         return;
       }
-      const introSections = Array.isArray(TRANCE_ABOUT_DATA.intro_sections) ? TRANCE_ABOUT_DATA.intro_sections : [];
       const categories = Array.isArray(TRANCE_ABOUT_DATA.categories_section?.categories) ? TRANCE_ABOUT_DATA.categories_section.categories : [];
       const closingParagraphs = Array.isArray(TRANCE_ABOUT_DATA.closing_note?.paragraphs) ? TRANCE_ABOUT_DATA.closing_note.paragraphs : [];
       const links = Array.isArray(TRANCE_ABOUT_DATA.closing_note?.links) ? TRANCE_ABOUT_DATA.closing_note.links : [];
-      const introHtml = introSections.map((section, idx) => `
-        <details ${idx === 0 ? 'open' : ''} class="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <summary class="about-accordion-summary cursor-pointer list-none text-white font-bold serif-font text-xl">
-            <span>${escapeHtml(section.title || '')}</span>
-            <span class="about-accordion-sign">+</span>
-          </summary>
-          <div class="space-y-3 mt-4">
-            ${tranceSectionBodyToHtml(section)}
-          </div>
-        </details>
-      `).join('');
-      const coreHtml = categories.filter(c => Number(c.number) >= 1 && Number(c.number) <= 13).map(tranceCategoryToHtml).join('');
-      const advancedHtml = categories.filter(c => Number(c.number) >= 14).map(tranceCategoryToHtml).join('');
+      const categoriesHtml = categories.map(tranceCategoryToHtml).join('');
       const app = document.getElementById('app');
       app.innerHTML = `
         <div class="flex flex-col h-full bg-[#050408]">
-          <div class="p-6 pt-8 flex items-center gap-4">
+          <div class="px-5 pt-7 pb-2 flex items-center gap-4">
             <button onclick="renderTranceLanguageHome()" class="archetype-back-btn"><i data-lucide="arrow-right"></i><span>חזרה</span></button>
             <h2 class="text-2xl font-bold text-white serif-font">אודות שפת הטראנס הארוטי</h2>
           </div>
-          <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-4 no-scrollbar">
-            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-5">
-              <h3 class="text-fuchsia-300 font-bold text-lg serif-font mb-2">${escapeHtml(TRANCE_ABOUT_DATA.meta?.title || 'שפת הטראנס הארוטי')}</h3>
-              <p class="text-gray-300 serif-font text-sm leading-relaxed">מדריך עבודה מובנה לתרגול שפת טראנס ארוטי: עקרונות, אתיקה, שיטות תרגול וקטגוריות דפוסים.</p>
+          <div class="flex-1 overflow-y-auto px-4 pb-10 no-scrollbar">
+            <div class="mx-auto w-full max-w-3xl bg-[#0d0b17]/90 border border-white/10 rounded-[1.35rem] p-3 sm:p-4">
+              <h3 class="text-fuchsia-100 font-semibold text-[1.95rem] leading-tight serif-font mb-3">קטגוריות דפוסי השפה</h3>
+              <div class="space-y-3">${categoriesHtml}</div>
             </div>
-            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
-              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">יסודות ותרגול</h3>
-              <div class="space-y-3 mt-2">${introHtml}</div>
-            </div>
-            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
-              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">קטגוריות Core (1-13)</h3>
-              <div class="space-y-3 mt-2">${coreHtml}</div>
-            </div>
-            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-3">
-              <h3 class="text-fuchsia-300 font-bold text-lg serif-font px-2 py-1">קטגוריות Advanced (14-17)</h3>
-              <div class="space-y-3 mt-2">${advancedHtml}</div>
-            </div>
-            <div class="bg-white/5 border border-fuchsia-500/20 rounded-2xl p-5">
+            <div class="mx-auto w-full max-w-3xl mt-4 bg-white/5 border border-fuchsia-500/20 rounded-2xl p-5">
               <h3 class="text-fuchsia-300 font-bold text-lg serif-font mb-2">${escapeHtml(TRANCE_ABOUT_DATA.closing_note?.title || 'סיכום והמשך תרגול')}</h3>
               <div class="space-y-3 text-gray-300 serif-font text-base leading-relaxed">
                 ${closingParagraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
