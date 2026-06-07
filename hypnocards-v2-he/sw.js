@@ -1,9 +1,14 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v69';
+const CACHE = 'pleasure-he-v71';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './archetypes-he/archetypes-he-manifest.json',
+  './archetypes_he_data.json',
+  './archetypes-he/archetype-card-back.webp',
+  './trance-he/trance-he-manifest.json',
+  './trance-he/about-copy-he.json',
   './מצפן התשוקות/index.html',
   './מצפן התשוקות/style.css',
   './מצפן התשוקות/script.js',

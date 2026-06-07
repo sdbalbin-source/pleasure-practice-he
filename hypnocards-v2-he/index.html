@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-04-26-he-archetypes-webp-assets-v53';
+    const SW_BUILD = '2026-04-26-he-card-packages-v55';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -651,9 +651,13 @@
     const ARCHETYPE_CARD_BACK = './archetypes-he/archetype-card-back.webp';
     const ARCHETYPE_MANIFEST_PATHS = [
       './archetypes-he/archetypes-he-manifest.json',
+      './archetypes_he_data.json',
       './hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json',
+      './hypnocards-v2-he/archetypes_he_data.json',
       'archetypes-he/archetypes-he-manifest.json',
-      'hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json'
+      'archetypes_he_data.json',
+      'hypnocards-v2-he/archetypes-he/archetypes-he-manifest.json',
+      'hypnocards-v2-he/archetypes_he_data.json'
     ];
     const TRANCE_ABOUT_PATHS = [
       './trance-he/about-copy-he.json',
@@ -664,8 +668,8 @@
     const TRANCE_MANIFEST_PATHS = [
       './trance-he/trance-he-manifest.json',
       './hypnocards-v2-he/trance-he/trance-he-manifest.json',
-      '/cards_data.json',
-      '../cards_data.json'
+      'trance-he/trance-he-manifest.json',
+      'hypnocards-v2-he/trance-he/trance-he-manifest.json'
     ];
     const ARCHETYPE_ARC_APPROVAL_MODE = false;
     let ARCHETYPES_DATA = [];
@@ -796,6 +800,57 @@
       } catch (_) {}
     }
 
+    function resolveShellDataPath(path) {
+      const raw = String(path || '').trim();
+      if (!raw) return raw;
+      if (/^(https?:)?\/\//i.test(raw)) return raw;
+      try {
+        return new URL(raw, window.location.href).href;
+      } catch (_) {
+        return raw;
+      }
+    }
+
+    function normalizeArchetypeCardsPayload(data) {
+      const raw = Array.isArray(data)
+        ? data
+        : (data && Array.isArray(data.cards) ? data.cards : []);
+      if (!raw.length) return [];
+      return raw.map(card => ({
+        ...card,
+        energy: card.energy || card.frequency || ''
+      }));
+    }
+
+    function normalizeTranceDataPayload(data) {
+      if (data && Array.isArray(data.cards) && data.cards.length) {
+        return {
+          cards: data.cards,
+          categories: Array.isArray(data.categories) ? data.categories : [],
+          category_info: data.category_info && typeof data.category_info === 'object' ? data.category_info : {}
+        };
+      }
+      if (Array.isArray(data) && data.length) {
+        return { cards: data, categories: [], category_info: {} };
+      }
+      return null;
+    }
+
+    async function fetchShellJson(path) {
+      try {
+        const res = await fetch(resolveShellDataPath(path), { cache: 'no-store' });
+        if (!res.ok) return null;
+        const contentType = String(res.headers.get('content-type') || '').toLowerCase();
+        if (contentType.includes('text/html')) return null;
+        const text = await res.text();
+        const trimmed = text.trim();
+        if (!trimmed || (trimmed[0] !== '{' && trimmed[0] !== '[')) return null;
+        return JSON.parse(trimmed);
+      } catch (_) {
+        return null;
+      }
+    }
+
     function resolveArchetypeImageUrl(imagePath) {
       const raw = String(imagePath || '').trim();
       if (!raw) return '';
@@ -879,34 +934,24 @@
     async function ensureTranceAboutLoaded() {
       if (TRANCE_ABOUT_DATA) return true;
       for (const path of TRANCE_ABOUT_PATHS) {
-        try {
-          const res = await fetch(path, { cache: 'no-store' });
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (!data || !Array.isArray(data.intro_sections) || !data.categories_section) continue;
-          TRANCE_ABOUT_DATA = data;
-          return true;
-        } catch (_) {}
+        const data = await fetchShellJson(path);
+        if (!data || !Array.isArray(data.intro_sections) || !data.categories_section) continue;
+        TRANCE_ABOUT_DATA = data;
+        return true;
       }
       return false;
     }
     async function ensureTranceDataLoaded() {
       if (TRANCE_DATA && Array.isArray(TRANCE_DATA.cards) && TRANCE_DATA.cards.length) return true;
       for (const path of TRANCE_MANIFEST_PATHS) {
-        try {
-          const res = await fetch(path, { cache: 'no-store' });
-          if (!res.ok) continue;
-          const data = await res.json();
-          const normalized = (data && Array.isArray(data.cards))
-            ? data
-            : (Array.isArray(data) ? { cards: data } : null);
-          if (!normalized || !Array.isArray(normalized.cards) || normalized.cards.length === 0) continue;
-          TRANCE_DATA = normalized;
-          const validIds = new Set(normalized.cards.map(c => String(c.id)));
-          AppState.tranceFavorites = (AppState.tranceFavorites || []).filter(id => validIds.has(String(id)));
-          try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
-          return true;
-        } catch (_) {}
+        const data = await fetchShellJson(path);
+        const normalized = normalizeTranceDataPayload(data);
+        if (!normalized || !normalized.cards.length) continue;
+        TRANCE_DATA = normalized;
+        const validIds = new Set(normalized.cards.map(c => String(c.id)));
+        AppState.tranceFavorites = (AppState.tranceFavorites || []).filter(id => validIds.has(String(id)));
+        try { localStorage.setItem(TRANCE_FAVORITES_KEY, JSON.stringify(AppState.tranceFavorites)); } catch (_) {}
+        return true;
       }
       return false;
     }
@@ -1768,6 +1813,8 @@
       `;
       lucide.createIcons();
       heShellSyncModuleQuery('hypno');
+      ensureTranceDataLoaded().catch(() => {});
+      ensureTranceAboutLoaded().catch(() => {});
       if (pushHistory) {
         const url = new URL(window.location.href);
         url.searchParams.set('module', 'hypno');
@@ -1893,20 +1940,18 @@
       lucide.createIcons();
       heShellSyncModuleQuery('archetypes');
       if (pushHistory) pushArchetypesHistory('archetypes-home');
+      ensureArchetypesDataLoaded().catch(() => {});
     }
     async function ensureArchetypesDataLoaded() {
       if (ARCHETYPES_DATA.length) return true;
       for (const path of ARCHETYPE_MANIFEST_PATHS) {
-        try {
-          const res = await fetch(path, { cache: 'no-store' });
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (!Array.isArray(data) || data.length === 0) continue;
-          ARCHETYPES_DATA = data;
-          pruneArchetypeFavorites();
-          warmArchetypeImagesForCards(ARCHETYPES_DATA, 48);
-          return true;
-        } catch (_) {}
+        const data = await fetchShellJson(path);
+        const cards = normalizeArchetypeCardsPayload(data);
+        if (!cards.length) continue;
+        ARCHETYPES_DATA = cards;
+        pruneArchetypeFavorites();
+        warmArchetypeImagesForCards(ARCHETYPES_DATA, 48);
+        return true;
       }
       return false;
     }
@@ -2951,6 +2996,71 @@
       const next = `${window.location.pathname}?refresh=${Date.now()}`;
       window.location.replace(next);
     }
+    async function probeCardPackageHealth() {
+      const probes = [];
+
+      let archetypesCount = 0;
+      let archetypesPath = ARCHETYPE_MANIFEST_PATHS[0];
+      for (const path of ARCHETYPE_MANIFEST_PATHS) {
+        const data = await fetchShellJson(path);
+        const cards = normalizeArchetypeCardsPayload(data);
+        if (cards.length) {
+          archetypesCount = cards.length;
+          archetypesPath = path;
+          break;
+        }
+      }
+      probes.push({
+        id: 'archetypes-cards',
+        name: 'ארכיטיפים — חבילת קלפים',
+        path: archetypesPath,
+        ok: archetypesCount > 0,
+        status: archetypesCount > 0 ? 200 : 0,
+        note: archetypesCount > 0 ? `${archetypesCount} קלפים זמינים` : 'לא נמצא JSON תקין'
+      });
+
+      let tranceCount = 0;
+      let trancePath = TRANCE_MANIFEST_PATHS[0];
+      for (const path of TRANCE_MANIFEST_PATHS) {
+        const data = await fetchShellJson(path);
+        const normalized = normalizeTranceDataPayload(data);
+        if (normalized && normalized.cards.length) {
+          tranceCount = normalized.cards.length;
+          trancePath = path;
+          break;
+        }
+      }
+      probes.push({
+        id: 'trance-cards',
+        name: 'טראנס — חבילת קלפים',
+        path: trancePath,
+        ok: tranceCount > 0,
+        status: tranceCount > 0 ? 200 : 0,
+        note: tranceCount > 0 ? `${tranceCount} קלפים זמינים` : 'לא נמצא JSON תקין'
+      });
+
+      let tranceAboutOk = false;
+      let tranceAboutPath = TRANCE_ABOUT_PATHS[0];
+      for (const path of TRANCE_ABOUT_PATHS) {
+        const data = await fetchShellJson(path);
+        if (data && Array.isArray(data.intro_sections) && data.categories_section) {
+          tranceAboutOk = true;
+          tranceAboutPath = path;
+          break;
+        }
+      }
+      probes.push({
+        id: 'trance-about',
+        name: 'טראנס — תוכן אודות',
+        path: tranceAboutPath,
+        ok: tranceAboutOk,
+        status: tranceAboutOk ? 200 : 0,
+        note: tranceAboutOk ? 'תוכן אודות זמין' : 'לא נמצא JSON תקין'
+      });
+
+      return probes;
+    }
+
     async function runDiagnostics(forceRefresh) {
       if (diagnosticsCache && !forceRefresh) {
         renderDiagnosticsResult(diagnosticsCache);
@@ -2961,14 +3071,15 @@
       );
       const checks = await Promise.all(scopedChecks.map(async item => {
         try {
-          const res = await fetch(item.path, { cache: 'no-store' });
+          const res = await fetch(resolveShellDataPath(item.path), { cache: 'no-store' });
           return { ...item, ok: res.ok, status: res.status, note: res.ok ? 'זמין' : `HTTP ${res.status}` };
         } catch {
           return { ...item, ok: false, status: 0, note: 'לא נגיש (network/error)' };
         }
       }));
+      const cardChecks = await probeCardPackageHealth();
       diagnosticsCache = {
-        checks,
+        checks: [...checks, ...cardChecks],
         online: navigator.onLine,
         checkedAt: new Date().toLocaleTimeString('he-IL')
       };
@@ -3037,7 +3148,7 @@
     async function preloadShellEssentials() {
       const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_MANIFEST_PATHS];
       await Promise.allSettled(
-        paths.map(path => fetch(path, { cache: 'no-store' }).catch(() => null))
+        paths.map(path => fetchShellJson(path))
       );
     }
 
