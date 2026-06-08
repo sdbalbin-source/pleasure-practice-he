@@ -495,8 +495,13 @@
     .archetype-perspective { perspective: 1100px; }
     .archetype-flip-inner { position: relative; width: 100%; aspect-ratio: 2 / 3; max-height: min(68vh, 520px); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 0.5rem; }
     .archetype-flip-inner.is-flipped { transform: rotateY(180deg); }
-    .archetype-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(0deg) translateZ(0); border-radius: 0.5rem; overflow: hidden; }
-    .archetype-face-back { transform: rotateY(180deg) translateZ(1px); background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%); border: 1px solid rgba(201, 169, 110, 0.28); box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45); direction: rtl; text-align: center; }
+    .archetype-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(0deg) translateZ(0); border-radius: 0.5rem; overflow: hidden; opacity: 1; transition: opacity 0s linear 0.3s; }
+    .archetype-face-back { transform: rotateY(180deg) translateZ(1px); background: linear-gradient(165deg, #1f0f1c 0%, #0a060c 55%, #070408 100%); border: 1px solid rgba(201, 169, 110, 0.28); box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45); direction: rtl; text-align: center; opacity: 0; }
+    /* Robust face visibility: do not rely on backface-visibility (unreliable on
+       mobile WebKit with overflow:hidden in a 3D context). The front (image) shows
+       when idle; faces swap at the flip midpoint so the animation still reads. */
+    .archetype-flip-inner.is-flipped .archetype-face { opacity: 0; }
+    .archetype-flip-inner.is-flipped .archetype-face-back { opacity: 1; }
     .archetype-booklet-scroll { direction: rtl; text-align: center; }
     .archetype-prose-p {
       font-family: "Assistant", "Segoe UI", sans-serif;
@@ -640,7 +645,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-06-08-he-mobile-dataload-fix-v57';
+    const SW_BUILD = '2026-06-08-he-archetype-flip-fix-v58';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
