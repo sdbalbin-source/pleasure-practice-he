@@ -640,7 +640,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-06-07-he-archetype-rewrite-v56';
+    const SW_BUILD = '2026-06-08-he-mobile-dataload-fix-v57';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -804,10 +804,19 @@
       const raw = String(path || '').trim();
       if (!raw) return raw;
       if (/^(https?:)?\/\//i.test(raw)) return raw;
+      // Strip any stale installed-PWA subpath scope (e.g. /hypnocards-v2-he/) and the
+      // leading ./ so data always resolves against the deployed SITE ROOT, never the
+      // captured scope of an old install. On the live origin we pin to CANONICAL_ORIGIN;
+      // elsewhere (local/preview) we fall back to the current origin root.
+      const clean = raw.replace(/^\.?\//, '').replace(/^hypnocards-v2-he\//, '');
+      const onCanonicalHost = (function () {
+        try { return window.location.origin === CANONICAL_ORIGIN; } catch (_) { return false; }
+      })();
+      const base = onCanonicalHost ? `${CANONICAL_ORIGIN}/` : `${window.location.origin}/`;
       try {
-        return new URL(raw, window.location.href).href;
+        return new URL(clean, base).href;
       } catch (_) {
-        return raw;
+        try { return new URL(clean, window.location.href).href; } catch (_) { return raw; }
       }
     }
 
@@ -836,16 +845,25 @@
       return null;
     }
 
+    async function fetchShellJsonOnce(path) {
+      const res = await fetch(resolveShellDataPath(path), { cache: 'no-store' });
+      if (!res.ok) return null;
+      const contentType = String(res.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('text/html')) return null;
+      const text = await res.text();
+      const trimmed = text.trim();
+      if (!trimmed || (trimmed[0] !== '{' && trimmed[0] !== '[')) return null;
+      return JSON.parse(trimmed);
+    }
     async function fetchShellJson(path) {
       try {
-        const res = await fetch(resolveShellDataPath(path), { cache: 'no-store' });
-        if (!res.ok) return null;
-        const contentType = String(res.headers.get('content-type') || '').toLowerCase();
-        if (contentType.includes('text/html')) return null;
-        const text = await res.text();
-        const trimmed = text.trim();
-        if (!trimmed || (trimmed[0] !== '{' && trimmed[0] !== '[')) return null;
-        return JSON.parse(trimmed);
+        const first = await fetchShellJsonOnce(path);
+        if (first) return first;
+      } catch (_) {}
+      // One-time retry: a transient network blip or a poisoned-cache HTML hit can
+      // fail the first attempt; a second pass (network revalidated) usually recovers.
+      try {
+        return await fetchShellJsonOnce(path);
       } catch (_) {
         return null;
       }
@@ -2859,15 +2877,29 @@
         window.location.reload();
       });
 
+      // Tell a freshly-installed (waiting) SW to take over now, arming the one-shot
+      // reload flag first so the resulting controllerchange reloads exactly once.
+      const activateWaitingSw = worker => {
+        if (!worker) return;
+        try { sessionStorage.setItem('pps_reload_after_update', '1'); } catch (_) {}
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      };
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(SW_BUILD)}`, { updateViaCache: 'none' }).then(reg => {
           currentSwReg = reg;
+          // If an updated SW is already waiting at load time, adopt it immediately.
+          if (reg.waiting && navigator.serviceWorker.controller) {
+            activateWaitingSw(reg.waiting);
+          }
           reg.addEventListener('updatefound', () => {
             const installing = reg.installing;
             if (!installing) return;
             installing.addEventListener('statechange', () => {
+              // Only auto-activate when there is already a controller (i.e. this is an
+              // UPDATE, not the very first install) to avoid an unnecessary first-load reload.
               if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                alert('יש עדכון מוכן. אפשר ללחוץ "כפיית עדכון עכשיו" מתוך אודות כשתסיימו את הסשן הנוכחי.');
+                activateWaitingSw(reg.waiting || installing);
               }
             });
           });

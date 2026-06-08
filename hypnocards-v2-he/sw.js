@@ -1,5 +1,5 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v72';
+const CACHE = 'pleasure-he-v73';
 const ASSETS = [
   './',
   './index.html',
@@ -29,7 +29,10 @@ self.addEventListener('install', event => {
       );
     })
   );
-  self.skipWaiting();
+  // NOTE: intentionally NOT calling self.skipWaiting() here. Activation is driven
+  // by the page's SKIP_WAITING message, sent only AFTER it arms the one-shot
+  // reload flag — making the update→activate→reload sequence deterministic and
+  // avoiding a controllerchange race that could miss (or mis-fire) the reload.
 });
 
 self.addEventListener('message', event => {
@@ -70,18 +73,35 @@ self.addEventListener('fetch', event => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(event.request, { ignoreSearch: true }))
     );
     return;
   }
+  const looksJson = url.pathname.endsWith('.json');
   event.respondWith(
     fetch(event.request).then(response => {
       if (response && response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        const ct = String(response.headers.get('content-type') || '').toLowerCase();
+        const isHtml = ct.includes('text/html');
+        // Never cache an HTML SPA-fallback under a .json (data) URL — that is the
+        // cache-poisoning vector. Cache everything else as before.
+        if (!(looksJson && isHtml)) {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        }
       }
       return response;
-    }).catch(() => caches.match(event.request))
+    }).catch(() => {
+      // On network failure, only serve a cached response if it is NOT HTML masquerading
+      // as JSON. Otherwise let the data layer's fetch reject so it can retry.
+      return caches.match(event.request).then(cached => {
+        if (!cached) return cached;
+        if (!looksJson) return cached;
+        const ct = String(cached.headers.get('content-type') || '').toLowerCase();
+        if (ct.includes('text/html')) return Response.error();
+        return cached;
+      });
+    })
   );
 });
 
