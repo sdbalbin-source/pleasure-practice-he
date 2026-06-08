@@ -1,5 +1,5 @@
 ﻿const CACHE_PREFIX = 'pleasure-he-v';
-const CACHE = 'pleasure-he-v74';
+const CACHE = 'pleasure-he-v75';
 const ASSETS = [
   './',
   './index.html',
@@ -9,9 +9,6 @@ const ASSETS = [
   './archetypes-he/archetype-card-back.webp',
   './trance-he/trance-he-manifest.json',
   './trance-he/about-copy-he.json',
-  './מצפן התשוקות/index.html',
-  './מצפן התשוקות/style.css',
-  './מצפן התשוקות/script.js',
   './scene-planner-embed-he.html',
   './planner-he/index.html',
   './planner-he/style.css',

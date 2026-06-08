@@ -645,7 +645,7 @@
       { id: 'sw', name: 'Service Worker', path: './sw.js' },
       { id: 'planner', name: 'מודול מצפן תשוקות', path: './planner-he/index.html' }
     ];
-    const SW_BUILD = '2026-06-08-he-archetype-flip-fix-v58';
+    const SW_BUILD = '2026-06-08-he-flip-anim-cleanup-v59';
     const APP_CACHE_PREFIX = 'pleasure-he-v';
     const CANONICAL_ORIGIN = 'https://pleasure-practice-he.pages.dev';
     const PLANNER_SESSIONS_KEY = 'planner_sessions_v1';
@@ -2188,7 +2188,14 @@
 
     function toggleArchetypeFlip() {
       AppState.archetypeView.flipped = !AppState.archetypeView.flipped;
-      if (AppState.archetypeView.cardId) renderArchetypeCard(AppState.archetypeView.cardId, AppState.archetypeView.fromView, false);
+      // Animate by toggling the class on the LIVE element. Re-rendering would bake
+      // the final transform into a fresh node and skip the 0.65s flip transition.
+      const inner = document.querySelector('.archetype-flip-inner');
+      if (inner) {
+        inner.classList.toggle('is-flipped', AppState.archetypeView.flipped);
+      } else if (AppState.archetypeView.cardId) {
+        renderArchetypeCard(AppState.archetypeView.cardId, AppState.archetypeView.fromView, false);
+      }
     }
 
     function playArchetypeShuffleThen(callback) {
@@ -3183,7 +3190,10 @@
       return blocks.join('\n\n');
     }
     async function preloadShellEssentials() {
-      const paths = ['./planner-he/index.html', './scene-planner-embed-he.html', ...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_MANIFEST_PATHS];
+      // HTML shells (planner, embed) are precached by the service worker on install;
+      // only warm the JSON data here. Passing HTML to fetchShellJson would just be
+      // rejected (and now retried) for nothing.
+      const paths = [...ARCHETYPE_MANIFEST_PATHS, ...TRANCE_ABOUT_PATHS, ...TRANCE_MANIFEST_PATHS];
       await Promise.allSettled(
         paths.map(path => fetchShellJson(path))
       );
